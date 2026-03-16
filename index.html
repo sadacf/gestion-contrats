@@ -4169,9 +4169,15 @@ function ouvrirDossier(sousDossier, statut, dept) {
     toast('Aucun dossier renseigné pour cette installation', 'warning');
     return;
   }
-  // Utiliser le protocole opendir:// pour ouvrir l'Explorateur Windows directement
+  // Utiliser un lien <a> pour déclencher le protocole opendir://
+  // (window.open est bloqué par Chrome pour les protocoles personnalisés)
   const url = 'opendir://' + encodeURIComponent(chemin);
-  window.open(url, '_blank');
+  const a = document.createElement('a');
+  a.href = url;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => a.remove(), 100);
 }
 
 function testLienDossier() {
