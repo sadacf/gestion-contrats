@@ -1362,7 +1362,7 @@ function loadSheetJS(callback) {
             <option value="Administratif">Administratif</option>
           </select>
         </div>
-        <div id="techOrderList2" style="overflow-y:scroll;flex:1;padding:4px 0;min-height:0;max-height:100%"></div>
+        <div id="techOrderList2" style="overflow-y:scroll;overflow-x:hidden;flex:1;padding:4px 0;min-height:0"></div>
         <div style="padding:8px 12px;border-top:1px solid var(--line);display:flex;gap:6px;background:var(--bg)">
           <button class="tbtn" onclick="resetTechOrderInline()" style="font-size:10px;padding:3px 8px">↺ Ordre alpha</button>
           <button class="hbtn hbtn-success" onclick="saveTechOrderInline()" style="font-size:10px;padding:3px 10px">💾 Ordre</button>
@@ -1861,7 +1861,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/27-03-26-22:07';
+const APP_VERSION = 'V1/27-03-26-22:12';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4516,9 +4516,7 @@ function ouvrirDossier(sousDossier, statut, dept) {
     toast('Aucun dossier renseigné pour cette installation', 'warning');
     return;
   }
-  // Utiliser un lien <a> pour déclencher le protocole opendir://
-  // (window.open est bloqué par Chrome pour les protocoles personnalisés)
-  // Protocole localexplorer: pour ouvrir le dossier Windows (extension Local Explorer)
+  // Protocole localexplorer: — nécessite l'extension Local Explorer (Chrome/Firefox)
   const url = 'localexplorer:' + chemin;
   const a = document.createElement('a');
   a.href = url;
