@@ -1342,10 +1342,10 @@ function loadSheetJS(callback) {
       <h2>UTILISATEURS</h2>
       <button class="modal-close" onclick="closeModal('techFichesModal')">✕</button>
     </div>
-    <div class="modal-body" style="flex:1;overflow:hidden;padding:0;display:flex">
+    <div class="modal-body" style="flex:1;overflow:hidden;padding:0;display:flex;min-height:0">
 
       <!-- COLONNE GAUCHE : liste draggable -->
-      <div id="techFicheLeftCol" style="width:300px;min-width:300px;border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden;max-height:calc(90vh - 60px)">
+      <div id="techFicheLeftCol" style="width:300px;min-width:300px;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;overflow:hidden">
         <div style="padding:10px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:var(--bg)">
           <span style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase">UTILISATEURS <span id="techCount" style="background:#e2e8f0;border-radius:10px;padding:1px 7px;font-size:10px"></span></span>
           <button class="hbtn hbtn-success" onclick="openTechFicheForm()" style="padding:3px 10px;font-size:11px">+ Nouveau</button>
@@ -1861,7 +1861,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/27-03-26-21:45';
+const APP_VERSION = 'V1/27-03-26-21:57';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
