@@ -1,0 +1,23 @@
+{
+  "name": "Gestion Contrats APSAD",
+  "short_name": "Contrats APSAD",
+  "description": "Gestion des Contrats APSAD - ACF Incendie",
+  "start_url": "/gestion-contrats/",
+  "scope": "/gestion-contrats/",
+  "display": "standalone",
+  "background_color": "#0a2a5e",
+  "theme_color": "#0a2a5e",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
