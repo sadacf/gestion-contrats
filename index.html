@@ -1345,7 +1345,7 @@ function loadSheetJS(callback) {
     <div class="modal-body" style="flex:1;overflow:hidden;padding:0;display:flex;min-height:0">
 
       <!-- COLONNE GAUCHE : liste draggable -->
-      <div id="techFicheLeftCol" style="width:300px;min-width:300px;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;overflow:hidden">
+      <div id="techFicheLeftCol" style="width:300px;min-width:300px;border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden;height:100%">
         <div style="padding:10px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:var(--bg)">
           <span style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase">UTILISATEURS <span id="techCount" style="background:#e2e8f0;border-radius:10px;padding:1px 7px;font-size:10px"></span></span>
           <button class="hbtn hbtn-success" onclick="openTechFicheForm()" style="padding:3px 10px;font-size:11px">+ Nouveau</button>
@@ -1362,7 +1362,7 @@ function loadSheetJS(callback) {
             <option value="Administratif">Administratif</option>
           </select>
         </div>
-        <div id="techOrderList2" style="overflow-y:auto;flex:1;padding:4px 0"></div>
+        <div id="techOrderList2" style="overflow-y:scroll;flex:1;padding:4px 0;min-height:0;max-height:100%"></div>
         <div style="padding:8px 12px;border-top:1px solid var(--line);display:flex;gap:6px;background:var(--bg)">
           <button class="tbtn" onclick="resetTechOrderInline()" style="font-size:10px;padding:3px 8px">↺ Ordre alpha</button>
           <button class="hbtn hbtn-success" onclick="saveTechOrderInline()" style="font-size:10px;padding:3px 10px">💾 Ordre</button>
@@ -1861,7 +1861,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/27-03-26-21:57';
+const APP_VERSION = 'V1/27-03-26-22:07';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
