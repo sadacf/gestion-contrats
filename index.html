@@ -1592,12 +1592,7 @@ function loadSheetJS(callback) {
               <span style="font-size:10px;font-weight:400;color:#94a3b8;margin-left:6px">Chemin vers le dossier de l'installation</span>
             </label>
             <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-              <select id="f_Dossier_Statut" onchange="updateDossierPreview()"
-                style="padding:6px 8px;border:1.5px solid #cbd5e1;border-radius:6px;font-size:12px;background:#fff;color:#374151;height:32px">
-                <option value="">– Statut –</option>
-                <option value="2- CLASSEES">📦 Classé</option>
-                <option value="EN COURS">🔄 En cours</option>
-              </select>
+              <input type="hidden" id="f_Dossier_Statut" value="2- CLASSEES">
               <select id="f_Dossier_Dept" onchange="updateDossierPreview();syncDept()"
                 style="padding:6px 8px;border:1.5px solid #cbd5e1;border-radius:6px;font-size:12px;background:#fff;color:#374151;height:32px;min-width:70px">
                 <option value="">– Dept –</option>
@@ -1866,7 +1861,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/27-03-26-21:24';
+const APP_VERSION = 'V1/27-03-26-21:33';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -6746,9 +6741,11 @@ function renderTechOrderInline() {
     const ficheIdx = techFiches.findIndex(f => getTechFullName(f).toLowerCase() === t.toLowerCase());
     const fiche = ficheIdx >= 0 ? techFiches[ficheIdx] : null;
 
-    // Appliquer les filtres
-    if (filterAgence  && (!fiche || fiche.agence  !== filterAgence))  return '';
-    if (filterService && (!fiche || fiche.service !== filterService)) return '';
+    // Appliquer les filtres (uniquement si filtre explicitement sélectionné)
+    if (filterAgence  && fiche && fiche.agence  !== filterAgence)  return '';
+    if (filterService && fiche && fiche.service !== filterService) return '';
+    if (filterAgence  && !fiche) return ''; // orphelin sans fiche ignoré si filtre agence
+    if (filterService && !fiche) return ''; // orphelin sans fiche ignoré si filtre service
 
     const niveauColors2 = { technicien:'#7c3aed', gestion:'#065f46', chef_service:'#b45309', administrateur:'#e53935', utilisateur:'var(--blue)', visualisation:'#78909c' };
     const niveauLabels2 = { technicien:'Tech', gestion:'Gest.', chef_service:'Resp.', administrateur:'Admin', utilisateur:'User', visualisation:'Visu' };
