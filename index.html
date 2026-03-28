@@ -1884,7 +1884,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-16:06';
+const APP_VERSION = 'V1/28-03-26-16:25';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -3598,6 +3598,13 @@ function filterTechByService(srv) {
 }
 
 // Helper : teste si un contrat appartient aux techniciens autorisés pour l'utilisateur connecté
+// Retourne la base de données filtrée selon le rôle de l'utilisateur connecté
+function getFilteredDb() {
+  if (window._techUserFilters) return db.filter(_techPassesFilter);
+  if (window._customDataFilter) return db.filter(_customDataPassesFilter);
+  return db;
+}
+
 function _customDataPassesFilter(r) {
   const dp = window._customDataFilter;
   if (!dp) return true;
@@ -3634,11 +3641,7 @@ function _techPassesFilter(r) {
 function updateStats() {
   const has = v => v !== null && v !== undefined && v !== '';
   // Source restreinte selon l'accès utilisateur
-  const _src = window._techUserFilters
-    ? db.filter(_techPassesFilter)
-    : window._customDataFilter
-      ? db.filter(_customDataPassesFilter)
-      : db;
+  const _src = getFilteredDb();
   document.getElementById('n-all').textContent  = _src.length;
   document.getElementById('n-v1').textContent   = _src.filter(r => r.Type_Contrat==='V1'||r.Type_Contrat==='M1').length;
   document.getElementById('n-v2').textContent   = _src.filter(r => r.Type_Contrat==='V2'||r.Type_Contrat==='M2').length;
@@ -3662,12 +3665,7 @@ function syncThLabels() {
 }
 
 function applyFilters() {
-  // ── FILTRE DUR TECHNICIEN : restreint db à ses propres installations avant tout ──
-  const _dbSource = window._techUserFilters
-    ? db.filter(_techPassesFilter)
-    : window._customDataFilter
-      ? db.filter(_customDataPassesFilter)
-      : db;
+  const _dbSource = getFilteredDb();
 
   const search = document.getElementById('searchBox')?.value.toLowerCase().trim() || '';
   const type   = document.getElementById('fType')?.value || '';
@@ -5662,9 +5660,7 @@ function updateSynthese() {
   const has = v => v !== null && v !== undefined && v !== '';
 
   // Source restreinte selon l'accès utilisateur
-  const _src = window._techUserFilters
-    ? db.filter(_techPassesFilter)
-    : db;
+  const _src = getFilteredDb();
 
   // ECS : contrats dont Type_Materiel contient ECS
   const ecs  = _src.filter(r => r.Type_Materiel && /ECS/i.test(r.Type_Materiel)).length;
@@ -5720,9 +5716,7 @@ function updateSynthese() {
 
   // Calcul des retards VE
   // Retards : filtrer sur les installations du technicien si rôle technicien
-  const retardBase = window._techUserFilters
-    ? db.filter(_techPassesFilter)
-    : db;
+  const retardBase = getFilteredDb();
   const retardTotal = retardBase.filter(isVeEnRetard).length;
   const retardDet   = retardBase.filter(r => r.Type_Contrat !== 'PROT' && isVeEnRetard(r)).length;
   const retardProt  = retardBase.filter(r => r.Type_Contrat === 'PROT' && isVeEnRetard(r)).length;
@@ -5925,7 +5919,7 @@ function updateSynthese() {
   // Charge par technicien — badges
   // Pour un technicien : afficher uniquement son badge + ceux des techniciens liés
   const isTechUser = _currentUser && _currentUser.niveau === 'technicien';
-  const _srcBadges = db; // toujours toute la base pour les compteurs
+  const _srcBadges = getFilteredDb(); // source filtrée selon le rôle
   const techMap = {};
   const q7ByResponsable = {}; // Q7 en attente par responsable Q7 nommé
   _srcBadges.forEach(r => {
@@ -6003,12 +5997,14 @@ function updateSynthese() {
   if (isTechUser && window._techUserFilters && window._techUserFilters.length > 0) {
     const allowed = window._techUserFilters.map(n => n.toLowerCase());
     allFicheNames = allFicheNames.filter(n => allowed.includes(n.toLowerCase()));
-    // S'assurer que le technicien lui-même est toujours inclus
     window._techUserFilters.forEach(n => {
-      if (!allFicheNames.some(f => f.toLowerCase() === n.toLowerCase())) {
-        allFicheNames.push(n);
-      }
+      if (!allFicheNames.some(f => f.toLowerCase() === n.toLowerCase())) allFicheNames.push(n);
     });
+  } else if (window._customDataFilter) {
+    // Pour les rôles personnalisés : ne montrer que les techs dont au moins un contrat est visible
+    const filteredDb = getFilteredDb();
+    const visibleTechs = new Set(filteredDb.map(r => r.Technicien ? resolveTechName(r.Technicien) : '').filter(Boolean).map(n => n.toLowerCase()));
+    allFicheNames = allFicheNames.filter(n => visibleTechs.has(n.toLowerCase()));
   }
   const allNamesWithContrats = Object.keys(techMap);
   // Fusionner : fiches en premier (triées), puis orphelins avec contrats
