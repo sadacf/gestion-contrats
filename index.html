@@ -1900,7 +1900,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-17:23';
+const APP_VERSION = 'V1/28-03-26-17:28';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -6177,7 +6177,10 @@ function updateSynthese() {
     // Tableau par mois
     const parMois = v.parMois || {};
     const moisOrder = ['Janvier','Février','Fevrier','Mars','Avril','Mai','Juin','Juillet','Août','Aout','Septembre','Octobre','Novembre','Décembre','Decembre','S.O'];
-    const moisActifs = Object.keys(parMois).sort((a,b) => {
+    const moisActifs = Object.keys(parMois).filter(m => {
+      const d = parMois[m];
+      return (d.retard > 0 || d.sansRapport > 0 || d.q7 > 0);
+    }).sort((a,b) => {
       const ia = moisOrder.findIndex(m => m.toLowerCase() === a.toLowerCase());
       const ib = moisOrder.findIndex(m => m.toLowerCase() === b.toLowerCase());
       return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
@@ -6191,8 +6194,6 @@ function updateSynthese() {
           const nm = escJs(name);
           const mm = escJs(m);
           const lines = [];
-          const total = (d.contrats || 0);
-          lines.push(`<div onclick="event.stopPropagation();filterTechMois('${nm}','${mm}','all')" style="display:flex;justify-content:space-between;padding:3px 8px;background:#f0f9ff;cursor:pointer;font-weight:700" title="Voir toutes les installations de ${m}"><span style="color:#0369a1;font-size:10px">📋 Toutes les installations</span><span style="color:#0369a1;font-weight:800;font-size:10px">${total} →</span></div>`);
           if (d.retard > 0)      lines.push(`<div onclick="event.stopPropagation();filterTechMois('${nm}','${mm}','retard')" style="display:flex;justify-content:space-between;padding:2px 8px 2px 20px;background:#fff8f8;cursor:pointer" title="Voir les sites en retard de ${m}"><span style="color:#334155;font-size:10px">⚠ Sites en retard</span><span style="color:#e11d48;font-weight:700;font-size:10px">${d.retard} →</span></div>`);
           if (d.sansRapport > 0) lines.push(`<div onclick="event.stopPropagation();filterTechMois('${nm}','${mm}','sansRapport')" style="display:flex;justify-content:space-between;padding:2px 8px 2px 20px;background:#f0fdf4;cursor:pointer" title="Voir les rapports manquants de ${m}"><span style="color:#334155;font-size:10px">📄 Rapports manquants</span><span style="color:#16a34a;font-weight:700;font-size:10px">${d.sansRapport} →</span></div>`);
           if (d.q7 > 0)          lines.push(`<div onclick="event.stopPropagation();filterTechMois('${nm}','${mm}','q7Attente')" style="display:flex;justify-content:space-between;padding:2px 8px 2px 20px;background:#fffbeb;cursor:pointer" title="Voir les Q7 en attente de ${m}"><span style="color:#334155;font-size:10px">⏳ Q7 en attente</span><span style="color:#d97706;font-weight:700;font-size:10px">${d.q7} →</span></div>`);
