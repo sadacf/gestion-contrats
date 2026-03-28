@@ -1594,14 +1594,8 @@ function loadSheetJS(callback) {
             <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
               <input type="hidden" id="f_Dossier_Statut" value="2- CLASSEES">
               <select id="f_Dossier_Dept" onchange="updateDossierPreview();syncDept()"
-                style="padding:6px 8px;border:1.5px solid #cbd5e1;border-radius:6px;font-size:12px;background:#fff;color:#374151;height:32px;min-width:70px">
+                style="padding:6px 8px;border:1.5px solid #cbd5e1;border-radius:6px;font-size:12px;background:#fff;color:#374151;height:32px;min-width:80px">
                 <option value="">– Dept –</option>
-                <option value="04">04</option>
-                <option value="05">05</option>
-                <option value="06">06</option>
-                <option value="13">13</option>
-                <option value="83">83</option>
-                <option value="84">84</option>
               </select>
               <input type="text" id="f_Lien_Dossier" placeholder="Nom du sous-dossier (ex: EHPAD BON PASTEUR)" style="flex:1;min-width:180px" oninput="updateDossierPreview()">
               <button type="button" onclick="testLienDossier()" title="Ouvrir le dossier"
@@ -1861,7 +1855,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-07:57';
+const APP_VERSION = 'V1/28-03-26-08:18';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4597,7 +4591,23 @@ function saveDossierRacine() {
 }
 
 function syncDept() {
-  const dept = document.getElementById('f_Dossier_Dept')?.value || '';
+  const sel = document.getElementById('f_Dossier_Dept');
+  const dept = sel?.value || '';
+  // Gestion de l'ajout d'un nouveau département
+  if (dept === '__new__') {
+    const newDept = prompt('Entrez le numéro de département à ajouter :');
+    if (newDept && newDept.trim()) {
+      const val = newDept.trim();
+      // Sauvegarde dans localStorage
+      let extra = [];
+      try { extra = JSON.parse(localStorage.getItem(DEPT_EXTRA_KEY) || '[]'); } catch {}
+      if (!extra.includes(val)) { extra.push(val); localStorage.setItem(DEPT_EXTRA_KEY, JSON.stringify(extra)); }
+      populateDeptSelect(val);
+    } else {
+      if (sel) sel.value = '';
+    }
+    return;
+  }
   const depEl = document.getElementById('f_Departement');
   if (depEl) depEl.value = dept;
 }
@@ -4627,6 +4637,24 @@ function updateDossierPreview() {
   }
 }
 
+const DEPT_EXTRA_KEY = 'gestion_contrats_depts_extra';
+
+function populateDeptSelect(currentVal) {
+  const sel = document.getElementById('f_Dossier_Dept');
+  if (!sel) return;
+  // Depts depuis les contrats existants
+  const fromDb = [...new Set(db.map(r => r.Dossier_Dept).filter(Boolean))];
+  // Depts ajoutés manuellement
+  let extra = [];
+  try { extra = JSON.parse(localStorage.getItem(DEPT_EXTRA_KEY) || '[]'); } catch {}
+  // Fusion et tri
+  const all = [...new Set([...fromDb, ...extra])].sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
+  sel.innerHTML = '<option value="">– Dept –</option>'
+    + all.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('')
+    + '<option value="__new__">➕ Ajouter un département…</option>';
+  if (currentVal) sel.value = currentVal;
+}
+
 function openAdd() {
   if (_historyMode && !window._editableArchiveKey) { toast('🔒 Mode historique — modifications désactivées', 'warning'); return; }
   if (_offlineMode) { toast('📵 Mode hors ligne — modifications impossibles', 'warning'); return; }
@@ -4642,6 +4670,7 @@ function openAdd() {
   const fb = document.getElementById('f_Binome');
   if (ft) ft.innerHTML = techOpts;
   if (fb) fb.innerHTML = techOpts;
+  populateDeptSelect('');
   document.getElementById('contractForm').reset();
   renderOptionsCheckboxes(null);
   document.getElementById('f_Fin_Validite_mode').value = '';
@@ -4719,6 +4748,7 @@ function openEditById(id) {
   }
   const fClientEl = document.getElementById('f_Client');
   if (fClientEl) fClientEl.value = r.Client ?? '';
+  populateDeptSelect(r.Dossier_Dept || '');
   updateDossierPreview();
   syncDept();
   renderOptionsCheckboxes(r);
