@@ -1457,7 +1457,8 @@ function loadSheetJS(callback) {
                   <option value="gestion">📋 Gestion</option>
                   <option value="chef_service">👔 Responsable d'activité</option>
                   <option value="direction">🎯 Direction</option>
-                  <option value="personnalise">🛠 Personnalisé</option>
+                  <option value="custom1" id="opt-custom1">🛠 Personnalisé 1</option>
+                  <option value="custom2" id="opt-custom2">🛠 Personnalisé 2</option>
                   <option value="administrateur">🔑 Administrateur</option>
                 </select>
               </div>
@@ -1503,17 +1504,41 @@ function loadSheetJS(callback) {
 
 <!-- MODAL DROITS DES RÔLES -->
 <div class="overlay" id="rolePermsModal" style="z-index:200">
-  <div class="modal-box" style="width:640px;max-height:85vh;display:flex;flex-direction:column">
+  <div class="modal-box" style="width:820px;max-height:90vh;display:flex;flex-direction:column">
     <div class="modal-header">
       <span style="font-size:18px">🔐</span>
       <h2>Droits des rôles</h2>
       <button class="modal-close" onclick="closeModal('rolePermsModal')">✕</button>
     </div>
     <div class="modal-body" style="flex:1;overflow:auto;padding:16px">
-      <p style="font-size:11px;color:var(--sub);margin-bottom:16px">
-        Configurez les permissions pour chaque rôle. L'administrateur a toujours tous les droits.
+      <p style="font-size:11px;color:var(--sub);margin-bottom:12px">
+        Configurez les permissions pour chaque rôle. L'administrateur a toujours tous les droits.<br>
+        Les <strong>rôles personnalisés</strong> peuvent être renommés et ont un périmètre de données restreint.
       </p>
-      <div id="rolePermsGrid"></div>
+
+      <!-- Noms des rôles personnalisés -->
+      <div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:12px 16px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:#854d0e;margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px">🛠 Noms des rôles personnalisés</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
+            <label style="font-size:12px;font-weight:600;color:#374151;white-space:nowrap">Rôle perso 1 :</label>
+            <input type="text" id="custom1-label" class="form-input" placeholder="Ex: Gestion Riviera" style="flex:1;font-size:12px">
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
+            <label style="font-size:12px;font-weight:600;color:#374151;white-space:nowrap">Rôle perso 2 :</label>
+            <input type="text" id="custom2-label" class="form-input" placeholder="Ex: Direction Alpes" style="flex:1;font-size:12px">
+          </div>
+        </div>
+      </div>
+
+      <!-- Grille permissions actions -->
+      <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">⚙️ Permissions actions</div>
+      <div id="rolePermsGrid" style="margin-bottom:20px"></div>
+
+      <!-- Grille périmètre données -->
+      <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">📊 Périmètre des données (rôles personnalisés uniquement)</div>
+      <p style="font-size:11px;color:var(--sub);margin-bottom:10px">Définit quels contrats sont visibles et modifiables selon le type et l'agence du technicien.</p>
+      <div id="roleDataGrid"></div>
     </div>
     <div class="modal-footer">
       <button class="tbtn" onclick="closeModal('rolePermsModal')">Fermer</button>
@@ -1859,7 +1884,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-10:34';
+const APP_VERSION = 'V1/28-03-26-15:39';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -3562,6 +3587,29 @@ function filterTechByService(srv) {
 }
 
 // Helper : teste si un contrat appartient aux techniciens autorisés pour l'utilisateur connecté
+function _customDataPassesFilter(r) {
+  const dp = window._customDataFilter;
+  if (!dp) return true;
+
+  // Détermine le type du contrat
+  const isProt = r.Type_Contrat === 'PROT';
+  const typeKey = isProt ? 'protection' : 'detection';
+  const allowed = dp[typeKey] || [];
+
+  // Toutes agences autorisées
+  if (allowed.includes('*')) return true;
+
+  // Aucune agence autorisée pour ce type
+  if (allowed.length === 0) return false;
+
+  // Vérifie l'agence du technicien principal
+  const techName = r.Technicien ? resolveTechName(r.Technicien) : '';
+  const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === techName.toLowerCase());
+  const agence = fiche?.agence || '';
+
+  return allowed.includes(agence);
+}
+
 function _techPassesFilter(r) {
   if (!window._techUserFilters) return true;
   const t1 = (r.Technicien ? resolveTechName(r.Technicien) : '').toLowerCase();
@@ -3577,7 +3625,9 @@ function updateStats() {
   // Source restreinte selon l'accès utilisateur
   const _src = window._techUserFilters
     ? db.filter(_techPassesFilter)
-    : db;
+    : window._customDataFilter
+      ? db.filter(_customDataPassesFilter)
+      : db;
   document.getElementById('n-all').textContent  = _src.length;
   document.getElementById('n-v1').textContent   = _src.filter(r => r.Type_Contrat==='V1'||r.Type_Contrat==='M1').length;
   document.getElementById('n-v2').textContent   = _src.filter(r => r.Type_Contrat==='V2'||r.Type_Contrat==='M2').length;
@@ -3604,7 +3654,9 @@ function applyFilters() {
   // ── FILTRE DUR TECHNICIEN : restreint db à ses propres installations avant tout ──
   const _dbSource = window._techUserFilters
     ? db.filter(_techPassesFilter)
-    : db;
+    : window._customDataFilter
+      ? db.filter(_customDataPassesFilter)
+      : db;
 
   const search = document.getElementById('searchBox')?.value.toLowerCase().trim() || '';
   const type   = document.getElementById('fType')?.value || '';
@@ -6890,8 +6942,8 @@ function renderTechOrderInline() {
     if (filterAgence  && !fiche) return ''; // orphelin sans fiche ignoré si filtre agence
     if (filterService && !fiche) return ''; // orphelin sans fiche ignoré si filtre service
 
-    const niveauColors2 = { technicien:'#7c3aed', gestion:'#065f46', chef_service:'#b45309', administrateur:'#e53935', utilisateur:'var(--blue)', visualisation:'#78909c' };
-    const niveauLabels2 = { technicien:'Tech', gestion:'Gest.', chef_service:'Resp.', administrateur:'Admin', utilisateur:'User', visualisation:'Visu' };
+    const niveauColors2 = { technicien:'#7c3aed', gestion:'#065f46', chef_service:'#b45309', administrateur:'#e53935', utilisateur:'var(--blue)', visualisation:'#78909c', custom1:'#0369a1', custom2:'#0369a1' };
+    const niveauLabels2 = { technicien:'Tech', gestion:'Gest.', chef_service:'Resp.', administrateur:'Admin', utilisateur:'User', visualisation:'Visu', custom1: getCustomRoleName('custom1').substring(0,6), custom2: getCustomRoleName('custom2').substring(0,6) };
     const passIndicator = fiche
       ? (fiche.passwordHash
           ? '<span style="font-size:9px;color:#16a34a;margin-left:4px">●●●</span>'
@@ -6974,7 +7026,23 @@ const DEFAULT_ROLE_PERMS = {
   technicien:   { edit:false, delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
   chef_service: { edit:false, delete:false, manageTech:true,  importExport:false, rightClick:false, commentaire:true,  editVE:false },
   gestion:      { edit:true,  delete:true,  manageTech:true,  importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
+  custom1:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
+  custom2:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
 };
+
+// Périmètre données par rôle perso : { detection: ['*'|'Aix'|'Alpes'|'Riviera'], protection: [...] }
+const DEFAULT_DATA_PERMS = {
+  custom1: { detection: ['*'], protection: ['*'] },
+  custom2: { detection: ['*'], protection: ['*'] },
+};
+
+let _dataPerms = null;
+function getDataPerms() { return _dataPerms || JSON.parse(JSON.stringify(DEFAULT_DATA_PERMS)); }
+
+// Noms personnalisés des rôles custom
+const CUSTOM_ROLE_NAMES_KEY = 'gestion_contrats_custom_role_names';
+let _customRoleNames = { custom1: 'Personnalisé 1', custom2: 'Personnalisé 2' };
+function getCustomRoleName(role) { return _customRoleNames[role] || role; }
 let _rolePerms = null;
 function getRolePerms() { return _rolePerms || JSON.parse(JSON.stringify(DEFAULT_ROLE_PERMS)); }
 function hasPerm(perm) {
@@ -7004,30 +7072,43 @@ const ROLE_LABELS = {
   chef_service: "👔 Responsable d'activité",
   gestion:      '📋 Gestion',
   direction:    '🎯 Direction',
-  personnalise: '🛠 Personnalisé',
+  get custom1() { return '🛠 ' + getCustomRoleName('custom1'); },
+  get custom2() { return '🛠 ' + getCustomRoleName('custom2'); },
 };
 
 function openRolePerms() {
+  // Charger noms perso
+  try { _customRoleNames = JSON.parse(localStorage.getItem(CUSTOM_ROLE_NAMES_KEY) || '{}'); } catch {}
+  _customRoleNames.custom1 = _customRoleNames.custom1 || 'Personnalisé 1';
+  _customRoleNames.custom2 = _customRoleNames.custom2 || 'Personnalisé 2';
+  document.getElementById('custom1-label').value = _customRoleNames.custom1;
+  document.getElementById('custom2-label').value = _customRoleNames.custom2;
   renderRolePermsGrid();
+  renderDataPermsGrid();
   document.getElementById('rolePermsModal').classList.add('open');
 }
 
 function renderRolePermsGrid() {
   const perms = getRolePerms();
-  const roles = ['technicien', 'chef_service', 'gestion', 'direction', 'personnalise'];
+  const roles = ['technicien', 'chef_service', 'gestion', 'custom1', 'custom2'];
   const permKeys = Object.keys(PERM_LABELS);
   const grid = document.getElementById('rolePermsGrid');
   if (!grid) return;
+
+  const roleHeader = r => {
+    if (r === 'custom1') return `🛠 ${_customRoleNames.custom1||'Perso 1'}`;
+    if (r === 'custom2') return `🛠 ${_customRoleNames.custom2||'Perso 2'}`;
+    return ROLE_LABELS[r] || r;
+  };
 
   let html = `<table style="width:100%;border-collapse:collapse;font-size:12px">
     <thead>
       <tr style="background:var(--bg)">
         <th style="text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);font-weight:700;color:var(--sub)">Permission</th>
-        ${roles.map(r => `<th style="text-align:center;padding:6px 10px;border-bottom:2px solid var(--line);font-weight:700;white-space:nowrap;font-size:11px">${ROLE_LABELS[r]}</th>`).join('')}
+        ${roles.map(r => `<th style="text-align:center;padding:6px 10px;border-bottom:2px solid var(--line);font-weight:700;white-space:nowrap;font-size:11px${r.startsWith('custom')?';background:#fef9c3;color:#92400e':''}">${roleHeader(r)}</th>`).join('')}
         <th style="text-align:center;padding:6px 10px;border-bottom:2px solid var(--line);font-weight:700;white-space:nowrap;font-size:11px;background:#f0f9ff;color:#1e3a5f">🔑 Administrateur</th>
       </tr>
-    </thead>
-    <tbody>`;
+    </thead><tbody>`;
 
   permKeys.forEach((pk, i) => {
     const bg = i % 2 === 0 ? 'var(--card)' : 'var(--bg)';
@@ -7035,9 +7116,8 @@ function renderRolePermsGrid() {
       <td style="padding:8px 10px;border-bottom:1px solid var(--line);color:var(--navy)">${PERM_LABELS[pk]}</td>
       ${roles.map(r => {
         const checked = perms[r] && perms[r][pk] ? 'checked' : '';
-        return `<td style="text-align:center;padding:8px;border-bottom:1px solid var(--line)">
-          <input type="checkbox" id="rp_${r}_${pk}" ${checked}
-            style="width:16px;height:16px;cursor:pointer;accent-color:var(--blue)">
+        return `<td style="text-align:center;padding:8px;border-bottom:1px solid var(--line)${r.startsWith('custom')?';background:#fffbeb':''}">
+          <input type="checkbox" id="rp_${r}_${pk}" ${checked} style="width:16px;height:16px;cursor:pointer;accent-color:var(--blue)">
         </td>`;
       }).join('')}
       <td style="text-align:center;padding:8px;border-bottom:1px solid var(--line);background:#f0f9ff">
@@ -7052,9 +7132,82 @@ function renderRolePermsGrid() {
   grid.innerHTML = html;
 }
 
+function renderDataPermsGrid() {
+  const dataPerms = getDataPerms();
+  const agences = ['Aix', 'Alpes', 'Riviera'];
+  const types = ['detection', 'protection'];
+  const typeLabels = { detection: '🔥 Détection', protection: '🚿 Protection' };
+  const grid = document.getElementById('roleDataGrid');
+  if (!grid) return;
+
+  let html = '';
+  ['custom1', 'custom2'].forEach(role => {
+    const nomRole = _customRoleNames[role] || (role === 'custom1' ? 'Personnalisé 1' : 'Personnalisé 2');
+    const dp = dataPerms[role] || { detection: ['*'], protection: ['*'] };
+
+    html += `<div style="border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:12px;background:#fffbeb">
+      <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:10px">🛠 ${nomRole}</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:#fef3c7">
+            <th style="padding:6px 10px;text-align:left;border-bottom:1px solid #fde68a;font-weight:700;color:#78350f">Type</th>
+            <th style="padding:6px 10px;text-align:center;border-bottom:1px solid #fde68a;font-weight:700;color:#78350f">Toutes agences</th>
+            ${agences.map(a => `<th style="padding:6px 10px;text-align:center;border-bottom:1px solid #fde68a;font-weight:700;color:#78350f">${a}</th>`).join('')}
+          </tr>
+        </thead><tbody>`;
+
+    types.forEach((type, i) => {
+      const bg = i % 2 === 0 ? '#fff' : '#fef9c3';
+      const allChecked = dp[type]?.includes('*') ? 'checked' : '';
+      html += `<tr style="background:${bg}">
+        <td style="padding:8px 10px;font-weight:600;color:#374151">${typeLabels[type]}</td>
+        <td style="text-align:center;padding:8px">
+          <input type="checkbox" id="dp_${role}_${type}_all" ${allChecked}
+            onchange="toggleDataPermAll('${role}','${type}')"
+            style="width:16px;height:16px;cursor:pointer;accent-color:#d97706">
+        </td>
+        ${agences.map(a => {
+          const checked = (dp[type]?.includes('*') || dp[type]?.includes(a)) ? 'checked' : '';
+          const disabled = dp[type]?.includes('*') ? 'disabled' : '';
+          return `<td style="text-align:center;padding:8px">
+            <input type="checkbox" id="dp_${role}_${type}_${a}" ${checked} ${disabled}
+              style="width:16px;height:16px;cursor:pointer;accent-color:#d97706;${disabled?'opacity:.4':''}">
+          </td>`;
+        }).join('')}
+      </tr>`;
+    });
+
+    html += `</tbody></table></div>`;
+  });
+
+  grid.innerHTML = html;
+}
+
+function toggleDataPermAll(role, type) {
+  const allEl = document.getElementById(`dp_${role}_${type}_all`);
+  const agences = ['Aix', 'Alpes', 'Riviera'];
+  agences.forEach(a => {
+    const el = document.getElementById(`dp_${role}_${type}_${a}`);
+    if (el) {
+      el.checked = allEl.checked;
+      el.disabled = allEl.checked;
+      el.style.opacity = allEl.checked ? '.4' : '1';
+    }
+  });
+}
+
 function saveRolePerms() {
-  const roles = ['technicien', 'chef_service', 'gestion', 'direction', 'personnalise'];
+  const roles = ['technicien', 'chef_service', 'gestion', 'custom1', 'custom2'];
   const permKeys = Object.keys(PERM_LABELS);
+  const agences = ['Aix', 'Alpes', 'Riviera'];
+  const types = ['detection', 'protection'];
+
+  // Sauvegarder noms perso
+  _customRoleNames.custom1 = document.getElementById('custom1-label')?.value.trim() || 'Personnalisé 1';
+  _customRoleNames.custom2 = document.getElementById('custom2-label')?.value.trim() || 'Personnalisé 2';
+  localStorage.setItem(CUSTOM_ROLE_NAMES_KEY, JSON.stringify(_customRoleNames));
+
+  // Sauvegarder permissions actions
   const newPerms = {};
   roles.forEach(r => {
     newPerms[r] = {};
@@ -7063,7 +7216,23 @@ function saveRolePerms() {
     });
   });
   _rolePerms = newPerms;
-  SP.saveAll({ rolePerms: newPerms });
+
+  // Sauvegarder périmètre données
+  const newDataPerms = {};
+  ['custom1', 'custom2'].forEach(role => {
+    newDataPerms[role] = {};
+    types.forEach(type => {
+      const allChecked = document.getElementById(`dp_${role}_${type}_all`)?.checked;
+      if (allChecked) {
+        newDataPerms[role][type] = ['*'];
+      } else {
+        newDataPerms[role][type] = agences.filter(a => document.getElementById(`dp_${role}_${type}_${a}`)?.checked);
+      }
+    });
+  });
+  _dataPerms = newDataPerms;
+  localStorage.setItem('gestion_contrats_dataPerms', JSON.stringify(newDataPerms));
+  SP.saveAll({ rolePerms: newPerms, dataPerms: newDataPerms });
   applyAccessLevel();
   closeModal('rolePermsModal');
   toast('✅ Droits des rôles enregistrés', 'success');
@@ -7454,6 +7623,17 @@ function closeLoginAndStart() {
       switchTab('indic');
     }
 
+    // Charger les permissions de données pour les rôles custom
+    try {
+      _customRoleNames = JSON.parse(localStorage.getItem(CUSTOM_ROLE_NAMES_KEY) || '{}');
+      _customRoleNames.custom1 = _customRoleNames.custom1 || 'Personnalisé 1';
+      _customRoleNames.custom2 = _customRoleNames.custom2 || 'Personnalisé 2';
+    } catch {}
+    try {
+      const savedDataPerms = JSON.parse(localStorage.getItem('gestion_contrats_dataPerms') || 'null');
+      _dataPerms = savedDataPerms || null;
+    } catch {}
+
     // applyFilters() remplit filtered[], puis renderTable() affiche
     applyFilters();
     updateStats();
@@ -7550,7 +7730,8 @@ function niveauLabel(n) {
     : n === 'chef_service' ? "Responsable d'activité"
     : n === 'gestion'      ? 'Gestion'
     : n === 'direction'    ? 'Direction'
-    : n === 'personnalise' ? 'Personnalisé'
+    : n === 'custom1'      ? getCustomRoleName('custom1')
+    : n === 'custom2'      ? getCustomRoleName('custom2')
     : 'Technicien';
 }
 
@@ -7559,6 +7740,15 @@ function applyAccessLevel() {
   const lvl = _currentUser.niveau;
   const isAdmin  = lvl === 'admin' || lvl === 'administrateur';
   const isTech   = lvl === 'technicien';
+  const isCustom = lvl === 'custom1' || lvl === 'custom2';
+
+  // Appliquer le filtre de données pour les rôles personnalisés
+  if (isCustom) {
+    const dp = getDataPerms()[lvl] || { detection: ['*'], protection: ['*'] };
+    window._customDataFilter = dp;
+  } else {
+    window._customDataFilter = null;
+  }
 
   // Boutons Importer/Exporter dans le header
   ['btnImport','btnExport'].forEach(id => {
