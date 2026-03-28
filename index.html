@@ -1486,9 +1486,12 @@ function loadSheetJS(callback) {
             </div>
           </div>
 
-          <div data-section="footer" style="display:flex;gap:10px;justify-content:space-between;align-items:center">
+          <div data-section="footer" style="display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid #e2e8f0">
             <button id="tf-delete-btn" class="hbtn" onclick="deleteTechFicheFromForm()" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;display:none">🗑 Supprimer</button>
-            <button class="hbtn hbtn-success" onclick="saveTechFiche()">💾 Enregistrer</button>
+            <div style="display:flex;gap:8px;margin-left:auto">
+              <button class="hbtn" onclick="envoyerIdentifiants()" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-weight:700" title="Envoyer login et mot de passe par mail">📧 Envoyer identifiants</button>
+              <button class="hbtn hbtn-success" onclick="saveTechFiche()">💾 Enregistrer</button>
+            </div>
           </div>
         </div>
         </div>
@@ -1856,7 +1859,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-09:45';
+const APP_VERSION = 'V1/28-03-26-10:34';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -8773,6 +8776,36 @@ function editCommentaire(rowIdx, event) {
 
 
 function editTechFiche(idx) { openTechFicheItemForm(idx, getTechFullName(techFiches[idx])); }
+
+function envoyerIdentifiants() {
+  // Récupère les infos du formulaire
+  const prenom = document.getElementById('tf-prenom')?.value.trim() || '';
+  const nom    = document.getElementById('tf-nom')?.value.trim() || '';
+  const login  = document.getElementById('tf-login')?.value.trim() || '';
+  const mail   = document.getElementById('tf-mail')?.value.trim() || '';
+  const pass   = document.getElementById('tf-pass')?.value.trim() || '';
+
+  if (!mail) { toast('⚠ Aucune adresse mail renseignée pour cet utilisateur', 'warning'); return; }
+  if (!login) { toast('⚠ Aucun identifiant renseigné', 'warning'); return; }
+
+  const nom_complet = [prenom, nom].filter(Boolean).join(' ') || login;
+  const url = 'https://sadacf.github.io/gestion-contrats';
+
+  let body = `Bonjour ${nom_complet},\n\n`;
+  body += `Voici vos identifiants pour accéder à l'application Gestion des Contrats APSAD :\n\n`;
+  body += `🔗 Lien : ${url}\n`;
+  body += `👤 Identifiant : ${login}\n`;
+  if (pass) {
+    body += `🔑 Mot de passe : ${pass}\n`;
+  } else {
+    body += `🔑 Mot de passe : (inchangé — utilisez votre mot de passe actuel)\n`;
+  }
+  body += `\nCordialement`;
+
+  const subject = encodeURIComponent(`Identifiants — Gestion Contrats APSAD`);
+  window.open(`mailto:${mail}?subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
+  toast(`📧 Mail ouvert pour ${nom_complet}`, 'success');
+}
 
 function saveTechFiche() {
   const nom = document.getElementById('tf-nom').value.trim();
