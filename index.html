@@ -1884,7 +1884,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-15:39';
+const APP_VERSION = 'V1/28-03-26-15:56';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -7267,7 +7267,7 @@ function onTechNiveauChange() {
     liesWrap.style.display = (n === 'technicien' && isAdmin) ? '' : 'none';
     if (n === 'technicien' && isAdmin) populateTechsLiesList();
   }
-  const needsPass = (n === 'technicien' || n === 'gestion' || n === 'chef_service' || n === 'administrateur');
+  const needsPass = (n === 'technicien' || n === 'gestion' || n === 'chef_service' || n === 'administrateur' || n === 'direction' || n === 'custom1' || n === 'custom2');
   if (passWrap) passWrap.style.display = needsPass ? '' : 'none';
   if (passHint) passHint.textContent   = needsPass ? 'Laisser vide pour conserver le mot de passe actuel' : '';
   const noPassHint = document.getElementById('tf-nopass-hint');
@@ -7599,8 +7599,23 @@ function openChangelogSidebar() {
 
 function closeLoginAndStart() {
   document.getElementById('loginModal').style.display = 'none';
+
+  // Charger les permissions AVANT applyAccessLevel
+  try {
+    _customRoleNames = JSON.parse(localStorage.getItem(CUSTOM_ROLE_NAMES_KEY) || '{}');
+    _customRoleNames.custom1 = _customRoleNames.custom1 || 'Personnalisé 1';
+    _customRoleNames.custom2 = _customRoleNames.custom2 || 'Personnalisé 2';
+  } catch {}
+  try {
+    const savedDataPerms = JSON.parse(localStorage.getItem('gestion_contrats_dataPerms') || 'null');
+    _dataPerms = savedDataPerms || null;
+  } catch {}
+  try {
+    const savedRolePerms = JSON.parse(localStorage.getItem('gestion_contrats_rolePerms') || 'null');
+    if (savedRolePerms) _rolePerms = savedRolePerms;
+  } catch {}
+
   applyAccessLevel();
-  // Re-appliquer le verrouillage hors ligne après applyAccessLevel
   if (_offlineMode) blockEditActions(true);
 
   if (db.length > 0) {
@@ -7622,17 +7637,6 @@ function closeLoginAndStart() {
       // Accueil pour admin/gestion
       switchTab('indic');
     }
-
-    // Charger les permissions de données pour les rôles custom
-    try {
-      _customRoleNames = JSON.parse(localStorage.getItem(CUSTOM_ROLE_NAMES_KEY) || '{}');
-      _customRoleNames.custom1 = _customRoleNames.custom1 || 'Personnalisé 1';
-      _customRoleNames.custom2 = _customRoleNames.custom2 || 'Personnalisé 2';
-    } catch {}
-    try {
-      const savedDataPerms = JSON.parse(localStorage.getItem('gestion_contrats_dataPerms') || 'null');
-      _dataPerms = savedDataPerms || null;
-    } catch {}
 
     // applyFilters() remplit filtered[], puis renderTable() affiche
     applyFilters();
