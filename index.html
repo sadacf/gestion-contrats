@@ -1597,6 +1597,7 @@ function loadSheetJS(callback) {
                 style="padding:6px 8px;border:1.5px solid #cbd5e1;border-radius:6px;font-size:12px;background:#fff;color:#374151;height:32px;min-width:80px">
                 <option value="">– Dept –</option>
               </select>
+              <input type="text" id="f_Dossier_SousRep" placeholder="Sous-répertoire (optionnel)" style="width:160px;min-width:120px" oninput="updateDossierPreview()" title="Répertoire supplémentaire entre le département et l'installation">
               <input type="text" id="f_Lien_Dossier" placeholder="Nom du sous-dossier (ex: EHPAD BON PASTEUR)" style="flex:1;min-width:180px" oninput="updateDossierPreview()">
               <button type="button" onclick="testLienDossier()" title="Ouvrir le dossier"
                 style="padding:6px 12px;border:1px solid #2563eb;border-radius:6px;background:#eff6ff;color:#2563eb;cursor:pointer;font-size:13px;white-space:nowrap;flex-shrink:0;font-weight:600">
@@ -1855,7 +1856,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-08:18';
+const APP_VERSION = 'V1/28-03-26-09:35';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -3680,6 +3681,14 @@ function applyFilters() {
         if (!isVeEnRetard(r)) return false;
       }
     }
+    if (activeQuickFilter === 'all') {
+      // Filtre par technicien uniquement (le filtre mois est déjà appliqué via fMoisVE1/fMoisVE2)
+      if (activeRetardTech) {
+        const rTech  = r.Technicien ? resolveTechName(r.Technicien).toLowerCase() : '';
+        const rBinom = r.Binome     ? resolveTechName(r.Binome).toLowerCase()     : '';
+        if (rTech !== activeRetardTech.toLowerCase() && rBinom !== activeRetardTech.toLowerCase()) return false;
+      }
+    }
     if (activeQuickFilter === 'retard_det') {
       if (r.Type_Contrat === 'PROT' || !isVeEnRetard(r)) return false;
     }
@@ -4450,7 +4459,7 @@ function resetOptionsOrder() {
 }
 // BOOL_FIELDS dynamique (cases à cocher uniquement)
 let BOOL_FIELDS = getOptions().filter(o => (o.type||'checkbox')==='checkbox').map(o => o.key);
-const TEXT_FIELDS = ['Installation','Client','Ville','Departement','Type_Contrat','Type_Materiel','VE1','VE2','Technicien','Binome','Fin_Validite','Validite_Statut','Facturation','Q7','Remarques','Lien_Dossier','Dossier_Statut','Dossier_Dept'];
+const TEXT_FIELDS = ['Installation','Client','Ville','Departement','Type_Contrat','Type_Materiel','VE1','VE2','Technicien','Binome','Fin_Validite','Validite_Statut','Facturation','Q7','Remarques','Lien_Dossier','Dossier_Statut','Dossier_Dept','Dossier_SousRep'];
 const NUM_FIELDS  = ['Detect_Tech1','Detect_Tech2'];
 
 function refreshFamilleSelect() {
@@ -4489,8 +4498,10 @@ function getDossierRacine() {
 function buildCheminDossier(sousDossier, statut, dept) {
   const racine = getDossierRacine().replace(/[\\\/]+$/, '');
   if (!racine) return '';
+  const sousRep = document.getElementById('f_Dossier_SousRep')?.value.trim() || '';
   const parts = [racine];
   if (dept)        parts.push(dept);
+  if (sousRep)     parts.push(sousRep);
   if (sousDossier) parts.push(sousDossier);
   return parts.join('\\');
 }
@@ -4671,6 +4682,8 @@ function openAdd() {
   if (ft) ft.innerHTML = techOpts;
   if (fb) fb.innerHTML = techOpts;
   populateDeptSelect('');
+  const sousRepEl = document.getElementById('f_Dossier_SousRep');
+  if (sousRepEl) sousRepEl.value = '';
   document.getElementById('contractForm').reset();
   renderOptionsCheckboxes(null);
   document.getElementById('f_Fin_Validite_mode').value = '';
@@ -5289,12 +5302,12 @@ function filterTechMois(techName, mois, type) {
   activeVeColorFilter = null;
   activeRetardTech = techName || null;
   document.querySelectorAll('#veLegend .ve-legend-item').forEach(el => el.classList.remove('active'));
-  // Positionne le filtre mois sur VE1 ET VE2
   const fMoisVE1 = document.getElementById('fMoisVE1');
   const fMoisVE2 = document.getElementById('fMoisVE2');
   if (fMoisVE1) fMoisVE1.value = mois;
   if (fMoisVE2) fMoisVE2.value = mois;
-  activeQuickFilter = type; // 'retard', 'sansRapport' ou 'q7Attente'
+  // 'all' = toutes les installations du mois, pas de filtre retard/q7/rapport
+  activeQuickFilter = type === 'all' ? 'all' : type;
   switchTab('contrats');
   applyFilters();
 }
@@ -5916,6 +5929,8 @@ function updateSynthese() {
           const nm = escJs(name);
           const mm = escJs(m);
           const lines = [];
+          const total = (d.contrats || 0);
+          lines.push(`<div onclick="event.stopPropagation();filterTechMois('${nm}','${mm}','all')" style="display:flex;justify-content:space-between;padding:3px 8px;background:#f0f9ff;cursor:pointer;font-weight:700" title="Voir toutes les installations de ${m}"><span style="color:#0369a1;font-size:10px">📋 Toutes les installations</span><span style="color:#0369a1;font-weight:800;font-size:10px">${total} →</span></div>`);
           if (d.retard > 0)      lines.push(`<div onclick="event.stopPropagation();filterTechMois('${nm}','${mm}','retard')" style="display:flex;justify-content:space-between;padding:2px 8px 2px 20px;background:#fff8f8;cursor:pointer" title="Voir les sites en retard de ${m}"><span style="color:#334155;font-size:10px">⚠ Sites en retard</span><span style="color:#e11d48;font-weight:700;font-size:10px">${d.retard} →</span></div>`);
           if (d.sansRapport > 0) lines.push(`<div onclick="event.stopPropagation();filterTechMois('${nm}','${mm}','sansRapport')" style="display:flex;justify-content:space-between;padding:2px 8px 2px 20px;background:#f0fdf4;cursor:pointer" title="Voir les rapports manquants de ${m}"><span style="color:#334155;font-size:10px">📄 Rapports manquants</span><span style="color:#16a34a;font-weight:700;font-size:10px">${d.sansRapport} →</span></div>`);
           if (d.q7 > 0)          lines.push(`<div onclick="event.stopPropagation();filterTechMois('${nm}','${mm}','q7Attente')" style="display:flex;justify-content:space-between;padding:2px 8px 2px 20px;background:#fffbeb;cursor:pointer" title="Voir les Q7 en attente de ${m}"><span style="color:#334155;font-size:10px">⏳ Q7 en attente</span><span style="color:#d97706;font-weight:700;font-size:10px">${d.q7} →</span></div>`);
