@@ -1884,7 +1884,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-15:56';
+const APP_VERSION = 'V1/28-03-26-16:06';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2076,7 +2076,7 @@ const SP = (() => {
         };
       }
       try {
-        const [fsContracts, fsTechs, agences, options, techOrder, users, rolePerms, familleMat, veColors, fsResilies] = await Promise.all([
+        const [fsContracts, fsTechs, agences, options, techOrder, users, rolePerms, dataPerms, familleMat, veColors, fsResilies] = await Promise.all([
           fsGetAll('contrats'),
           fsGetAll('techniciens'),
           readConfig('agences'),
@@ -2084,6 +2084,7 @@ const SP = (() => {
           readConfig('techOrder'),
           readConfig('users'),
           readConfig('rolePerms'),
+          readConfig('dataPerms'),
           readConfig('familleMat'),
           readConfig('veColors'),
           fsGetAll('resilies'),
@@ -2098,6 +2099,7 @@ const SP = (() => {
           techOrder  : techOrder || [],
           users      : users || JSON.parse(localStorage.getItem(USERS_KEY) || '[]'),
           rolePerms  : rolePerms || null,
+          dataPerms  : dataPerms || null,
           familleMat : familleMat || JSON.parse(localStorage.getItem(FAM_MAT_KEY) || 'null'),
           veColors   : veColors || JSON.parse(localStorage.getItem('gestion_contrats_ve_colors') || 'null'),
           resilies   : fsResilies.length > 0 ? fsResilies : JSON.parse(localStorage.getItem(RESILIE_KEY) || '[]'),
@@ -2205,6 +2207,7 @@ const SP = (() => {
         if (payload.options    !== undefined) tasks.push(writeConfig('options',    payload.options));
         if (payload.techOrder  !== undefined) tasks.push(writeConfig('techOrder',  payload.techOrder));
         if (payload.rolePerms  !== undefined) tasks.push(writeConfig('rolePerms',  payload.rolePerms));
+        if (payload.dataPerms  !== undefined) tasks.push(writeConfig('dataPerms',  payload.dataPerms));
         if (payload.users      !== undefined) tasks.push(writeConfig('users',      payload.users));
         if (payload.familleMat !== undefined) tasks.push(writeConfig('familleMat', payload.familleMat));
         if (payload.veColors   !== undefined) tasks.push(writeConfig('veColors',   payload.veColors));
@@ -2503,6 +2506,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (data.techFiches) techFiches = data.techFiches;
     if (data.agences)    agencesList = data.agences;
     if (data.techOrder && data.techOrder.length > 0) _techOrder = data.techOrder;
+    if (data.rolePerms) {
+      _rolePerms = data.rolePerms;
+      localStorage.setItem('gestion_contrats_rolePerms', JSON.stringify(data.rolePerms));
+    }
+    if (data.dataPerms) {
+      _dataPerms = data.dataPerms;
+      localStorage.setItem('gestion_contrats_dataPerms', JSON.stringify(data.dataPerms));
+    }
     if (data.familleMat && data.familleMat.length > 0) {
       familleMat = data.familleMat;
       localStorage.setItem(FAM_MAT_KEY, JSON.stringify(familleMat));
@@ -8909,7 +8920,7 @@ function openTechFicheForm(idx) {
   const adminPassView = document.getElementById('tf-pass-admin-view');
   const clearDisplay  = document.getElementById('tf-pass-clear-display');
   const clearToggleEl = document.getElementById('tf-pass-clear-toggle');
-  const isAdminUser   = _currentUser && (_currentUser.niveau === 'admin' || _currentUser.niveau === 'administrateur');
+  const isAdminUser = _currentUser && (_currentUser.niveau === 'admin' || _currentUser.niveau === 'administrateur' || _currentUser.niveau === 'custom1' || _currentUser.niveau === 'custom2');
   if (adminPassView && clearDisplay) {
     const encPwd = t.passwordClear || '';
     clearDisplay.dataset.enc = encPwd;
