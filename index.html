@@ -1157,7 +1157,7 @@ function loadSheetJS(callback) {
         </div>
       </div>
       <button class="tbtn" style="background:#e11d48;color:#fff;border-color:#e11d48;font-size:11px;padding:4px 12px;cursor:pointer" onclick="filterFromIndic('retard')">↗ Voir tous les retards</button>
-      <button class="tbtn" style="font-size:11px;padding:4px 12px;cursor:pointer" onclick="envoyerAlerteRetardManuel()">📧 Envoyer alertes mail</button>
+      <button class="tbtn" style="background:#7c3aed;color:#fff;border-color:#6d28d9;font-size:11px;padding:4px 14px;cursor:pointer;font-weight:700" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 en attente et rapports manquants">📧 Envoyer mails — tous les retards</button>
     </div>
     <div id="indicMailEnvoye" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #16a34a;border-radius:8px;padding:8px 16px;margin-bottom:8px;gap:8px;align-items:center"></div>
 
@@ -1856,7 +1856,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-09:35';
+const APP_VERSION = 'V1/28-03-26-09:45';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5437,6 +5437,103 @@ async function envoyerAlerteRetardAuto(force = false) {
 }
 
 // Forcer l'envoi manuellement (bouton)
+async function envoyerMailsGlobaux() {
+  // Collecte tous les techniciens avec retards, Q7 ou rapports manquants
+  const techStats = {};
+
+  db.forEach(r => {
+    const techName = r.Technicien ? resolveTechName(r.Technicien) : null;
+    if (!techName) return;
+    if (!techStats[techName]) techStats[techName] = { retards: [], q7: [], rapports: [] };
+
+    // Retards
+    if (isVeEnRetard(r)) techStats[techName].retards.push(r);
+
+    // Q7 en attente
+    const ve1Arch = (r.VE1_statut === '00B0F0') || (!r.VE1_statut && VE_COLORS[r.Installation]?.ve1 === '00B0F0');
+    const ve2Arch = (r.VE2_statut === '00B0F0') || (!r.VE2_statut && VE_COLORS[r.Installation]?.ve2 === '00B0F0');
+    const ve1Q7 = ve1Arch && r.Q7_VE1_tech?.trim();
+    const ve2Q7 = ve2Arch && r.Q7_VE2_tech?.trim();
+    if ((ve1Q7 || ve2Q7) && (!r.Q7 || !r.Q7.toString().trim())) {
+      techStats[techName].q7.push(r);
+    }
+
+    // Rapports manquants
+    const ve1Green = (r.VE1_statut === '92D050') || (!r.VE1_statut && VE_COLORS[r.Installation]?.ve1 === '92D050');
+    const ve2Green = (r.VE2_statut === '92D050') || (!r.VE2_statut && VE_COLORS[r.Installation]?.ve2 === '92D050');
+    if (ve1Green || ve2Green) techStats[techName].rapports.push(r);
+  });
+
+  // Filtre les techs avec au moins un problème
+  const techsAvecProblemes = Object.entries(techStats).filter(([, s]) =>
+    s.retards.length > 0 || s.q7.length > 0 || s.rapports.length > 0
+  );
+
+  if (techsAvecProblemes.length === 0) {
+    toast('✅ Aucun retard, Q7 ou rapport manquant à signaler', 'success');
+    return;
+  }
+
+  // Confirmation
+  const recap = techsAvecProblemes.map(([name, s]) => {
+    const parts = [];
+    if (s.retards.length)  parts.push(`${s.retards.length} retard(s)`);
+    if (s.q7.length)       parts.push(`${s.q7.length} Q7`);
+    if (s.rapports.length) parts.push(`${s.rapports.length} rapport(s)`);
+    return `• ${name} : ${parts.join(', ')}`;
+  }).join('\n');
+
+  if (!confirm(`Envoyer des mails à ${techsAvecProblemes.length} technicien(s) ?\n\n${recap}`)) return;
+
+  let nbEnvoyes = 0;
+  let nbSansMail = 0;
+
+  for (const [name, s] of techsAvecProblemes) {
+    const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === name.toLowerCase());
+    const mail = fiche?.mail || '';
+    if (!mail) { nbSansMail++; continue; }
+
+    // Construit le corps du mail
+    let body = `Bonjour ${name},\n\nVoici un récapitulatif de vos points en attente :\n\n`;
+
+    if (s.retards.length > 0) {
+      body += `⚠ SITES EN RETARD (${s.retards.length}) :\n`;
+      s.retards.forEach(r => {
+        const parts = [];
+        if (isVeFieldEnRetard(r,'ve1')) parts.push(`VE1 prévue ${r.VE1}`);
+        if (isVeFieldEnRetard(r,'ve2')) parts.push(`VE2 prévue ${r.VE2}`);
+        body += `  • ${r.Installation}${r.Ville ? ' ('+r.Ville+')' : ''} — ${parts.join(', ')}\n`;
+      });
+      body += '\n';
+    }
+
+    if (s.q7.length > 0) {
+      body += `⏳ Q7 EN ATTENTE (${s.q7.length}) :\n`;
+      s.q7.forEach(r => body += `  • ${r.Installation}${r.Ville ? ' ('+r.Ville+')' : ''}\n`);
+      body += '\n';
+    }
+
+    if (s.rapports.length > 0) {
+      body += `📄 RAPPORTS MANQUANTS (${s.rapports.length}) :\n`;
+      s.rapports.forEach(r => body += `  • ${r.Installation}${r.Ville ? ' ('+r.Ville+')' : ''}\n`);
+      body += '\n';
+    }
+
+    body += 'Merci de traiter ces points dans les meilleurs délais.\n\nCordialement';
+
+    const subject = encodeURIComponent(`⚠ Points en attente — ${name}`);
+    window.open(`mailto:${mail}?subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
+    nbEnvoyes++;
+
+    // Petite pause entre chaque mail pour éviter le blocage du navigateur
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  let msg = `📧 ${nbEnvoyes} mail(s) ouverts`;
+  if (nbSansMail > 0) msg += ` — ${nbSansMail} technicien(s) sans adresse mail`;
+  toast(msg, 'success');
+}
+
 async function envoyerAlerteRetardManuel() {
   const dejaEnvoye = await isMailDejaEnvoye();
   if (dejaEnvoye) {
