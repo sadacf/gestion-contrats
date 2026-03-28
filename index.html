@@ -1141,12 +1141,12 @@ function loadSheetJS(callback) {
     </div>
 
     <!-- ⚠️ Section retards — layout 2 colonnes -->
-    <div style="margin-top:12px;display:flex;gap:0;align-items:stretch">
+    <div style="margin-top:12px;display:flex;gap:0;align-items:stretch;margin-bottom:10px">
 
       <!-- Colonne gauche : titre + indicateurs -->
       <div style="flex:1;min-width:0">
-        <div class="synth-section" style="font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-bottom:none;padding:8px 12px;border-radius:6px 6px 0 0;letter-spacing:.3px">⚠️ Installations, Q7, Rapports en retard</div>
-        <div id="indicRetardBar" style="display:none;background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #e11d48;border-radius:0;padding:10px 16px;margin-bottom:0;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-bottom:none">
+        <div class="synth-section" style="font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-bottom:1px solid #fde68a;padding:8px 12px;border-radius:6px 0 0 0;letter-spacing:.3px">⚠️ Installations, Q7, Rapports en retard</div>
+        <div id="indicRetardBar" style="display:none;background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #e11d48;border-top:none;border-bottom:none;border-radius:0;padding:10px 16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:22px;font-weight:800;color:#e11d48" id="in-retard-total">–</span>
             <span style="font-size:12px;font-weight:700;color:#9f1239;line-height:1.3">site(s) en retard<br><span style="font-weight:400;color:#be123c">VE non archivée/réalisée après le mois prévu</span></span>
@@ -1174,7 +1174,7 @@ function loadSheetJS(callback) {
             </div>
             <button class="tbtn" style="background:#16a34a;color:#fff;border-color:#15803d;font-size:11px;padding:4px 12px;cursor:pointer" onclick="filterSansRapportForTech(null)">↗ Voir la liste</button>
           </div>
-          <div id="indicQ7RetardBar" style="display:none;background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #d97706;border-radius:0 0 6px 6px;padding:10px 16px;align-items:center;gap:12px;flex-wrap:wrap;border-top:none">
+          <div id="indicQ7RetardBar" style="display:none;background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #d97706;border-top:none;border-radius:0 0 0 6px;padding:10px 16px;align-items:center;gap:12px;flex-wrap:wrap">
             <div style="display:flex;align-items:center;gap:8px;flex:1">
               <span style="font-size:22px;font-weight:800;color:#d97706" id="in-q7-retard-total">–</span>
               <span style="font-size:12px;font-weight:700;color:#92400e;line-height:1.3">Q7 en attente<br><span style="font-weight:400;color:#b45309">VE archivée — rapport Q7 non délivré</span></span>
@@ -1900,7 +1900,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-16:50';
+const APP_VERSION = 'V1/28-03-26-17:05';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5414,9 +5414,15 @@ async function loadEmailJS() {
 }
 
 function getPremierJourOuvrable(annee, mois) {
-  // Retourne le 1er jour ouvrable (lun-ven) du mois donné
   const d = new Date(annee, mois, 1);
   while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+  return d;
+}
+
+function getDernierJourOuvrable(annee, mois) {
+  // Dernier jour ouvrable (lun-ven) du mois donné
+  const d = new Date(annee, mois + 1, 0); // dernier jour du mois
+  while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
   return d;
 }
 
@@ -5468,12 +5474,12 @@ async function updateIndicateurMailEnvoye() {
 }
 
 async function envoyerAlerteRetardAuto(force = false) {
-  // Vérifier si c'est le 1er jour ouvrable du mois
+  // Vérifier si c'est le dernier jour ouvrable du mois
   const now = new Date();
-  const premier = getPremierJourOuvrable(now.getFullYear(), now.getMonth());
-  const estPremierJourOuvrable = now.toDateString() === premier.toDateString();
+  const dernier = getDernierJourOuvrable(now.getFullYear(), now.getMonth());
+  const estDernierJourOuvrable = now.toDateString() === dernier.toDateString();
 
-  if (!force && !estPremierJourOuvrable) return;
+  if (!force && !estDernierJourOuvrable) return;
 
   // Vérifier si déjà envoyé ce mois
   const dejaEnvoye = await isMailDejaEnvoye();
@@ -5517,6 +5523,51 @@ async function envoyerAlerteRetardAuto(force = false) {
 }
 
 // Forcer l'envoi manuellement (bouton)
+// Mail récapitulatif pour un technicien unique (depuis badge)
+function envoyerMailTechnicien(name) {
+  const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === name.toLowerCase());
+  const mail = fiche?.mail || '';
+  if (!mail) { toast(`⚠ Aucun email pour ${name}`, 'warning'); return; }
+
+  const retards  = getFilteredDb().filter(r => (r.Technicien ? resolveTechName(r.Technicien) : '').toLowerCase() === name.toLowerCase() && isVeEnRetard(r));
+  const q7       = getFilteredDb().filter(r => {
+    if ((r.Technicien ? resolveTechName(r.Technicien) : '').toLowerCase() !== name.toLowerCase()) return false;
+    const ve1Arch = getVeColorForRecord(r,'ve1') === '00B0F0';
+    const ve2Arch = getVeColorForRecord(r,'ve2') === '00B0F0';
+    return ((ve1Arch && r.Q7_VE1_tech?.trim()) || (ve2Arch && r.Q7_VE2_tech?.trim())) && (!r.Q7 || !r.Q7.toString().trim());
+  });
+  const rapports = getFilteredDb().filter(r => {
+    if ((r.Technicien ? resolveTechName(r.Technicien) : '').toLowerCase() !== name.toLowerCase()) return false;
+    return (getVeColorForRecord(r,'ve1') === '92D050') || (getVeColorForRecord(r,'ve2') === '92D050');
+  });
+
+  if (!retards.length && !q7.length && !rapports.length) { toast(`✅ Aucun point en attente pour ${name}`, ''); return; }
+
+  let body = `Bonjour ${name},\n\nVoici un récapitulatif de vos points en attente :\n\n`;
+  if (retards.length) {
+    body += `⚠ SITES EN RETARD (${retards.length}) :\n`;
+    retards.forEach(r => { const p=[]; if(isVeFieldEnRetard(r,'ve1'))p.push(`VE1 prévue ${r.VE1}`); if(isVeFieldEnRetard(r,'ve2'))p.push(`VE2 prévue ${r.VE2}`); body+=`  • ${r.Installation}${r.Ville?' ('+r.Ville+')':''} — ${p.join(', ')}\n`; });
+    body += '\n';
+  }
+  if (q7.length) {
+    body += `⏳ Q7 EN ATTENTE (${q7.length}) :\n`;
+    q7.forEach(r => body += `  • ${r.Installation}${r.Ville?' ('+r.Ville+')':''}\n`);
+    body += '\n';
+  }
+  if (rapports.length) {
+    body += `📄 RAPPORTS MANQUANTS (${rapports.length}) :\n`;
+    rapports.forEach(r => body += `  • ${r.Installation}${r.Ville?' ('+r.Ville+')':''}\n`);
+    body += '\n';
+  }
+  body += 'Merci de traiter ces points dans les meilleurs délais.\n\nCordialement';
+
+  const myMail = _currentUser ? (techFiches.find(f => getTechFullName(f).toLowerCase() === (_currentUser.ficheLinked||'').toLowerCase())?.mail || '') : '';
+  const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(',');
+  const subject = encodeURIComponent(`⚠ Points en attente — ${name}`);
+  window.open(`mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
+  toast(`📧 Mail ouvert pour ${name}`, 'success');
+}
+
 async function envoyerMailsGlobaux() {
   // Collecte tous les techniciens avec retards, Q7 ou rapports manquants
   const techStats = {};
@@ -5602,7 +5653,9 @@ async function envoyerMailsGlobaux() {
     body += 'Merci de traiter ces points dans les meilleurs délais.\n\nCordialement';
 
     const subject = encodeURIComponent(`⚠ Points en attente — ${name}`);
-    window.open(`mailto:${mail}?subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
+    const myMail = _currentUser ? (techFiches.find(f => getTechFullName(f).toLowerCase() === (_currentUser.ficheLinked||'').toLowerCase())?.mail || '') : '';
+    const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(',');
+    window.open(`mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
     nbEnvoyes++;
 
     // Petite pause entre chaque mail pour éviter le blocage du navigateur
@@ -6126,10 +6179,11 @@ function updateSynthese() {
     // Totaux avec flèches de progression
     const totalHtml = (nbRetard > 0 || nbSansRapport > 0 || nbQ7Attente > 0) ? `
       <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">
-        ${nbRetard > 0 ? `<div onclick="event.stopPropagation();filterRetardForTech('${escJs(name)}');" style="display:flex;align-items:center;gap:3px;background:#fff1f2;border:1px solid #fecdd3;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px;font-weight:700;color:#e11d48">⚠ ${nbRetard}${progTag(nbRetard,prev?.retard||0)} <button onclick="event.stopPropagation();sendRetardMail('${escJs(name)}');" style="background:#e11d48;color:#fff;border:none;border-radius:3px;padding:1px 5px;font-size:9px;cursor:pointer;margin-left:2px">📧</button></div>` : ''}
+        ${nbRetard > 0 ? `<div onclick="event.stopPropagation();filterRetardForTech('${escJs(name)}');" style="display:flex;align-items:center;gap:3px;background:#fff1f2;border:1px solid #fecdd3;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px;font-weight:700;color:#e11d48">⚠ ${nbRetard}${progTag(nbRetard,prev?.retard||0)}</div>` : ''}
         ${nbSansRapport > 0 ? `<div onclick="event.stopPropagation();filterSansRapportForTech('${escJs(name)}');" style="display:flex;align-items:center;gap:3px;background:#f0fdf4;border:1px solid #86efac;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px;font-weight:700;color:#16a34a">📄 ${nbSansRapport}${progTag(nbSansRapport,prev?.sansRapport||0)}</div>` : ''}
         ${nbQ7Attente > 0 ? `<div onclick="event.stopPropagation();filterQ7AttenteForTech('${escJs(name)}');" style="display:flex;align-items:center;gap:3px;background:#fef3c7;border:1px solid #fde68a;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px;font-weight:700;color:#d97706">⏳ ${nbQ7Attente}${progTag(nbQ7Attente,prev?.q7Attente||0)}</div>` : ''}
-      </div>` : '';
+      </div>
+      <button onclick="event.stopPropagation();envoyerMailTechnicien('${escJs(name)}');" style="margin-top:6px;width:100%;background:#4c1d95;color:#fff;border:none;border-radius:5px;padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px" title="Envoyer un mail récapitulatif à ${esc(name)}">📧 Envoyer mail récapitulatif</button>` : '';
 
     const retardHtml = '';
     const sansRapportHtml = '';
