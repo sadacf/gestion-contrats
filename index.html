@@ -1900,7 +1900,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-17:16';
+const APP_VERSION = 'V1/28-03-26-17:23';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5431,6 +5431,29 @@ function getMailSentKey() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 }
 
+const MAIL_TECH_SENT_KEY = 'gestion_contrats_mail_tech_sent';
+
+function getMailTechSentKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+}
+
+function isMailTechDejaEnvoye(techName) {
+  try {
+    const key = MAIL_TECH_SENT_KEY + '_' + getMailTechSentKey();
+    const sent = JSON.parse(localStorage.getItem(key) || '{}');
+    return !!sent[techName.toLowerCase()];
+  } catch { return false; }
+}
+
+function marquerMailTechEnvoye(techName) {
+  try {
+    const key = MAIL_TECH_SENT_KEY + '_' + getMailTechSentKey();
+    const sent = JSON.parse(localStorage.getItem(key) || '{}');
+    sent[techName.toLowerCase()] = new Date().toISOString();
+    localStorage.setItem(key, JSON.stringify(sent));
+  } catch {}
+}
 async function isMailDejaEnvoye() {
   const key = getMailSentKey();
   try {
@@ -5565,7 +5588,10 @@ function envoyerMailTechnicien(name) {
   const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(',');
   const subject = encodeURIComponent(`⚠ Points en attente — ${name}`);
   window.open(`mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
+  marquerMailTechEnvoye(name);
   toast(`📧 Mail ouvert pour ${name}`, 'success');
+  // Rafraîchir les badges pour mettre à jour la pastille
+  updateSynthese();
 }
 
 async function envoyerMailsGlobaux() {
@@ -5656,6 +5682,7 @@ async function envoyerMailsGlobaux() {
     const myMail = _currentUser ? (techFiches.find(f => getTechFullName(f).toLowerCase() === (_currentUser.ficheLinked||'').toLowerCase())?.mail || '') : '';
     const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(',');
     window.open(`mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
+    marquerMailTechEnvoye(name);
     nbEnvoyes++;
 
     // Petite pause entre chaque mail pour éviter le blocage du navigateur
@@ -6183,8 +6210,12 @@ function updateSynthese() {
         ${nbQ7Attente > 0 ? `<div onclick="event.stopPropagation();filterQ7AttenteForTech('${escJs(name)}');" style="display:flex;align-items:center;gap:3px;background:#fef3c7;border:1px solid #fde68a;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px;font-weight:700;color:#d97706">⏳ ${nbQ7Attente}${progTag(nbQ7Attente,prev?.q7Attente||0)}</div>` : ''}
       </div>` : '';
 
+    const mailDejaEnvoye = isMailTechDejaEnvoye(name);
     const mailBtnHtml = (nbRetard > 0 || nbSansRapport > 0 || nbQ7Attente > 0)
-      ? `<button onclick="event.stopPropagation();envoyerMailTechnicien('${escJs(name)}');" style="margin-top:8px;width:100%;background:#7c3aed;color:#fff;border:none;padding:5px 8px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;letter-spacing:.3px" title="Envoyer un mail récapitulatif à ${esc(name)}">📧 Envoyer mail récapitulatif</button>`
+      ? `<button onclick="event.stopPropagation();envoyerMailTechnicien('${escJs(name)}');" style="margin-top:8px;width:100%;background:#a855f7;color:#fff;border:none;padding:5px 8px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;letter-spacing:.3px" title="Envoyer un mail récapitulatif à ${esc(name)}">
+          📧 Envoyer mail récapitulatif
+          <span style="width:8px;height:8px;border-radius:50%;background:${mailDejaEnvoye ? '#4ade80' : '#fbbf24'};flex-shrink:0;box-shadow:0 0 4px ${mailDejaEnvoye ? '#4ade80' : '#fbbf24'}" title="${mailDejaEnvoye ? 'Mail déjà envoyé ce mois' : 'Pas encore envoyé ce mois'}"></span>
+        </button>`
       : '';
 
     const retardHtml = '';
