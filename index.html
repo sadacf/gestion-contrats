@@ -1861,7 +1861,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/27-03-26-22:34';
+const APP_VERSION = 'V1/28-03-26-07:57';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5172,7 +5172,7 @@ function isVeFieldEnRetard(r, field) {
   const mIdx = getVeMonthIndex(val);
   if (mIdx < 0) return false;
   const color = getVeColorForRecord(r, field);
-  if (color === '00B0F0' || color === '92D050') return false; // archivé ou réalisée
+  if (color === '00B0F0' || color === '92D050' || color === 'FF00FF') return false; // archivé, réalisée ou N+1
   const now = new Date();
   const curYear = now.getFullYear(); // 2026
   // La VE est en retard si le mois prévu est strictement passé
