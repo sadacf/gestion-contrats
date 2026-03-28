@@ -1185,9 +1185,9 @@ function loadSheetJS(callback) {
       </div>
 
       <!-- Colonne droite : bouton mail global -->
-      <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#4c1d95;border:1px solid #6d28d9;border-left:none;border-radius:0 6px 6px 0;padding:12px 16px;min-width:120px;max-width:140px;cursor:pointer;gap:8px;text-align:center" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
-        <span style="font-size:22px">📧</span>
-        <span style="font-size:10px;font-weight:800;color:#fff;line-height:1.3;text-transform:uppercase;letter-spacing:.4px">Envoyer<br>tous les<br>mails</span>
+      <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#6d28d9;border:1px solid #5b21b6;border-left:none;border-radius:0 6px 6px 0;padding:10px 14px;min-width:100px;max-width:110px;cursor:pointer;gap:6px;text-align:center" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
+        <span style="font-size:18px">📧</span>
+        <span style="font-size:9px;font-weight:800;color:#fff;line-height:1.4;text-transform:uppercase;letter-spacing:.5px">Envoyer<br>tous les<br>mails</span>
       </div>
 
     </div>
@@ -1900,7 +1900,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-17:05';
+const APP_VERSION = 'V1/28-03-26-17:16';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -6176,14 +6176,16 @@ function updateSynthese() {
         }).join('')}
       </div>` : '';
 
-    // Totaux avec flèches de progression
     const totalHtml = (nbRetard > 0 || nbSansRapport > 0 || nbQ7Attente > 0) ? `
-      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;padding:0 8px">
         ${nbRetard > 0 ? `<div onclick="event.stopPropagation();filterRetardForTech('${escJs(name)}');" style="display:flex;align-items:center;gap:3px;background:#fff1f2;border:1px solid #fecdd3;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px;font-weight:700;color:#e11d48">⚠ ${nbRetard}${progTag(nbRetard,prev?.retard||0)}</div>` : ''}
         ${nbSansRapport > 0 ? `<div onclick="event.stopPropagation();filterSansRapportForTech('${escJs(name)}');" style="display:flex;align-items:center;gap:3px;background:#f0fdf4;border:1px solid #86efac;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px;font-weight:700;color:#16a34a">📄 ${nbSansRapport}${progTag(nbSansRapport,prev?.sansRapport||0)}</div>` : ''}
         ${nbQ7Attente > 0 ? `<div onclick="event.stopPropagation();filterQ7AttenteForTech('${escJs(name)}');" style="display:flex;align-items:center;gap:3px;background:#fef3c7;border:1px solid #fde68a;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px;font-weight:700;color:#d97706">⏳ ${nbQ7Attente}${progTag(nbQ7Attente,prev?.q7Attente||0)}</div>` : ''}
-      </div>
-      <button onclick="event.stopPropagation();envoyerMailTechnicien('${escJs(name)}');" style="margin-top:6px;width:100%;background:#4c1d95;color:#fff;border:none;border-radius:5px;padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px" title="Envoyer un mail récapitulatif à ${esc(name)}">📧 Envoyer mail récapitulatif</button>` : '';
+      </div>` : '';
+
+    const mailBtnHtml = (nbRetard > 0 || nbSansRapport > 0 || nbQ7Attente > 0)
+      ? `<button onclick="event.stopPropagation();envoyerMailTechnicien('${escJs(name)}');" style="margin-top:8px;width:100%;background:#7c3aed;color:#fff;border:none;padding:5px 8px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;letter-spacing:.3px" title="Envoyer un mail récapitulatif à ${esc(name)}">📧 Envoyer mail récapitulatif</button>`
+      : '';
 
     const retardHtml = '';
     const sansRapportHtml = '';
@@ -6195,7 +6197,8 @@ function updateSynthese() {
       ? `<div class="tech-badge-service" style="color:${borderColor}">${esc(service)}</div>` : '';
     const cardOutline = nbRetard > 0 ? ';outline:2px solid #fca5a5;outline-offset:-1px' : '';
     const escapedName = escJs(name);
-    return `<div class="tech-badge-card" draggable="true" data-tech="${esc(name)}" style="border-top-color:${borderColor};background:${cardBg};cursor:pointer${cardOutline}" title="Cliquer pour voir les contrats de ${esc(name)}">
+    return `<div class="tech-badge-card" draggable="true" data-tech="${esc(name)}" style="border-top-color:${borderColor};background:${cardBg};cursor:pointer${cardOutline};overflow:hidden;display:flex;flex-direction:column" title="Cliquer pour voir les contrats de ${esc(name)}">
+      <div style="flex:1;padding:8px 8px 0 8px">
       <div class="tech-badge-header">
         <div class="tech-badge-avatar" onclick="event.stopPropagation();openTechBadgeEdit('${escapedName}')" style="background:${avatarBg};color:${avatarColor};cursor:pointer" title="Modifier">${initials}</div>
         <div><div class="tech-badge-name">${esc(name)}</div>${agencyHtml}</div>
@@ -6210,6 +6213,8 @@ function updateSynthese() {
       </div>
       ${totalHtml}
       ${parMoisHtml}
+      </div>
+      ${mailBtnHtml}
     </div>`;
   };
   const gridHtml = techs.map(([name, v]) => buildBadgeHtml(name, v)).join('');
