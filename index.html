@@ -1188,6 +1188,7 @@ function loadSheetJS(callback) {
       <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#6d28d9;border:1px solid #5b21b6;border-left:none;border-radius:0 6px 6px 0;padding:10px 14px;min-width:100px;max-width:110px;cursor:pointer;gap:6px;text-align:center;align-self:stretch" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
         <span style="font-size:18px">📧</span>
         <span style="font-size:9px;font-weight:800;color:#fff;line-height:1.4;text-transform:uppercase;letter-spacing:.5px">Envoyer<br>tous les<br>mails</span>
+        <span id="btnMailGlobalPastille" style="display:none;width:10px;height:10px;border-radius:50%;flex-shrink:0"></span>
       </div>
 
     </div>
@@ -1900,63 +1901,74 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-17:31';
+const APP_VERSION = 'V1/28-03-26-17:39';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
+  {
+    version: '2.12.0',
+    date: '28/03/2026',
+    items: [
+      { type: 'new',     text: 'Droits d\'accès : 2 rôles personnalisés avec périmètre données (type + agence)' },
+      { type: 'new',     text: 'Bouton mail récapitulatif par badge technicien (retards + Q7 + rapports)' },
+      { type: 'new',     text: 'Bouton "Envoyer tous les mails" : carré violet à droite du bloc retards' },
+      { type: 'new',     text: 'Pastille verte/jaune sur bouton mail : indique si mail déjà envoyé ce mois' },
+      { type: 'new',     text: 'CC automatique sur tous les mails (Olivier Belliard + expéditeur)' },
+      { type: 'new',     text: 'Envoi automatique mails retards le dernier jour ouvrable du mois' },
+      { type: 'improve', text: 'Badges : détail par mois affiche uniquement les problèmes (retard/Q7/rapport)' },
+    ]
+  },
+  {
+    version: '2.11.0',
+    date: '28/03/2026',
+    items: [
+      { type: 'new',     text: 'Fiche installation : sous-répertoire optionnel dans le chemin dossier' },
+      { type: 'new',     text: 'Département dossier : liste dynamique depuis les contrats + ajout libre' },
+      { type: 'new',     text: 'Statut dossier supprimé — toujours classé dans 2- CLASSEES' },
+      { type: 'new',     text: 'Protocole localexplorer: pour ouvrir les dossiers Windows depuis le navigateur' },
+      { type: 'improve', text: 'Chemin dossier : chaque utilisateur saisit son chemin complet jusqu\'à 2- CLASSEES' },
+    ]
+  },
+  {
+    version: '2.10.0',
+    date: '28/03/2026',
+    items: [
+      { type: 'new',     text: 'Icône 🔥/🚿 avant chaque installation selon le type de contrat' },
+      { type: 'new',     text: 'Colonne installation réduite pour plus de lisibilité' },
+      { type: 'new',     text: 'Badge mail dans fiche utilisateur : envoi identifiants par email' },
+      { type: 'new',     text: 'Détail par mois dans badges : clic "Toutes les installations" → tableau filtré' },
+      { type: 'fix',     text: 'N+1 (rose) exclu des calculs de retard partout' },
+    ]
+  },
+  {
+    version: '2.9.0',
+    date: '27/03/2026',
+    items: [
+      { type: 'new',     text: 'Sync temps réel Firebase : fusion intelligente, seuls les contrats modifiés mis à jour' },
+      { type: 'new',     text: 'Reconnexion automatique réseau sans rechargement manuel' },
+      { type: 'new',     text: 'Retour arrière ↩ / redo ↪ : corrections pushUndo avant modification' },
+      { type: 'fix',     text: 'Apostrophes dans les noms d\'installations : escJs() pour éviter erreurs JS' },
+      { type: 'fix',     text: 'Présences : nettoyage automatique Firebase des entrées expirées' },
+    ]
+  },
+  {
+    version: '2.8.0',
+    date: '27/03/2026',
+    items: [
+      { type: 'new',     text: 'PWA : installation possible sur le Bureau (manifest.json + service worker)' },
+      { type: 'new',     text: 'Liste utilisateurs : tri par service → agence → alphabétique avec séparateurs' },
+      { type: 'new',     text: 'Droits d\'accès renommés, ajout permission "Ajouter / modifier le matériel"' },
+      { type: 'improve', text: 'Fenêtre droits d\'accès : layout 2 colonnes, plus compact' },
+    ]
+  },
   {
     version: '2.5.0',
     date: '23/03/2026',
     items: [
       { type: 'new',     text: 'Nom du client affiché sous le nom de l\'installation dans le tableau' },
       { type: 'new',     text: 'Sélection de ligne au clic : surlignage bleu pour mieux visualiser' },
-      { type: 'improve', text: 'Badges options et commentaires plus lisibles (police agrandie, fond coloré)' },
-      { type: 'fix',     text: 'Popup VE1/VE2 : s\'ouvre vers le haut si en bas de page' },
       { type: 'new',     text: 'Panneau Mises à jour dans le menu gauche (historique des versions)' },
-      { type: 'new',     text: 'Notification automatique nouvelle version disponible (popup toutes les 15 min)' },
-    ]
-  },
-  {
-    version: '2.4.0',
-    date: '22/03/2026',
-    items: [
-      { type: 'new',     text: 'Résiliés synchronisés dans Firebase — visibles sur tous les PC' },
-      { type: 'new',     text: 'Export JSON complet : inclut résiliés + familles matériel' },
-      { type: 'new',     text: 'Import JSON restaure également résiliés et familles matériel' },
-      { type: 'improve', text: 'Présence utilisateurs : timeout réduit à 5 min, heartbeat toutes les 2 min' },
-      { type: 'fix',     text: 'Ouverture dossier ne déclenche plus le popup "Voulez-vous quitter la page"' },
-    ]
-  },
-  {
-    version: '2.3.0',
-    date: '22/03/2026',
-    items: [
-      { type: 'new',     text: 'Évolution mensuelle : choix de période libre (6, 12, 24 mois ou personnalisée)' },
-      { type: 'new',     text: 'Évolution mensuelle : tous les indicateurs avec cases à cocher' },
-      { type: 'new',     text: 'Évolution mensuelle : filtre global + filtre par graphique par technicien' },
-      { type: 'new',     text: 'VE1 limité au 1er semestre, VE2 au 2ème semestre (fiche + popup inline)' },
-      { type: 'new',     text: 'Double-clic sur en-tête VE1/VE2 : filtre semestre automatique' },
-    ]
-  },
-  {
-    version: '2.2.0',
-    date: '22/03/2026',
-    items: [
-      { type: 'new',     text: 'Clic sur détail par mois du badge technicien : ouvre le tableau filtré' },
-      { type: 'new',     text: 'Badges techniciens identiques pour tous les rôles (y compris technicien connecté)' },
-      { type: 'new',     text: 'Techniciens : accès résiliés en lecture seule (sans bouton Restaurer)' },
-      { type: 'fix',     text: 'Techniciens : évolution mensuelle masquée, badges avec détail par mois' },
-      { type: 'improve', text: 'Bouton ← Retour renommé ← Retour accueil' },
-    ]
-  },
-  {
-    version: '2.1.0',
-    date: '22/03/2026',
-    items: [
-      { type: 'new',     text: 'Script GENERER.bat : validation HTML + JS avant génération' },
-      { type: 'new',     text: 'Heure été/hiver automatique dans la version (sans dépendance externe)' },
-      { type: 'fix',     text: 'Correction bug critique : div non fermé dans le header (page blanche)' },
-      { type: 'new',     text: 'Filtres Semestre 1 / Semestre 2 dans les colonnes VE1 et VE2' },
+      { type: 'new',     text: 'Notification automatique nouvelle version disponible' },
     ]
   },
 ];
@@ -5691,6 +5703,12 @@ async function envoyerMailsGlobaux() {
 
   let msg = `📧 ${nbEnvoyes} mail(s) ouverts`;
   if (nbSansMail > 0) msg += ` — ${nbSansMail} technicien(s) sans adresse mail`;
+  // Marquer l'envoi global
+  try {
+    const key = MAIL_TECH_SENT_KEY + '_global_' + getMailTechSentKey();
+    localStorage.setItem(key, JSON.stringify({ sentAt: new Date().toISOString(), nb: nbEnvoyes }));
+  } catch {}
+  updateSynthese();
   toast(msg, 'success');
 }
 
@@ -5865,6 +5883,26 @@ function updateSynthese() {
   if (btnMailWrap) {
     const hasProblems = retardTotal > 0 || manqueRapportTotal > 0 || q7RetardTotal > 0;
     btnMailWrap.style.display = hasProblems ? 'flex' : 'none';
+    // Pastille envoi global
+    const pastille = document.getElementById('btnMailGlobalPastille');
+    if (pastille) {
+      try {
+        const key = MAIL_TECH_SENT_KEY + '_global_' + getMailTechSentKey();
+        const sent = JSON.parse(localStorage.getItem(key) || 'null');
+        if (sent) {
+          const date = new Date(sent.sentAt).toLocaleDateString('fr-FR', {day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'});
+          pastille.style.display = 'inline-block';
+          pastille.style.background = '#4ade80';
+          pastille.style.boxShadow = '0 0 5px #4ade80';
+          btnMailWrap.title = `✅ Envoyé le ${date} — cliquer pour renvoyer`;
+        } else {
+          pastille.style.display = 'inline-block';
+          pastille.style.background = '#fbbf24';
+          pastille.style.boxShadow = '0 0 5px #fbbf24';
+          btnMailWrap.title = `⚠ Pas encore envoyé ce mois — cliquer pour envoyer`;
+        }
+      } catch {}
+    }
   }
 
   // Calcul des installations sans matériel
