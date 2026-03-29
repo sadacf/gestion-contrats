@@ -1185,9 +1185,9 @@ function loadSheetJS(callback) {
       </div>
 
       <!-- Colonne droite : bouton mail global -->
-      <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#ede9fe;border:1px solid #c4b5fd;border-left:none;border-radius:0 6px 6px 0;padding:10px 14px;min-width:100px;max-width:110px;cursor:pointer;gap:6px;text-align:center;align-self:stretch" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
+      <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#2563eb;border:2px solid #1d4ed8;border-radius:16px;padding:10px 14px;min-width:100px;max-width:110px;cursor:pointer;gap:6px;text-align:center;align-self:stretch;box-shadow:0 4px 12px rgba(37,99,235,.35);transition:background .2s,box-shadow .2s" onmouseover="this.style.background='#1d4ed8';this.style.boxShadow='0 6px 16px rgba(37,99,235,.5)'" onmouseout="this.style.background='#2563eb';this.style.boxShadow='0 4px 12px rgba(37,99,235,.35)'" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
         <span style="font-size:18px">📧</span>
-        <span style="font-size:9px;font-weight:800;color:#5b21b6;line-height:1.4;text-transform:uppercase;letter-spacing:.5px">Envoyer<br>tous les<br>mails</span>
+        <span style="font-size:9px;font-weight:800;color:#fff;line-height:1.4;text-transform:uppercase;letter-spacing:.5px">Envoyer<br>tous les<br>mails</span>
         <span id="btnMailGlobalPastille" style="display:none;width:10px;height:10px;border-radius:50%;flex-shrink:0"></span>
       </div>
 
@@ -1911,7 +1911,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/29-03-26-09:27';
+const APP_VERSION = 'V1/29-03-26-10:14';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
