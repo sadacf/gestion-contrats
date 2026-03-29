@@ -1911,7 +1911,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/29-03-26-11:10';
+const APP_VERSION = 'V1/29-03-26-11:31';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -8158,8 +8158,7 @@ function updateUserBadgeHeader() {
   const initials = [_currentUser.prenom, _currentUser.nom].filter(Boolean).map(s=>s[0].toUpperCase()).join('') || (_currentUser.login||'??').substring(0,2).toUpperCase();
   badge.innerHTML = `<span style="background:rgba(255,255,255,.2);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer" title="Déconnexion" onclick="logout()">
     ${initials}</span>
-    <span style="font-size:11px">${_currentUser.prenom||''} ${_currentUser.nom||''} <span style="opacity:.7">(${niveauLabel(_currentUser.niveau)})</span></span>
-    <button onclick="logout()" style="background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.8);border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer">⏏ Déconnecter</button>`;
+    <span style="font-size:11px">${_currentUser.prenom||''} ${_currentUser.nom||''}</span>`;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -9363,8 +9362,9 @@ function envoyerIdentifiants() {
   body += `   http://www.vnprodev.com/browser-extensions/local-explorer-install.php${LL}`;
   body += `3%EF%B8%8F%E2%83%A3  CHEMIN D'ACCÈS AUX DOSSIERS${L}`;
   body += `   Une fois connecté(e), renseignez votre chemin personnel :${L}`;
-  body += `   • Cliquez sur votre nom en haut à gauche de l'application${L}`;
-  body += `   • Dans votre fiche, renseignez le champ "Chemin dossier"${L}`;
+  body += `   • Cliquez sur votre nom à gauche de l'application${L}`;
+  body += `   • Allez dans l'onglet "Configuration"${L}`;
+  body += `   • Renseignez le champ "Chemin dossier"${L}`;
   body += `   • Saisissez le chemin complet jusqu'au dossier "2- CLASSEES"${L}`;
   body += `     Exemple : C:\\Users\\Michel\\ACF Incendie\\Technique - Documents\\4-TECHNIQUE\\2- CLASSEES${L}`;
   body += `   • Enregistrez — ce chemin permettra d'ouvrir les dossiers depuis l'application${LL}`;
