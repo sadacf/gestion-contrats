@@ -1192,6 +1192,16 @@ function loadSheetJS(callback) {
       </div>
 
     </div>
+    <!-- Indicateur planning mois suivant -->
+    <div id="indicPlanningBar" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:8px;padding:10px 16px;margin-bottom:10px;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="font-size:20px">📅</span>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700;color:#1e40af" id="indicPlanningTitle">Planning mois suivant</div>
+        <div style="font-size:11px;color:#3b82f6" id="indicPlanningDesc"></div>
+      </div>
+      <button class="tbtn" style="background:#2563eb;color:#fff;border-color:#1d4ed8;font-size:11px;padding:4px 12px;cursor:pointer" onclick="envoyerPlanningMoisSuivant(true)">📧 Envoyer maintenant</button>
+    </div>
+
     <div id="indicAleasSection" class="synth-section" style="margin-top:28px;font-size:12px;color:#9f1239;background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #e11d48;border-bottom:none;padding:8px 12px;border-radius:6px 6px 0 0;letter-spacing:.3px;border-top:3px solid #e11d48">🚨 Aléas</div>
     <div id="indicAleasOk" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #16a34a;border-radius:8px;padding:8px 16px;margin-bottom:8px;font-size:12px;font-weight:700;color:#15803d">✅ Aucune anomalie</div>
     <div id="indicValiditeBar" style="display:none;background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #e11d48;border-radius:8px;padding:10px 16px;margin-bottom:10px;align-items:center;gap:20px;flex-wrap:wrap">
@@ -1901,7 +1911,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/28-03-26-17:47';
+const APP_VERSION = 'V1/29-03-26-09:27';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2744,9 +2754,10 @@ function init() {
   switchTab('indic');
   // Vérifier et mettre à jour l'indicateur d'envoi mail
   updateIndicateurMailEnvoye();
-  // Envoi automatique au 1er jour ouvrable du mois (admin/gestion uniquement)
+  // Envoi automatique au dernier jour ouvrable du mois (admin/gestion uniquement)
   if (_currentUser && (_currentUser.niveau === 'admin' || _currentUser.niveau === 'administrateur' || _currentUser.niveau === 'gestion')) {
     setTimeout(() => envoyerAlerteRetardAuto(false), 3000);
+    setTimeout(() => envoyerPlanningMoisSuivantAuto(false), 4000);
     // Rappel sauvegarde mensuelle
     setTimeout(() => checkRappelSauvegarde(), 5000);
   }
@@ -5712,6 +5723,139 @@ async function envoyerMailsGlobaux() {
   toast(msg, 'success');
 }
 
+/* ═══════════════════════════════════════════════
+   PLANNING MOIS SUIVANT — envoi dernière semaine
+═══════════════════════════════════════════════ */
+const MAIL_PLANNING_KEY = 'gestion_contrats_planning_mail_sent';
+
+function getPlanningMailSentKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+}
+
+function isPlanningDejaEnvoye() {
+  return !!localStorage.getItem(MAIL_PLANNING_KEY + '_' + getPlanningMailSentKey());
+}
+
+function marquerPlanningEnvoye(nb) {
+  localStorage.setItem(MAIL_PLANNING_KEY + '_' + getPlanningMailSentKey(),
+    JSON.stringify({ sentAt: new Date().toISOString(), nb }));
+  updateIndicateurPlanning();
+}
+
+function updateIndicateurPlanning() {
+  const bar   = document.getElementById('indicPlanningBar');
+  const title = document.getElementById('indicPlanningTitle');
+  const desc  = document.getElementById('indicPlanningDesc');
+  if (!bar) return;
+
+  const now         = new Date();
+  const moisSuivant = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const nomMois     = moisSuivant.toLocaleDateString('fr-FR', { month: 'long' });
+  const dernierJour = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const jourRestant = dernierJour - now.getDate();
+  const estDerniereSemaine = jourRestant <= 7;
+
+  // Compter les sites du mois suivant
+  const moisIdx = moisSuivant.getMonth();
+  const sitesMoisSuivant = getFilteredDb().filter(r => {
+    const v1 = getVeMonthIndex(r.VE1);
+    const v2 = getVeMonthIndex(r.VE2);
+    return v1 === moisIdx || v2 === moisIdx;
+  });
+
+  if (sitesMoisSuivant.length === 0) { bar.style.display = 'none'; return; }
+
+  bar.style.display = 'flex';
+  const sent = localStorage.getItem(MAIL_PLANNING_KEY + '_' + getPlanningMailSentKey());
+  if (sent) {
+    const info = JSON.parse(sent);
+    const date = new Date(info.sentAt).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', hour:'2-digit', minute:'2-digit' });
+    bar.style.background = '#f0fdf4';
+    bar.style.borderColor = '#bbf7d0';
+    bar.style.borderLeftColor = '#16a34a';
+    if (title) title.style.color = '#15803d';
+    if (title) title.textContent = `✅ Planning ${nomMois} envoyé le ${date}`;
+    if (desc)  desc.textContent  = `${info.nb} technicien(s) notifié(s) — ${sitesMoisSuivant.length} site(s) planifiés`;
+  } else if (estDerniereSemaine) {
+    bar.style.background = '#eff6ff';
+    bar.style.borderColor = '#bfdbfe';
+    bar.style.borderLeftColor = '#2563eb';
+    if (title) title.style.color = '#1e40af';
+    if (title) title.textContent = `📅 Planning ${nomMois} — envoi recommandé (J-${jourRestant})`;
+    if (desc)  desc.textContent  = `${sitesMoisSuivant.length} site(s) planifiés pour ${nomMois} — notifiez les techniciens`;
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+async function envoyerPlanningMoisSuivantAuto(force = false) {
+  const now = new Date();
+  const dernierJour = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const jourRestant = dernierJour - now.getDate();
+  const estDerniereSemaine = jourRestant <= 7;
+  if (!force && !estDerniereSemaine) { updateIndicateurPlanning(); return; }
+  if (!force && isPlanningDejaEnvoye()) { updateIndicateurPlanning(); return; }
+  updateIndicateurPlanning();
+}
+
+async function envoyerPlanningMoisSuivant(force = false) {
+  if (!force && isPlanningDejaEnvoye()) {
+    if (!confirm('Le planning a déjà été envoyé ce mois-ci. Envoyer à nouveau ?')) return;
+  }
+
+  const now         = new Date();
+  const moisSuivant = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const moisIdx     = moisSuivant.getMonth();
+  const nomMois     = moisSuivant.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
+  // Regrouper par technicien
+  const planningByTech = {};
+  getFilteredDb().forEach(r => {
+    const techName = r.Technicien ? resolveTechName(r.Technicien) : null;
+    if (!techName) return;
+    const v1Match = getVeMonthIndex(r.VE1) === moisIdx;
+    const v2Match = getVeMonthIndex(r.VE2) === moisIdx;
+    if (!v1Match && !v2Match) return;
+    if (!planningByTech[techName]) planningByTech[techName] = [];
+    planningByTech[techName].push({ r, v1: v1Match, v2: v2Match });
+  });
+
+  const techs = Object.entries(planningByTech);
+  if (techs.length === 0) { toast('Aucun site planifié pour le mois suivant', ''); return; }
+
+  const recap = techs.map(([name, sites]) => `• ${name} : ${sites.length} site(s)`).join('\n');
+  if (!confirm(`Envoyer le planning ${nomMois} à ${techs.length} technicien(s) ?\n\n${recap}`)) return;
+
+  let nbEnvoyes = 0;
+  let nbSansMail = 0;
+
+  for (const [name, sites] of techs) {
+    const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === name.toLowerCase());
+    const mail  = fiche?.mail || '';
+    if (!mail) { nbSansMail++; continue; }
+
+    let body = `Bonjour ${name},\n\nVoici la liste de vos interventions planifiées pour ${nomMois} :\n\n`;
+    sites.forEach(({ r, v1, v2 }) => {
+      const ve = [v1 ? `VE1` : '', v2 ? `VE2` : ''].filter(Boolean).join(' + ');
+      body += `  • ${r.Installation}${r.Ville ? ' ('+r.Ville+')' : ''} — ${ve}\n`;
+    });
+    body += `\nTotal : ${sites.length} site(s)\n\nBonne intervention !\n\nCordialement`;
+
+    const myMail = _currentUser ? (techFiches.find(f => getTechFullName(f).toLowerCase() === (_currentUser.ficheLinked||'').toLowerCase())?.mail || '') : '';
+    const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(',');
+    const subject = encodeURIComponent(`📅 Planning interventions ${nomMois} — ${name}`);
+    window.open(`mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
+    nbEnvoyes++;
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  marquerPlanningEnvoye(nbEnvoyes);
+  let msg = `📅 Planning ${nomMois} : ${nbEnvoyes} mail(s) ouverts`;
+  if (nbSansMail > 0) msg += ` — ${nbSansMail} sans adresse mail`;
+  toast(msg, 'success');
+}
+
 async function envoyerAlerteRetardManuel() {
   const dejaEnvoye = await isMailDejaEnvoye();
   if (dejaEnvoye) {
@@ -5904,6 +6048,9 @@ function updateSynthese() {
       } catch {}
     }
   }
+
+  // Indicateur planning mois suivant
+  updateIndicateurPlanning();
 
   // Calcul des installations sans matériel
   const sansMat = _src.filter(r => !r.Type_Materiel || !r.Type_Materiel.trim());
