@@ -782,7 +782,7 @@ function loadSheetJS(callback) {
       <h1 style="font-size:16px;font-weight:800;letter-spacing:.4px">GESTION DES CONTRATS <span id="appVersionBadge" style="font-size:10px;font-weight:600;background:rgba(255,255,255,.15);border-radius:8px;padding:1px 7px;letter-spacing:.3px;vertical-align:middle"></span></h1>
       <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
         <div id="headerDate" style="font-size:11px;color:rgba(255,255,255,.7)"></div>
-        <div id="headerUserInline" style="display:none;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.85)"></div>
+        <div id="headerUserName" style="display:none;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.85)"></div>
       </div>
     </div>
     <div class="header-spacer" style="display:flex;align-items:center;justify-content:center">
@@ -1911,7 +1911,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/29-03-26-21:16';
+const APP_VERSION = 'V1/29-03-26-21:58';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -8159,6 +8159,7 @@ function updateUserBadgeHeader() {
   const userNameEl = document.getElementById('headerUserName');
   if (userNameEl) {
     userNameEl.innerHTML = `<span style="background:rgba(255,255,255,.25);border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;vertical-align:middle;cursor:pointer" title="Déconnexion" onclick="logout()">${initials}</span> <span style="vertical-align:middle;font-size:12px;font-weight:600">${fullName}</span>`;
+    userNameEl.style.display = 'flex';
   }
   // Initiales uniquement à droite (déconnexion) — masquées car déjà dans le titre
   const badge = document.getElementById('currentUserBadge');
