@@ -1911,14 +1911,16 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/29-03-26-10:45';
+const APP_VERSION = 'V1/29-03-26-10:56';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
   {
-    version: '2.12.2',
+    version: '2.12.4',
     date: '29/03/2026',
     items: [
+      { type: 'improve', text: 'Mail identifiants : liens cliquables et exemple chemin réel dans la procédure' },
+      { type: 'improve', text: 'Suppression : modale de confirmation stylée sur tous les boutons Supprimer' },
       { type: 'improve', text: 'Mail identifiants : ajout procédure configuration (Chrome, LocalExplorer, chemin dossier)' },
       { type: 'improve', text: 'Bouton "Envoyer tous les mails" : couleur bleue, coins arrondis, taille réduite' },
     ]
@@ -5036,14 +5038,14 @@ function deleteCurrentContract() {
   if (!canEdit()) { toast('🔒 Accès en lecture seule — suppressions non autorisées pour ce niveau', 'warning'); return; }
   const r = db.find(x => x._id === editingId);
   if (!r) return;
-  if (confirm(`Supprimer "${r.Installation}" ?\nCette action est irréversible.`)) {
+  confirmDelete(`Supprimer "${r.Installation}" ?`, () => {
     db = db.filter(x => x._id !== editingId);
     SP.deleteContract(r).catch(e => toast('Erreur suppression SharePoint', 'error'));
     if (!SP.isOnSharePoint) saveDB();
     buildFilters(); updateStats(); applyFilters();
     closeModal('formModal');
     toast('🗑 Contrat supprimé', 'warning');
-  }
+  });
 }
 
 // ── RÉSILIATIONS ──────────────────────────────────────────────────────────
@@ -5241,6 +5243,31 @@ function escJs(str) {
 }
 
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+/* ─── Modale confirmation suppression ──────────── */
+let _confirmDeleteCallback = null;
+
+function confirmDelete(message, onConfirm) {
+  const modal = document.getElementById('confirmDeleteModal');
+  const msg   = document.getElementById('confirmDeleteMsg');
+  if (!modal || !msg) { if (confirm(message)) onConfirm(); return; }
+  msg.textContent = message;
+  _confirmDeleteCallback = onConfirm;
+  modal.style.display = 'flex';
+  // Fermeture sur clic overlay
+  modal.onclick = function(e) { if (e.target === modal) confirmDeleteCancel(); };
+}
+
+function confirmDeleteOk() {
+  document.getElementById('confirmDeleteModal').style.display = 'none';
+  if (typeof _confirmDeleteCallback === 'function') _confirmDeleteCallback();
+  _confirmDeleteCallback = null;
+}
+
+function confirmDeleteCancel() {
+  document.getElementById('confirmDeleteModal').style.display = 'none';
+  _confirmDeleteCallback = null;
+}
 
 /* Toast */
 function toast(msg, type='') {
@@ -7154,13 +7181,14 @@ function deleteFamille(i) {
     ? `Supprimer "${val}" ?
 ⚠ ${used} contrat(s) utilisent cette famille.`
     : `Supprimer "${val}" ?`;
-  if (!confirm(msg)) return;
-  familleMat.splice(i, 1);
-  saveFamilleMat();
-  refreshFamilleSelect();
-  renderFamilleMat();
-  buildFilters();
-  toast('Famille supprimée', 'warning');
+  confirmDelete(msg, () => {
+    familleMat.splice(i, 1);
+    saveFamilleMat();
+    refreshFamilleSelect();
+    renderFamilleMat();
+    buildFilters();
+    toast('Famille supprimée', 'warning');
+  });
 }
 
 function saveAgences() {
@@ -9321,18 +9349,20 @@ function envoyerIdentifiants() {
   body += `📋 CONFIGURATION REQUISE\n`;
   body += `──────────────────────────────────────\n\n`;
   body += `1️⃣  NAVIGATEUR\n`;
-  body += `   Utilisez exclusivement Google Chrome pour accéder à l'application.\n\n`;
-  body += `2️⃣  EXTENSION LocalExplorer (pour ouvrir les dossiers depuis l'application)\n`;
-  body += `   Téléchargez et installez l'extension Chrome :\n`;
-  body += `   🔗 https://chromewebstore.google.com/detail/local-explorer-open-file/eokekhgpaakbkfkmjjcbffibkencdfkl\n`;
-  body += `   Puis installez le programme compagnon LocalExplorer-Setup :\n`;
-  body += `   🔗 http://www.vnprodev.com/browser-extensions/local-explorer-install.php\n\n`;
+  body += `   Utilisez exclusivement Google Chrome pour accéder à l'application.\n`;
+  body += `   Télécharger Chrome (si besoin) :\n`;
+  body += `   https://www.google.com/chrome\n\n`;
+  body += `2️⃣  EXTENSION LocalExplorer (pour ouvrir les dossiers depuis l'application)\n\n`;
+  body += `   Étape A — Installer l'extension Chrome :\n`;
+  body += `   https://chromewebstore.google.com/detail/local-explorer-open-file/eokekhgpaakbkfkmjjcbffibkencdfkl\n\n`;
+  body += `   Étape B — Installer le programme compagnon LocalExplorer-Setup :\n`;
+  body += `   http://www.vnprodev.com/browser-extensions/local-explorer-install.php\n\n`;
   body += `3️⃣  CHEMIN D'ACCÈS AUX DOSSIERS\n`;
-  body += `   Une fois connecté(e), renseignez votre chemin réseau personnel :\n`;
+  body += `   Une fois connecté(e), renseignez votre chemin personnel :\n`;
   body += `   • Cliquez sur votre nom en haut à gauche de l'application\n`;
   body += `   • Dans votre fiche, renseignez le champ "Chemin dossier"\n`;
   body += `   • Saisissez le chemin complet jusqu'au dossier "2- CLASSEES"\n`;
-  body += `     Exemple : \\\\serveur\\partage\\APSAD\\2- CLASSEES\n`;
+  body += `     Exemple : C:\\Users\\Michel\\ACF Incendie\\Technique - Documents\\4-TECHNIQUE\\2- CLASSEES\n`;
   body += `   • Enregistrez — ce chemin vous permettra d'ouvrir directement les dossiers depuis l'application\n`;
   body += `\nCordialement`;
 
@@ -9437,27 +9467,29 @@ function deleteTechFicheFromForm() {
   }
   const t = techFiches[idx];
   const nom = [t.prenom, t.nom].filter(Boolean).join(' ') || 'ce technicien';
-  if (!confirm(`Supprimer la fiche de ${nom} ?`)) return;
-  techFiches.splice(idx, 1);
-  saveTechFiches();
-  renderTechOrderInline();
-  buildFilters();
-  showTechFichesList();
-  updateSynthese();
-  toast('Fiche supprimée', '');
+  confirmDelete(`Supprimer la fiche de ${nom} ?`, () => {
+    techFiches.splice(idx, 1);
+    saveTechFiches();
+    renderTechOrderInline();
+    buildFilters();
+    showTechFichesList();
+    updateSynthese();
+    toast('Fiche supprimée', '');
+  });
 }
 
 function deleteTechFiche(idx) {
   const t = techFiches[idx];
   const nom = [t.prenom, t.nom].filter(Boolean).join(' ') || 'ce technicien';
-  if (!confirm(`Supprimer la fiche de ${nom} ?`)) return;
-  techFiches.splice(idx, 1);
-  saveTechFiches();
-  renderTechOrderInline();
-  buildFilters();
-  showTechFichesList();
-  updateSynthese();
-  toast('Fiche supprimée', '');
+  confirmDelete(`Supprimer la fiche de ${nom} ?`, () => {
+    techFiches.splice(idx, 1);
+    saveTechFiches();
+    renderTechOrderInline();
+    buildFilters();
+    showTechFichesList();
+    updateSynthese();
+    toast('Fiche supprimée', '');
+  });
 }
 
 /* ═══════════════════════════════════════════════
@@ -10208,6 +10240,27 @@ function applyDashLogo(dataUrl) {
 
 </div><!-- fin dernière modale -->
 </div><!-- fin avant-dernière modale -->
+
+<!-- MODALE CONFIRMATION SUPPRESSION -->
+<div id="confirmDeleteModal" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(2px)">
+  <div style="background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.22);width:100%;max-width:380px;margin:16px;overflow:hidden">
+    <div style="background:#fee2e2;padding:20px 24px 14px;display:flex;align-items:center;gap:14px">
+      <div style="background:#dc2626;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">🗑</div>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:#991b1b">Confirmer la suppression</div>
+        <div style="font-size:11px;color:#b91c1c;margin-top:2px">Cette action est irréversible</div>
+      </div>
+    </div>
+    <div style="padding:18px 24px">
+      <p id="confirmDeleteMsg" style="font-size:13px;color:#374151;margin:0 0 18px;line-height:1.5"></p>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="confirmDeleteCancel()" style="padding:8px 20px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;font-size:13px;font-weight:600;cursor:pointer">Annuler</button>
+        <button onclick="confirmDeleteOk()" style="padding:8px 20px;border-radius:8px;border:none;background:#dc2626;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(220,38,38,.35)">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div><!-- fin #app -->
 <script>
 if ('serviceWorker' in navigator) {
