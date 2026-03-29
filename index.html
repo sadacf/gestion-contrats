@@ -1144,6 +1144,10 @@ function loadSheetJS(callback) {
       </div>
     </div>
 
+    <!-- 🏷️ Section Répartition Matériel — dynamique -->
+    <div class="synth-section" style="margin-top:10px">Répartition Matériel</div>
+    <div id="indicMatSection" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin-bottom:10px"></div>
+
     <!-- ⚠️ Section retards — layout 2 colonnes -->
     <div style="margin-top:12px;display:flex;gap:0;align-items:stretch;margin-bottom:10px">
 
@@ -1171,12 +1175,12 @@ function loadSheetJS(callback) {
 
         <!-- Manque rapport + Q7 en attente -->
         <div id="indicRapportQ7Row" style="display:none;gap:0;margin-bottom:0;flex-direction:column">
-          <div id="indicManqueRapportBar" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #16a34a;border-radius:0;padding:10px 16px;align-items:center;gap:12px;flex-wrap:nowrap;border-top:none;border-bottom:none;flex-direction:row">
+          <div id="indicManqueRapportBar" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #16a34a;border-radius:0;padding:10px 16px;align-items:center;gap:12px;flex-wrap:nowrap;border-top:none;border-bottom:none">
             <span style="font-size:22px;font-weight:800;color:#16a34a" id="in-manque-rapport-total">–</span>
             <span style="font-size:12px;font-weight:700;color:#166534;line-height:1.3;flex:1">Manque rapport <span style="font-weight:400;color:#15803d;font-size:11px">— VE réalisée, rapport non remis</span></span>
             <button class="tbtn" style="background:#16a34a;color:#fff;border-color:#15803d;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="filterSansRapportForTech(null)">↗ Voir la liste</button>
           </div>
-          <div id="indicQ7RetardBar" style="display:none;background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #d97706;border-top:none;border-radius:0 0 0 6px;padding:10px 16px;align-items:center;gap:12px;flex-wrap:nowrap;flex-direction:row">
+          <div id="indicQ7RetardBar" style="display:none;background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #d97706;border-top:none;border-radius:0 0 0 6px;padding:10px 16px;align-items:center;gap:12px;flex-wrap:nowrap">
             <span style="font-size:22px;font-weight:800;color:#d97706" id="in-q7-retard-total">–</span>
             <span style="font-size:12px;font-weight:700;color:#92400e;line-height:1.3;flex:1">Q7 en attente <span style="font-weight:400;color:#b45309;font-size:11px">— VE archivée, rapport Q7 non délivré</span></span>
             <button class="tbtn" style="background:#d97706;color:#fff;border-color:#d97706;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="filterFromIndic('q7_retard')">↗ Voir la liste</button>
@@ -1483,6 +1487,9 @@ function loadSheetJS(callback) {
                   <option value="direction">🎯 Direction</option>
                   <option value="custom1" id="opt-custom1">🛠 Personnalisé 1</option>
                   <option value="custom2" id="opt-custom2">🛠 Personnalisé 2</option>
+                  <option value="custom3" id="opt-custom3">🛠 Personnalisé 3</option>
+                  <option value="custom4" id="opt-custom4">🛠 Personnalisé 4</option>
+                  <option value="custom5" id="opt-custom5">🛠 Personnalisé 5</option>
                   <option value="administrateur">🔑 Administrateur</option>
                 </select>
               </div>
@@ -1528,7 +1535,7 @@ function loadSheetJS(callback) {
 
 <!-- MODAL DROITS D'ACCÈS -->
 <div class="overlay" id="rolePermsModal" style="z-index:200">
-  <div class="modal-box" style="width:900px;max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-box" style="width:1100px;max-height:92vh;display:flex;flex-direction:column">
     <div class="modal-header">
       <span style="font-size:18px">🔐</span>
       <h2>Droits d'accès</h2>
@@ -1537,15 +1544,27 @@ function loadSheetJS(callback) {
     <div class="modal-body" style="flex:1;overflow:auto;padding:14px 16px">
 
       <!-- Noms des rôles personnalisés -->
-      <div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+      <div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
         <span style="font-size:11px;font-weight:700;color:#854d0e;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap">🛠 Noms perso :</span>
-        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:160px">
+        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:140px">
           <label style="font-size:11px;font-weight:600;color:#374151;white-space:nowrap">Rôle 1 :</label>
           <input type="text" id="custom1-label" class="form-input" placeholder="Ex: Gestion Riviera" style="flex:1;font-size:12px;padding:4px 8px">
         </div>
-        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:160px">
+        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:140px">
           <label style="font-size:11px;font-weight:600;color:#374151;white-space:nowrap">Rôle 2 :</label>
           <input type="text" id="custom2-label" class="form-input" placeholder="Ex: Direction Alpes" style="flex:1;font-size:12px;padding:4px 8px">
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:140px">
+          <label style="font-size:11px;font-weight:600;color:#374151;white-space:nowrap">Rôle 3 :</label>
+          <input type="text" id="custom3-label" class="form-input" placeholder="Ex: Gestion Alpes" style="flex:1;font-size:12px;padding:4px 8px">
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:140px">
+          <label style="font-size:11px;font-weight:600;color:#374151;white-space:nowrap">Rôle 4 :</label>
+          <input type="text" id="custom4-label" class="form-input" placeholder="Ex: Lecture seule+" style="flex:1;font-size:12px;padding:4px 8px">
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:140px">
+          <label style="font-size:11px;font-weight:600;color:#374151;white-space:nowrap">Rôle 5 :</label>
+          <input type="text" id="custom5-label" class="form-input" placeholder="Ex: Superviseur" style="flex:1;font-size:12px;padding:4px 8px">
         </div>
       </div>
 
@@ -1911,7 +1930,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/29-03-26-21:58';
+const APP_VERSION = 'V1/29-03-26-22:15';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4047,6 +4066,12 @@ function filterFromIndic(type) {
     activeRetardTech = null;
   } else if (type === 'debit' || type === 'formation' || type === 'recond' || type === 'apsad' || type === 'sans_tech' || type === 'sans_mat' || type === 'validite_expire' || type === 'sans_ve_v1' || type === 'sans_ve_v2' || type === 'sans_type' || type === 'mat_incoherent') {
     activeQuickFilter = type;
+  } else if (type.startsWith('mat_')) {
+    // Filtre par famille de matériel depuis le tableau de bord
+    const matVal = type.slice(4); // ex: "mat_ECS" → "ECS"
+    activeQuickFilter = 'all';
+    const fMat = document.getElementById('fMat');
+    if (fMat) fMat.value = matVal;
   } else if (type === 'ECS') {
     activeQuickFilter = 'all';
     document.getElementById('searchBox').value = 'ECS';
@@ -4281,6 +4306,19 @@ function renderTable() {
       return '';
     })();
 
+    // Badge "Nouveau" : contrat créé dans l'appli, VE1 et VE2 pas encore Réalisée/Archivée
+    const isNouveau = (() => {
+      if (!r._createdAt) return false;
+      const ve1c = getVeColorForRecord(r, 've1');
+      const ve2c = getVeColorForRecord(r, 've2');
+      const realiseOuArchive = c => c === '92D050' || c === '00B0F0';
+      // Nouveau tant qu'aucune VE n'est Réalisée ou Archivée
+      return !realiseOuArchive(ve1c) && !realiseOuArchive(ve2c);
+    })();
+    const nouveauBadge = isNouveau
+      ? `<span title="Nouveau contrat" style="display:inline-flex;align-items:center;font-size:9px;font-weight:800;padding:1px 6px;border-radius:10px;background:#fce7f3;color:#be185d;border:1px solid #f9a8d4;white-space:nowrap;letter-spacing:.2px;flex-shrink:0">✦ NOUVEAU</span>`
+      : '';
+
     return `
     <tr title="${tooltip}" onclick="selectTableRow(this)" style="cursor:pointer">
       
@@ -4291,6 +4329,7 @@ function renderTable() {
             ? `<div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}</div>`
             : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}</div>`
           }
+          ${nouveauBadge}
           ${r.Lien_Dossier ? `<span onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}');event.stopPropagation()" title="Ouvrir le dossier rapports" style="cursor:pointer;font-size:11px;flex-shrink:0;transition:transform .15s;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#bfdbfe;border-radius:4px;border:1px solid #93c5fd" onmouseover="this.style.transform='scale(1.15)';this.style.background='#93c5fd'" onmouseout="this.style.transform='scale(1)';this.style.background='#bfdbfe'">✉️</span>` : ''}
         </div>
         ${r.Client ? `<div style="font-size:11px;color:#64748b;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:360px">${esc(r.Client)}</div>` : ''}
@@ -4976,6 +5015,7 @@ function saveContract() {
     toast('✅ Contrat modifié', 'success');
   } else {
     pushUndo(`Ajout "${record.Installation||'?'}"`);
+    record._createdAt = new Date().toISOString();
     db.push(record);
     toast('✅ Contrat ajouté', 'success');
   }
@@ -6175,7 +6215,36 @@ function updateSynthese() {
     aleasOk.style.display = (sansMat.length === 0 && sansTech.length === 0 && validiteExpire.length === 0 && sansVeV1.length === 0 && sansVeV2.length === 0) ? 'block' : 'none';
   }
 
-  // ── Alerte : contrats sans type ──
+  // ── Répartition Matériel dynamique ──
+  const matSection = document.getElementById('indicMatSection');
+  if (matSection) {
+    const matCount = {};
+    _src.forEach(r => {
+      const m = (r.Type_Materiel || '').trim() || '(sans matériel)';
+      matCount[m] = (matCount[m] || 0) + 1;
+    });
+    const matColors = { 'ECS':'#dbeafe', 'CMSI':'#ede9fe', 'ECS/CMSI':'#e0e7ff', 'PROTECTION':'#ffedd5', 'BAES':'#fef9c3', 'RIA':'#d1fae5', 'CAT.B':'#fce7f3', 'DECT':'#e0f2fe', 'HABITATION':'#f0fdf4', '(sans matériel)':'#f1f5f9' };
+    const matText   = { 'ECS':'#1d4ed8', 'CMSI':'#6d28d9', 'ECS/CMSI':'#4338ca', 'PROTECTION':'#c2410c', 'BAES':'#92400e', 'RIA':'#065f46', 'CAT.B':'#be185d', 'DECT':'#0369a1', 'HABITATION':'#166534', '(sans matériel)':'#64748b' };
+    const sorted = Object.entries(matCount).sort((a,b) => b[1]-a[1]);
+    matSection.innerHTML = sorted.map(([mat, cnt]) => {
+      const bg   = matColors[mat] || '#f8fafc';
+      const txt  = matText[mat]  || '#334155';
+      const pct  = _src.length > 0 ? Math.round(cnt/_src.length*100) : 0;
+      const filter = mat === '(sans matériel)' ? 'sans_mat' : `mat_${mat}`;
+      return `<div onclick="filterFromIndic('${filter}')" title="${mat} — ${cnt} contrat(s) (${pct}%) — cliquer pour filtrer"
+        style="background:${bg};border:1px solid ${txt}22;border-radius:8px;padding:7px 10px;cursor:pointer;transition:transform .1s,box-shadow .1s"
+        onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,.1)'"
+        onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="font-size:18px;font-weight:800;color:${txt};line-height:1">${cnt}</div>
+        <div style="font-size:10px;font-weight:700;color:${txt};margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${mat}</div>
+        <div style="margin-top:4px;height:3px;background:${txt}22;border-radius:2px"><div style="height:100%;width:${pct}%;background:${txt};border-radius:2px;transition:width .3s"></div></div>
+        <div style="font-size:9px;color:${txt};opacity:.7;margin-top:1px">${pct}%</div>
+      </div>`;
+    }).join('');
+    if (sorted.length === 0) matSection.innerHTML = '<div style="font-size:12px;color:#94a3b8;padding:8px">Aucune donnée</div>';
+  }
+
+
   const sansType = _src.filter(r => !r.Type_Contrat || !r.Type_Contrat.trim());
   const sansTypeBar = document.getElementById('indicSansTypeBar');
   if (sansTypeBar) {
@@ -7285,8 +7354,14 @@ function renderTechOrderInline() {
     if (filterAgence  && !fiche) return ''; // orphelin sans fiche ignoré si filtre agence
     if (filterService && !fiche) return ''; // orphelin sans fiche ignoré si filtre service
 
-    const niveauColors2 = { technicien:'#7c3aed', gestion:'#065f46', chef_service:'#b45309', administrateur:'#e53935', utilisateur:'var(--blue)', visualisation:'#78909c', custom1:'#0369a1', custom2:'#0369a1' };
-    const niveauLabels2 = { technicien:'Tech', gestion:'Gest.', chef_service:'Resp.', administrateur:'Admin', utilisateur:'User', visualisation:'Visu', custom1: getCustomRoleName('custom1').substring(0,6), custom2: getCustomRoleName('custom2').substring(0,6) };
+    const niveauColors2 = { technicien:'#7c3aed', gestion:'#065f46', chef_service:'#b45309', administrateur:'#e53935', utilisateur:'var(--blue)', visualisation:'#78909c', direction:'#1d4ed8', custom1:'#0369a1', custom2:'#0369a1', custom3:'#0369a1', custom4:'#6b7280', custom5:'#6b7280' };
+    const niveauLabels2 = { technicien:'Tech', gestion:'Gest.', chef_service:'Resp.', administrateur:'Admin', utilisateur:'User', visualisation:'Visu', direction:'Dir.',
+      custom1: getCustomRoleName('custom1').substring(0,6),
+      custom2: getCustomRoleName('custom2').substring(0,6),
+      custom3: getCustomRoleName('custom3').substring(0,6),
+      custom4: getCustomRoleName('custom4').substring(0,6),
+      custom5: getCustomRoleName('custom5').substring(0,6),
+    };
     const passIndicator = fiche
       ? (fiche.passwordHash
           ? '<span style="font-size:9px;color:#16a34a;margin-left:4px">●●●</span>'
@@ -7369,14 +7444,21 @@ const DEFAULT_ROLE_PERMS = {
   technicien:   { edit:false, delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
   chef_service: { edit:false, delete:false, manageTech:true,  importExport:false, rightClick:false, commentaire:true,  editVE:false },
   gestion:      { edit:true,  delete:true,  manageTech:true,  importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
+  direction:    { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:false, editVE:false },
   custom1:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
   custom2:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
+  custom3:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
+  custom4:      { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:true,  editVE:false },
+  custom5:      { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:true,  editVE:false },
 };
 
 // Périmètre données par rôle perso : { detection: ['*'|'Aix'|'Alpes'|'Riviera'], protection: [...] }
 const DEFAULT_DATA_PERMS = {
   custom1: { detection: ['*'], protection: ['*'] },
   custom2: { detection: ['*'], protection: ['*'] },
+  custom3: { detection: ['*'], protection: ['*'] },
+  custom4: { detection: ['*'], protection: ['*'] },
+  custom5: { detection: ['*'], protection: ['*'] },
 };
 
 let _dataPerms = null;
@@ -7384,7 +7466,7 @@ function getDataPerms() { return _dataPerms || JSON.parse(JSON.stringify(DEFAULT
 
 // Noms personnalisés des rôles custom
 const CUSTOM_ROLE_NAMES_KEY = 'gestion_contrats_custom_role_names';
-let _customRoleNames = { custom1: 'Personnalisé 1', custom2: 'Personnalisé 2' };
+let _customRoleNames = { custom1: 'Personnalisé 1', custom2: 'Personnalisé 2', custom3: 'Personnalisé 3', custom4: 'Personnalisé 4', custom5: 'Personnalisé 5' };
 function getCustomRoleName(role) { return _customRoleNames[role] || role; }
 let _rolePerms = null;
 function getRolePerms() { return _rolePerms || JSON.parse(JSON.stringify(DEFAULT_ROLE_PERMS)); }
@@ -7418,6 +7500,9 @@ const ROLE_LABELS = {
   direction:    '🎯 Direction',
   get custom1() { return '🛠 ' + getCustomRoleName('custom1'); },
   get custom2() { return '🛠 ' + getCustomRoleName('custom2'); },
+  get custom3() { return '🛠 ' + getCustomRoleName('custom3'); },
+  get custom4() { return '🛠 ' + getCustomRoleName('custom4'); },
+  get custom5() { return '🛠 ' + getCustomRoleName('custom5'); },
 };
 
 function openRolePerms() {
@@ -7425,8 +7510,14 @@ function openRolePerms() {
   try { _customRoleNames = JSON.parse(localStorage.getItem(CUSTOM_ROLE_NAMES_KEY) || '{}'); } catch {}
   _customRoleNames.custom1 = _customRoleNames.custom1 || 'Personnalisé 1';
   _customRoleNames.custom2 = _customRoleNames.custom2 || 'Personnalisé 2';
+  _customRoleNames.custom3 = _customRoleNames.custom3 || 'Personnalisé 3';
+  _customRoleNames.custom4 = _customRoleNames.custom4 || 'Personnalisé 4';
+  _customRoleNames.custom5 = _customRoleNames.custom5 || 'Personnalisé 5';
   document.getElementById('custom1-label').value = _customRoleNames.custom1;
   document.getElementById('custom2-label').value = _customRoleNames.custom2;
+  document.getElementById('custom3-label').value = _customRoleNames.custom3;
+  document.getElementById('custom4-label').value = _customRoleNames.custom4;
+  document.getElementById('custom5-label').value = _customRoleNames.custom5;
   renderRolePermsGrid();
   renderDataPermsGrid();
   document.getElementById('rolePermsModal').classList.add('open');
@@ -7434,14 +7525,16 @@ function openRolePerms() {
 
 function renderRolePermsGrid() {
   const perms = getRolePerms();
-  const roles = ['technicien', 'chef_service', 'gestion', 'custom1', 'custom2'];
+  const roles = ['technicien', 'chef_service', 'gestion', 'direction', 'custom1', 'custom2', 'custom3', 'custom4', 'custom5'];
   const permKeys = Object.keys(PERM_LABELS);
   const grid = document.getElementById('rolePermsGrid');
   if (!grid) return;
 
   const roleHeader = r => {
-    if (r === 'custom1') return `🛠 ${_customRoleNames.custom1||'Perso 1'}`;
-    if (r === 'custom2') return `🛠 ${_customRoleNames.custom2||'Perso 2'}`;
+    if (r.startsWith('custom')) {
+      const n = r.slice(6); // '1'-'5'
+      return `🛠 ${_customRoleNames[r]||'Perso '+n}`;
+    }
     return ROLE_LABELS[r] || r;
   };
 
@@ -7483,8 +7576,9 @@ function renderDataPermsGrid() {
   if (!grid) return;
 
   let html = '';
-  ['custom1', 'custom2'].forEach(role => {
-    const nomRole = _customRoleNames[role] || (role === 'custom1' ? 'Personnalisé 1' : 'Personnalisé 2');
+  ['custom1', 'custom2', 'custom3', 'custom4', 'custom5'].forEach(role => {
+    const n = role.slice(6);
+    const nomRole = _customRoleNames[role] || ('Personnalisé ' + n);
     const dp = dataPerms[role] || { detection: ['*'], protection: ['*'] };
 
     html += `<div style="border:1px solid #fde68a;border-radius:6px;padding:8px 12px;margin-bottom:10px;background:#fffbeb">
@@ -7539,14 +7633,15 @@ function toggleDataPermAll(role, type) {
 }
 
 function saveRolePerms() {
-  const roles = ['technicien', 'chef_service', 'gestion', 'custom1', 'custom2'];
+  const roles = ['technicien', 'chef_service', 'gestion', 'direction', 'custom1', 'custom2', 'custom3', 'custom4', 'custom5'];
   const permKeys = Object.keys(PERM_LABELS);
   const agences = ['Aix', 'Alpes', 'Riviera'];
   const types = ['detection', 'protection'];
 
   // Sauvegarder noms perso
-  _customRoleNames.custom1 = document.getElementById('custom1-label')?.value.trim() || 'Personnalisé 1';
-  _customRoleNames.custom2 = document.getElementById('custom2-label')?.value.trim() || 'Personnalisé 2';
+  ['custom1','custom2','custom3','custom4','custom5'].forEach((r, i) => {
+    _customRoleNames[r] = document.getElementById(`${r}-label`)?.value.trim() || `Personnalisé ${i+1}`;
+  });
   localStorage.setItem(CUSTOM_ROLE_NAMES_KEY, JSON.stringify(_customRoleNames));
 
   // Sauvegarder permissions actions
@@ -7561,7 +7656,7 @@ function saveRolePerms() {
 
   // Sauvegarder périmètre données
   const newDataPerms = {};
-  ['custom1', 'custom2'].forEach(role => {
+  ['custom1', 'custom2', 'custom3', 'custom4', 'custom5'].forEach(role => {
     newDataPerms[role] = {};
     types.forEach(type => {
       const allChecked = document.getElementById(`dp_${role}_${type}_all`)?.checked;
@@ -7575,12 +7670,24 @@ function saveRolePerms() {
   _dataPerms = newDataPerms;
   localStorage.setItem('gestion_contrats_dataPerms', JSON.stringify(newDataPerms));
   SP.saveAll({ rolePerms: newPerms, dataPerms: newDataPerms });
+  // Mettre à jour les labels dans la fiche utilisateur
+  refreshCustomRoleLabelsInSelect();
   applyAccessLevel();
   closeModal('rolePermsModal');
   toast('✅ Droits d\u0027acc\u00e8s enregistr\u00e9s', 'success');
 }
 
 
+
+// Synchronise les labels des rôles custom dans le select tf-droit (fiche utilisateur)
+function refreshCustomRoleLabelsInSelect() {
+  const sel = document.getElementById("tf-droit");
+  if (!sel) return;
+  ["custom1","custom2","custom3","custom4","custom5"].forEach(r => {
+    const opt = document.getElementById("opt-" + r);
+    if (opt) opt.textContent = "🛠 " + (getCustomRoleName(r));
+  });
+}
 function techLoginFromFiche(fiche) {
   // identifiant = initiale prénom + nom complet, tout en minuscules sans espaces
   const prenom = (fiche.prenom || '').trim();
@@ -7609,7 +7716,7 @@ function onTechNiveauChange() {
     liesWrap.style.display = (n === 'technicien' && isAdmin) ? '' : 'none';
     if (n === 'technicien' && isAdmin) populateTechsLiesList();
   }
-  const needsPass = (n === 'technicien' || n === 'gestion' || n === 'chef_service' || n === 'administrateur' || n === 'direction' || n === 'custom1' || n === 'custom2');
+  const needsPass = (n === 'technicien' || n === 'gestion' || n === 'chef_service' || n === 'administrateur' || n === 'direction' || n === 'custom1' || n === 'custom2' || n === 'custom3' || n === 'custom4' || n === 'custom5');
   if (passWrap) passWrap.style.display = needsPass ? '' : 'none';
   if (passHint) passHint.textContent   = needsPass ? 'Laisser vide pour conserver le mot de passe actuel' : '';
   const noPassHint = document.getElementById('tf-nopass-hint');
@@ -7951,6 +8058,10 @@ function closeLoginAndStart() {
     _customRoleNames = JSON.parse(localStorage.getItem(CUSTOM_ROLE_NAMES_KEY) || '{}');
     _customRoleNames.custom1 = _customRoleNames.custom1 || 'Personnalisé 1';
     _customRoleNames.custom2 = _customRoleNames.custom2 || 'Personnalisé 2';
+    _customRoleNames.custom3 = _customRoleNames.custom3 || 'Personnalisé 3';
+    _customRoleNames.custom4 = _customRoleNames.custom4 || 'Personnalisé 4';
+    _customRoleNames.custom5 = _customRoleNames.custom5 || 'Personnalisé 5';
+    refreshCustomRoleLabelsInSelect();
   } catch {}
   try {
     const savedDataPerms = JSON.parse(localStorage.getItem('gestion_contrats_dataPerms') || 'null');
@@ -8080,8 +8191,8 @@ function niveauLabel(n) {
     : n === 'chef_service' ? "Responsable d'activité"
     : n === 'gestion'      ? 'Gestion'
     : n === 'direction'    ? 'Direction'
-    : n === 'custom1'      ? getCustomRoleName('custom1')
-    : n === 'custom2'      ? getCustomRoleName('custom2')
+    : (n === 'custom1' || n === 'custom2' || n === 'custom3' || n === 'custom4' || n === 'custom5')
+      ? getCustomRoleName(n)
     : 'Technicien';
 }
 
@@ -8090,7 +8201,7 @@ function applyAccessLevel() {
   const lvl = _currentUser.niveau;
   const isAdmin  = lvl === 'admin' || lvl === 'administrateur';
   const isTech   = lvl === 'technicien';
-  const isCustom = lvl === 'custom1' || lvl === 'custom2';
+  const isCustom = lvl === 'custom1' || lvl === 'custom2' || lvl === 'custom3' || lvl === 'custom4' || lvl === 'custom5';
 
   // Appliquer le filtre de données pour les rôles personnalisés
   if (isCustom) {
