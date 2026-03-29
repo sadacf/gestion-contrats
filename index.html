@@ -1185,10 +1185,10 @@ function loadSheetJS(callback) {
       </div>
 
       <!-- Colonne droite : bouton mail global -->
-      <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#2563eb;border:2px solid #1d4ed8;border-radius:16px;padding:10px 14px;min-width:100px;max-width:110px;cursor:pointer;gap:6px;text-align:center;align-self:stretch;box-shadow:0 4px 12px rgba(37,99,235,.35);transition:background .2s,box-shadow .2s" onmouseover="this.style.background='#1d4ed8';this.style.boxShadow='0 6px 16px rgba(37,99,235,.5)'" onmouseout="this.style.background='#2563eb';this.style.boxShadow='0 4px 12px rgba(37,99,235,.35)'" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
-        <span style="font-size:18px">📧</span>
-        <span style="font-size:9px;font-weight:800;color:#fff;line-height:1.4;text-transform:uppercase;letter-spacing:.5px">Envoyer<br>tous les<br>mails</span>
-        <span id="btnMailGlobalPastille" style="display:none;width:10px;height:10px;border-radius:50%;flex-shrink:0"></span>
+      <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#2563eb;border:2px solid #1d4ed8;border-radius:16px;padding:6px 8px;min-width:72px;max-width:80px;cursor:pointer;gap:3px;text-align:center;align-self:stretch;box-shadow:0 4px 12px rgba(37,99,235,.35);transition:background .2s,box-shadow .2s" onmouseover="this.style.background='#1d4ed8';this.style.boxShadow='0 6px 16px rgba(37,99,235,.5)'" onmouseout="this.style.background='#2563eb';this.style.boxShadow='0 4px 12px rgba(37,99,235,.35)'" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
+        <span style="font-size:13px">📧</span>
+        <span style="font-size:8px;font-weight:800;color:#fff;line-height:1.4;text-transform:uppercase;letter-spacing:.5px">Envoyer<br>tous les<br>mails</span>
+        <span id="btnMailGlobalPastille" style="display:none;width:8px;height:8px;border-radius:50%;flex-shrink:0"></span>
       </div>
 
     </div>
@@ -1911,17 +1911,25 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/29-03-26-10:14';
+const APP_VERSION = 'V1/29-03-26-10:33';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
+  {
+    version: '2.12.2',
+    date: '29/03/2026',
+    items: [
+      { type: 'improve', text: 'Mail identifiants : ajout procédure configuration (Chrome, LocalExplorer, chemin dossier)' },
+      { type: 'improve', text: 'Bouton "Envoyer tous les mails" : couleur bleue, coins arrondis, taille réduite' },
+    ]
+  },
   {
     version: '2.12.0',
     date: '28/03/2026',
     items: [
       { type: 'new',     text: 'Droits d\'accès : 2 rôles personnalisés avec périmètre données (type + agence)' },
       { type: 'new',     text: 'Bouton mail récapitulatif par badge technicien (retards + Q7 + rapports)' },
-      { type: 'new',     text: 'Bouton "Envoyer tous les mails" : carré violet à droite du bloc retards' },
+      { type: 'new',     text: 'Bouton "Envoyer tous les mails" : à droite du bloc retards' },
       { type: 'new',     text: 'Pastille verte/jaune sur bouton mail : indique si mail déjà envoyé ce mois' },
       { type: 'new',     text: 'CC automatique sur tous les mails (Olivier Belliard + expéditeur)' },
       { type: 'new',     text: 'Envoi automatique mails retards le dernier jour ouvrable du mois' },
@@ -7876,7 +7884,8 @@ function openChangelogSidebar() {
   const bgs    = { new: '#eff6ff', fix: '#fefce8', improve: '#f0fdf4' };
 
   let html = '';
-  CHANGELOG.forEach((ver, idx) => {
+  const MAX_VERSIONS = 5;
+  CHANGELOG.slice(0, MAX_VERSIONS).forEach((ver, idx) => {
     const isLatest = idx === 0;
     html += `
       <div style="margin-bottom:16px;border:1px solid ${isLatest ? '#bfdbfe' : '#e2e8f0'};border-radius:10px;overflow:hidden">
@@ -7897,6 +7906,9 @@ function openChangelogSidebar() {
         </div>
       </div>`;
   });
+  if (CHANGELOG.length > MAX_VERSIONS) {
+    html += `<div style="text-align:center;padding:8px;font-size:11px;color:#94a3b8">${CHANGELOG.length - MAX_VERSIONS} version(s) plus ancienne(s) non affichée(s)</div>`;
+  }
 
   body.innerHTML = html || '<div style="text-align:center;padding:40px;color:#94a3b8">Aucune mise a jour enregistree</div>';
   panel.style.display = 'flex';
@@ -9305,6 +9317,23 @@ function envoyerIdentifiants() {
   } else {
     body += `🔑 Mot de passe : (inchangé — utilisez votre mot de passe actuel)\n`;
   }
+  body += `\n──────────────────────────────────────\n`;
+  body += `📋 CONFIGURATION REQUISE\n`;
+  body += `──────────────────────────────────────\n\n`;
+  body += `1️⃣  NAVIGATEUR\n`;
+  body += `   Utilisez exclusivement Google Chrome pour accéder à l'application.\n\n`;
+  body += `2️⃣  EXTENSION LocalExplorer (pour ouvrir les dossiers depuis l'application)\n`;
+  body += `   Téléchargez et installez l'extension Chrome :\n`;
+  body += `   🔗 https://chrome.google.com/webstore/detail/local-explorer-file-manag/eokekhgpaakbkfkmjjkhjlnekoobfgdi\n`;
+  body += `   Puis installez le programme compagnon LocalExplorer-Setup :\n`;
+  body += `   🔗 https://localexplorer.net/download\n\n`;
+  body += `3️⃣  CHEMIN D'ACCÈS AUX DOSSIERS\n`;
+  body += `   Une fois connecté(e), renseignez votre chemin réseau personnel :\n`;
+  body += `   • Cliquez sur votre nom en haut à gauche de l'application\n`;
+  body += `   • Dans votre fiche, renseignez le champ "Chemin dossier"\n`;
+  body += `   • Saisissez le chemin complet jusqu'au dossier "2- CLASSEES"\n`;
+  body += `     Exemple : \\\\serveur\\partage\\APSAD\\2- CLASSEES\n`;
+  body += `   • Enregistrez — ce chemin vous permettra d'ouvrir directement les dossiers depuis l'application\n`;
   body += `\nCordialement`;
 
   const subject = encodeURIComponent(`Identifiants — Gestion Contrats APSAD`);
