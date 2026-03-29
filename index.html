@@ -1911,7 +1911,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/29-03-26-11:31';
+const APP_VERSION = 'V1/29-03-26-11:49';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -9368,6 +9368,14 @@ function envoyerIdentifiants() {
   body += `   • Saisissez le chemin complet jusqu'au dossier "2- CLASSEES"${L}`;
   body += `     Exemple : C:\\Users\\Michel\\ACF Incendie\\Technique - Documents\\4-TECHNIQUE\\2- CLASSEES${L}`;
   body += `   • Enregistrez — ce chemin permettra d'ouvrir les dossiers depuis l'application${LL}`;
+  body += `4%EF%B8%8F%E2%83%A3  RACCOURCI SUR LE BUREAU (optionnel)${L}`;
+  body += `   Pour accéder à l'application comme une vraie appli, sans passer par le navigateur :${L}`;
+  body += `   • Ouvrez l'application dans Chrome${L}`;
+  body += `   • Cliquez sur les 3 points en haut à droite ( ⋮ )${L}`;
+  body += `   • Cliquez sur "Caster, enregistrer et partager"${L}`;
+  body += `   • Puis "Créer un raccourci..."${L}`;
+  body += `   • Cochez "Ouvrir dans une fenêtre" pour une expérience type application${L}`;
+  body += `   • Cliquez sur "Créer" — l'icône apparaît sur votre bureau${LL}`;
   body += `Cordialement`;
 
   const subject = encodeURIComponent(`Identifiants — Gestion Contrats APSAD`);
