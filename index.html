@@ -1978,7 +1978,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/30-03-26-08:03';
+const APP_VERSION = 'V1/30-03-26-14:53';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4371,9 +4371,12 @@ function renderTable() {
       if (type === 'checkbox') {
         // Case à cocher : afficher si cochée
         if (!val) return;
-        // Avec quantité pour BAES_BAEH et Extincteurs
-        const qtyKeys = ['BAES_BAEH', 'Extincteurs'];
-        if (qtyKeys.includes(o.key)) {
+        // Afficher la quantité pour toutes les options non-default (BAES_BAEH, Extincteurs, custom…)
+        const defaultKeys = ['Debit','Astreinte','MO_Inclus','Formation_SSI','Reconditionnement',
+          'Filtres_DFA','Batterie','Entretien_DAS','Trienale_CS','Sono','Fan_Test',
+          'Form_Extincteurs','Verif_DAF','PCF_CCF'];
+        const showQty = !defaultKeys.includes(o.key);
+        if (showQty) {
           const qty = r[o.key + '_qty'];
           const display = (qty != null && qty > 0) ? label + '\u00a0<b>' + qty + '</b>' : label;
           optBadges.push(`<span title="${o.label}${qty ? ' : ' + qty : ''}" style="display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc">${display}</span>`);
