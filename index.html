@@ -89,6 +89,49 @@ input, select, textarea { font-family: inherit; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 @keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:.7} }
 
+/* ── Voyant sync temps réel ── */
+#realtimeBeacon {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: rgba(255,255,255,.8);
+  white-space: nowrap;
+  cursor: default;
+}
+#realtimeBeacon .rb-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  transition: background .4s, box-shadow .4s;
+}
+#realtimeBeacon.rb-connected .rb-dot {
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+  animation: rb-pulse 2.5s ease-in-out infinite;
+}
+#realtimeBeacon.rb-syncing .rb-dot {
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: rb-flash .5s ease-in-out 3;
+}
+#realtimeBeacon.rb-disconnected .rb-dot {
+  background: #f87171;
+  box-shadow: 0 0 4px #f87171;
+  animation: none;
+}
+@keyframes rb-pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: .55; transform: scale(1.25); }
+}
+@keyframes rb-flash {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: .3; transform: scale(1.5); }
+}
+
+
 .hbtn {
   display: flex; align-items: center; gap: 5px;
   padding: 6px 13px; border-radius: 7px; border: none;
@@ -797,6 +840,11 @@ function loadSheetJS(callback) {
         <div class="dot"></div>
         <span id="statusText">Chargement…</span>
       </div>
+      <!-- Voyant synchro temps réel Firebase -->
+      <div id="realtimeBeacon" title="Synchronisation Firebase temps réel">
+        <span class="rb-dot"></span>
+        <span id="realtimeBeaconText">Sync</span>
+      </div>
       <div id="currentUserBadge" style="display:none"></div>
       <span id="realtimeSyncIndicator" title="Données synchronisées en temps réel"
         style="font-size:10px;color:#86efac;background:rgba(0,0,0,.25);border-radius:10px;padding:1px 8px;opacity:0;transition:opacity 0.5s;white-space:nowrap">⚡ Sync</span>
@@ -1179,12 +1227,12 @@ function loadSheetJS(callback) {
 
         <!-- Manque rapport + Q7 en attente -->
         <div id="indicRapportQ7Row" style="display:none;gap:0;margin-bottom:0;flex-direction:column">
-          <div id="indicManqueRapportBar" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #16a34a;border-radius:0;padding:10px 16px;align-items:center;gap:12px;flex-wrap:nowrap;border-top:none;border-bottom:none">
+          <div id="indicManqueRapportBar" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #16a34a;border-radius:0;padding:10px 16px;align-items:center;gap:12px;flex-wrap:wrap;border-top:none;border-bottom:none">
             <span style="font-size:22px;font-weight:800;color:#16a34a" id="in-manque-rapport-total">–</span>
             <span style="font-size:12px;font-weight:700;color:#166534;line-height:1.3;flex:1">Manque rapport <span style="font-weight:400;color:#15803d;font-size:11px">— VE réalisée, rapport non remis</span></span>
             <button class="tbtn" style="background:#16a34a;color:#fff;border-color:#15803d;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="filterSansRapportForTech(null)">↗ Voir la liste</button>
           </div>
-          <div id="indicQ7RetardBar" style="display:none;background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #d97706;border-top:none;border-radius:0 0 0 6px;padding:10px 16px;align-items:center;gap:12px;flex-wrap:nowrap">
+          <div id="indicQ7RetardBar" style="display:none;background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #d97706;border-top:none;border-radius:0 0 0 6px;padding:10px 16px;align-items:center;gap:12px;flex-wrap:wrap">
             <span style="font-size:22px;font-weight:800;color:#d97706" id="in-q7-retard-total">–</span>
             <span style="font-size:12px;font-weight:700;color:#92400e;line-height:1.3;flex:1">Q7 en attente <span style="font-weight:400;color:#b45309;font-size:11px">— VE archivée, rapport Q7 non délivré</span></span>
             <button class="tbtn" style="background:#d97706;color:#fff;border-color:#d97706;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="filterFromIndic('q7_retard')">↗ Voir la liste</button>
@@ -1193,9 +1241,9 @@ function loadSheetJS(callback) {
       </div>
 
       <!-- Colonne droite : bouton mail global -->
-      <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#2563eb;border:2px solid #1d4ed8;border-radius:16px;padding:6px 8px;min-width:72px;max-width:80px;cursor:pointer;gap:3px;text-align:center;align-self:stretch;box-shadow:0 4px 12px rgba(37,99,235,.35);transition:background .2s,box-shadow .2s" onmouseover="this.style.background='#1d4ed8';this.style.boxShadow='0 6px 16px rgba(37,99,235,.5)'" onmouseout="this.style.background='#2563eb';this.style.boxShadow='0 4px 12px rgba(37,99,235,.35)'" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
+      <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#38bdf8;border:2px solid #0ea5e9;border-radius:16px;padding:6px 8px;min-width:72px;max-width:80px;cursor:pointer;gap:3px;text-align:center;align-self:stretch;box-shadow:0 4px 12px rgba(56,189,248,.35);transition:background .2s,box-shadow .2s" onmouseover="this.style.background='#0ea5e9';this.style.boxShadow='0 6px 16px rgba(14,165,233,.5)'" onmouseout="this.style.background='#38bdf8';this.style.boxShadow='0 4px 12px rgba(56,189,248,.35)'" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
         <span style="font-size:13px">📧</span>
-        <span style="font-size:8px;font-weight:800;color:#fff;line-height:1.4;text-transform:uppercase;letter-spacing:.5px">Envoyer<br>tous les<br>mails</span>
+        <span style="font-size:8px;font-weight:800;color:#0c4a6e;line-height:1.4;text-transform:uppercase;letter-spacing:.5px">Envoyer<br>tous les<br>mails</span>
         <span id="btnMailGlobalPastille" style="display:none;width:8px;height:8px;border-radius:50%;flex-shrink:0"></span>
       </div>
 
@@ -1930,7 +1978,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/30-03-26-07:41';
+const APP_VERSION = 'V1/30-03-26-07:53';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2370,21 +2418,35 @@ const SP = (() => {
           collection(_db, 'contrats'),
           (snap) => {
             // Toujours ignorer le tout premier snapshot (données initiales déjà chargées)
-            if (_firstSnapshot) { _firstSnapshot = false; return; }
+            if (_firstSnapshot) {
+              _firstSnapshot = false;
+              // Voyant : connecté dès que le listener est établi
+              if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('connected');
+              return;
+            }
             // Ne pas traiter si c'est notre propre écriture en cours
             if (window._fsLocalWrite) return;
+            // Voyant : réception en cours
+            if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('syncing');
             const newContracts = snap.docs.map(d => ({ _fsId: d.id, ...d.data() }));
             onUpdate(newContracts);
           },
-          (err) => { console.warn('Realtime sync error:', err); }
+          (err) => {
+            console.warn('Realtime sync error:', err);
+            if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
+          }
         );
       } catch(e) {
         console.warn('startRealtimeSync error:', e);
+        if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
+      }
+    },
       }
     },
 
     stopRealtimeSync() {
       if (window._fsUnsubscribe) { window._fsUnsubscribe(); window._fsUnsubscribe = null; }
+      if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
     },
   };
 })();
@@ -2474,6 +2536,9 @@ function activateOfflineMode(cache) {
     const d = new Date(cache.savedAt).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
     dateEl.textContent = `Données du cache — sauvegardé le ${d}`;
   }
+  // Voyant déconnecté
+  if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
+
   blockEditActions(true);
   // Ouvrir directement en lecture seule sans demander de connexion
   _currentUser = { login: 'invité', niveau: 'visualisation', prenom: 'Mode', nom: 'hors ligne' };
@@ -2686,6 +2751,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (!_historyMode) document.body.style.paddingTop = '52px';
     blockEditActions(true);
     toast('📵 Réseau perdu — passage en lecture seule', 'warning');
+    setRealtimeBeacon('disconnected', 'Hors ligne');
   });
 
   window.addEventListener('online', async () => {
@@ -2704,6 +2770,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (banner) banner.style.display = 'none';
     document.body.style.paddingTop = '';
     blockEditActions(false);
+    setRealtimeBeacon('connected', 'Temps réel');
     // Recharge les données depuis Firebase
     try {
       const data = await SP.loadAll();
@@ -2951,7 +3018,37 @@ function setStatus(type, text) {
   }
 }
 
-async function _saveEditableArchive() {
+/**
+ * Contrôle le voyant de synchro temps réel.
+ * state : 'connected' | 'syncing' | 'disconnected' | 'hidden'
+ * label : texte affiché (optionnel)
+ */
+function setRealtimeBeacon(state, label) {
+  const beacon = document.getElementById('realtimeBeacon');
+  const txt    = document.getElementById('realtimeBeaconText');
+  if (!beacon) return;
+  // Toujours visible sauf état 'hidden'
+  beacon.style.display = state === 'hidden' ? 'none' : 'flex';
+  beacon.className = '';   // reset
+  if (state === 'connected') {
+    beacon.classList.add('rb-connected');
+    beacon.title = '🟢 Synchronisation Firebase active — données en temps réel';
+    if (txt) txt.textContent = label || 'Temps réel';
+  } else if (state === 'syncing') {
+    beacon.classList.add('rb-syncing');
+    beacon.title = '⚡ Réception de nouvelles données…';
+    if (txt) txt.textContent = label || 'Mise à jour…';
+    // Repasser en connected après l'animation
+    clearTimeout(window._rbTimer);
+    window._rbTimer = setTimeout(() => setRealtimeBeacon('connected'), 2000);
+  } else if (state === 'disconnected') {
+    beacon.classList.add('rb-disconnected');
+    beacon.title = '🔴 Synchronisation temps réel inactive';
+    if (txt) txt.textContent = label || 'Hors ligne';
+  }
+}
+
+
   const key = window._editableArchiveKey;
   if (!key) return;
   setStatus('saving', 'Sauvegarde archive…');
@@ -8120,6 +8217,7 @@ function closeLoginAndStart() {
   loadPrevMonthSnapshot().then(() => updateSynthese());
 
   // Écoute temps réel Firebase
+  setRealtimeBeacon('disconnected', 'Connexion…');
   SP.startRealtimeSync((newContracts) => {
     if (_historyMode || _offlineMode) return;
     // Fusion intelligente : met à jour uniquement les contrats modifiés
