@@ -952,10 +952,20 @@ function loadSheetJS(callback) {
       </div>
     </div>
     <span id="rowCount" style="font-size:12px;font-weight:700;color:var(--navy);font-family:'DM Mono',monospace;white-space:nowrap;flex-shrink:0;background:rgba(10,42,94,.08);border-radius:8px;padding:2px 10px"></span>
+    <!-- Bouton Nouveaux contrats -->
+    <button id="btnFilterNouveau" onclick="filterNouveauxContrats()" title="Afficher uniquement les nouveaux contrats (VE non réalisée/archivée)"
+      style="display:flex;align-items:center;gap:5px;padding:3px 10px;font-size:11px;font-weight:700;border:1.5px solid #f9a8d4;border-radius:6px;background:#fce7f3;cursor:pointer;color:#be185d;white-space:nowrap;flex-shrink:0;transition:all .15s"
+      onmouseover="this.style.background='#fbd0e8'" onmouseout="this.style.background='#fce7f3'">
+      ✦ Nouveaux
+    </button>
     <div id="veLegend" style="display:flex;align-items:center;flex-wrap:nowrap;gap:6px;flex:1;justify-content:flex-start;margin-left:16px;overflow:visible">
     <button id="filterUndoBtn" onclick="undoFilter()" disabled title="Aucun filtre précédent"
       style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:3px 9px;font-size:13px;font-weight:700;cursor:pointer;color:#64748b;opacity:0.4;line-height:1;flex-shrink:0"
       aria-label="Filtre précédent">⊘↩</button>
+    <button onclick="resetFilters()" title="Réinitialiser tous les filtres"
+      style="background:#fee2e2;border:1px solid #fca5a5;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;color:#dc2626;line-height:1;white-space:nowrap;flex-shrink:0">
+      ✕ Reset
+    </button>
     <div style="width:1px;height:18px;background:#e2e8f0;flex-shrink:0;margin:0 4px"></div><!-- séparateur -->
     <span class="ve-legend-label" style="flex-shrink:0">Légende VE :</span>
     <span class="ve-legend-item" style="background:#00B0F0;color:#1a237e" onclick="filterByVeColor('00B0F0')" title="Filtrer Archivé">Archivé <span class="ve-count" id="vc-00B0F0"></span></span>
@@ -968,9 +978,12 @@ function loadSheetJS(callback) {
       <option value="">Options incluses (toutes)</option>
     </select>
     </div>
-    <button onclick="resetFilters()" title="Réinitialiser tous les filtres"
-      style="margin-left:auto;background:#fee2e2;border:1px solid #fca5a5;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;color:#dc2626;line-height:1;white-space:nowrap;flex-shrink:0">
-      ✕ Reset filtres
+    <!-- + Contrat tout à droite -->
+    <button id="btnAddContratBar" onclick="openForm()" title="Ajouter un nouveau contrat"
+      style="margin-left:auto;display:flex;align-items:center;gap:5px;padding:4px 12px;font-size:12px;font-weight:800;border:2px solid #1d4ed8;border-radius:7px;background:#1e40af;color:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 2px 6px rgba(30,64,175,.3);transition:all .15s"
+      onmouseover="this.style.background='#1d4ed8';this.style.boxShadow='0 3px 10px rgba(30,64,175,.5)'"
+      onmouseout="this.style.background='#1e40af';this.style.boxShadow='0 2px 6px rgba(30,64,175,.3)'">
+      ＋ Contrat
     </button>
   </div>
 
@@ -1978,7 +1991,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/30-03-26-14:53';
+const APP_VERSION = 'V1/30-03-26-17:26';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4204,6 +4217,29 @@ function filterByVeColor(color) {
   applyFilters();
 }
 
+function filterNouveauxContrats() {
+  _pushNow();
+  // Réinitialiser les autres filtres visuels
+  activeVeColorFilter = null;
+  document.querySelectorAll('#veLegend .ve-legend-item').forEach(el => el.classList.remove('active'));
+  // Filtrer : contrats créés dans l'appli dont VE1 ET VE2 ne sont pas Réalisée/Archivée
+  const realiseOuArchive = c => c === '92D050' || c === '00B0F0';
+  filtered = getFilteredDb().filter(r => {
+    if (!r._createdAt) return false;
+    const ve1c = getVeColorForRecord(r, 've1');
+    const ve2c = getVeColorForRecord(r, 've2');
+    return !realiseOuArchive(ve1c) && !realiseOuArchive(ve2c);
+  });
+  // Mettre à jour le style du bouton
+  const btn = document.getElementById('btnFilterNouveau');
+  if (btn) { btn.style.background = '#fbd0e8'; btn.style.borderColor = '#ec4899'; btn.style.boxShadow = '0 0 0 2px #fce7f3'; }
+  renderTable();
+  updateStats();
+  updateActiveFilters();
+  const n = filtered.length;
+  toast(`✦ ${n} nouveau${n>1?'x':''} contrat${n>1?'s':''}`, n ? 'success' : '');
+}
+
 function updateActiveFilters() {
   ['fType','fMoisVE1','fMoisVE2','fTech','fVille','fOption'].forEach(id => {
     const el = document.getElementById(id);
@@ -4275,6 +4311,9 @@ function resetFilters() {
   if (btnQ7) btnQ7.style.background = '#FFC000';
   const q7Bar = document.getElementById('q7Bar');
   if (q7Bar) q7Bar.style.display = 'none';
+  // Reset bouton Nouveaux
+  const btnNouv = document.getElementById('btnFilterNouveau');
+  if (btnNouv) { btnNouv.style.background = '#fce7f3'; btnNouv.style.borderColor = '#f9a8d4'; btnNouv.style.boxShadow = ''; }
   // Reset stat buttons
   document.querySelectorAll('#veLegend .ve-legend-item').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.stat').forEach(s => s.classList.remove('active'));
@@ -4411,7 +4450,7 @@ function renderTable() {
       const ve1c = getVeColorForRecord(r, 've1');
       const ve2c = getVeColorForRecord(r, 've2');
       const realiseOuArchive = c => c === '92D050' || c === '00B0F0';
-      // Nouveau tant qu'aucune VE n'est Réalisée ou Archivée
+      // Nouveau tant que NI VE1 NI VE2 n'est Réalisée ou Archivée
       return !realiseOuArchive(ve1c) && !realiseOuArchive(ve2c);
     })();
     const nouveauBadge = isNouveau
@@ -5106,7 +5145,7 @@ function saveContract() {
       // Préserver les champs gérés hors formulaire (commentaire, couleurs VE, Q7, etc.)
       const PRESERVE = ['Commentaire','VE1_statut','VE2_statut','VE1_color','VE2_color',
                         'Q7_VE1_tech','Q7_VE2_tech','Debit_color','Reconditionnement_color',
-                        'Formation_SSI_color'];
+                        'Formation_SSI_color','_createdAt'];
       const existing = db[idx];
       PRESERVE.forEach(k => { if (existing[k] !== undefined && record[k] === undefined) record[k] = existing[k]; });
       db[idx] = record;
@@ -8342,6 +8381,13 @@ function applyAccessLevel() {
   const btnGererOpts = document.getElementById('btnGererOptions');
   if (btnGererOpts) btnGererOpts.style.display = (isAdmin || hasPerm('manageOptions')) ? '' : 'none';
 
+  // Bouton +Contrat dans la barre de filtres : visible seulement si peut éditer
+  const btnAddBar = document.getElementById('btnAddContratBar');
+  if (btnAddBar) btnAddBar.style.display = hasPerm('edit') ? '' : 'none';
+  // Bouton Nouveaux : toujours visible dans l'onglet contrats
+  const btnNouv = document.getElementById('btnFilterNouveau');
+  if (btnNouv) btnNouv.style.display = '';
+
   // Résiliés : visible pour tous (techniciens en lecture seule — bouton Restaurer déjà caché)
   const btnResilies = document.querySelector('.dash-nav-item[onclick*="openResiliesModal"]');
   if (btnResilies) btnResilies.style.display = '';
@@ -9069,6 +9115,9 @@ function blockEditActions(block) {
       btn.style.pointerEvents = block ? 'none' : '';
     }
   });
+  // Désactiver le bouton +Contrat de la barre de filtres
+  const btnAdd = document.getElementById('btnAddContratBar');
+  if (btnAdd) { btnAdd.style.opacity = block ? '.35' : ''; btnAdd.style.pointerEvents = block ? 'none' : ''; }
   // Badge lecture seule (coin bas-droit) — couleur selon le mode
   let overlay = document.getElementById('historyOverlay');
   if (block) {
