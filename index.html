@@ -1978,7 +1978,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/30-03-26-07:53';
+const APP_VERSION = 'V1/30-03-26-08:03';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2439,8 +2439,6 @@ const SP = (() => {
       } catch(e) {
         console.warn('startRealtimeSync error:', e);
         if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
-      }
-    },
       }
     },
 
@@ -3049,6 +3047,7 @@ function setRealtimeBeacon(state, label) {
 }
 
 
+async function _saveEditableArchive() {
   const key = window._editableArchiveKey;
   if (!key) return;
   setStatus('saving', 'Sauvegarde archive…');
