@@ -786,6 +786,10 @@ function loadSheetJS(callback) {
       </div>
     </div>
     <div class="header-spacer" style="display:flex;align-items:center;justify-content:center">
+      <div id="headerUserBadgeCenter" style="display:none;align-items:center;gap:8px;background:rgba(255,255,255,.12);border-radius:20px;padding:5px 14px 5px 5px;border:1px solid rgba(255,255,255,.2)">
+        <span id="headerUserInitialsBubble" style="background:rgba(255,255,255,.25);border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;cursor:pointer;flex-shrink:0" title="Déconnexion" onclick="logout()"></span>
+        <span id="headerUserFullName" style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;letter-spacing:.3px"></span>
+      </div>
       <span id="headerRowCount" style="display:none;font-size:13px;font-weight:800;background:rgba(255,255,255,.18);border-radius:10px;padding:3px 14px;color:#fff;white-space:nowrap;letter-spacing:.3px"></span>
     </div>
     <div class="header-actions">
@@ -1926,7 +1930,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/29-03-26-23:12';
+const APP_VERSION = 'V1/30-03-26-07:41';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -8262,13 +8266,19 @@ function updateUserBadgeHeader() {
   if (!_currentUser) return;
   const initials = [_currentUser.prenom, _currentUser.nom].filter(Boolean).map(s=>s[0].toUpperCase()).join('') || (_currentUser.login||'??').substring(0,2).toUpperCase();
   const fullName = ((_currentUser.prenom||'') + ' ' + (_currentUser.nom||'')).trim();
-  // Badge complet dans le titre (rond + nom)
+  // Badge dans le titre (gauche) — masqué car déplacé au centre
   const userNameEl = document.getElementById('headerUserName');
-  if (userNameEl) {
-    userNameEl.innerHTML = `<span style="background:rgba(255,255,255,.25);border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;vertical-align:middle;cursor:pointer" title="Déconnexion" onclick="logout()">${initials}</span> <span style="vertical-align:middle;font-size:12px;font-weight:600">${fullName}</span>`;
-    userNameEl.style.display = 'flex';
+  if (userNameEl) userNameEl.style.display = 'none';
+  // Badge central avec bulle initiales + prénom nom
+  const centerBadge = document.getElementById('headerUserBadgeCenter');
+  if (centerBadge) {
+    const bubbleEl = document.getElementById('headerUserInitialsBubble');
+    const nameEl = document.getElementById('headerUserFullName');
+    if (bubbleEl) bubbleEl.textContent = initials;
+    if (nameEl) nameEl.textContent = fullName;
+    centerBadge.style.display = 'flex';
   }
-  // Initiales uniquement à droite (déconnexion) — masquées car déjà dans le titre
+  // Initiales uniquement à droite (déconnexion) — masquées
   const badge = document.getElementById('currentUserBadge');
   if (badge) badge.style.display = 'none';
 }
