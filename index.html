@@ -1930,7 +1930,7 @@ function loadSheetJS(callback) {
     </div>
     <div class="modal-footer">
       <button class="tbtn" id="resilieBtn" style="display:none;margin-right:auto;background:#fff7ed;color:#c2410c;border-color:#fed7aa;font-weight:700" onclick="resilierContrat()">🚫 Résilié</button>
-      <button class="tbtn" id="suspensionBtn" onclick="toggleSuspension()" style="display:none;font-weight:700" title="Marquer comme bloqué (impayé ou travaux/fermé)">⛔ Suspension</button>
+      <button class="tbtn" id="suspensionBtn" onclick="toggleSuspension()" style="display:none;font-weight:700" title="Marquer une alerte — ne plus intervenir sur ce site">⚠️ Alerte — Ne plus faire</button>
       <button class="tbtn" onclick="envoyerMailNouveauContrat()" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;font-weight:700" title="Envoyer un mail au technicien et à Olivier Belliard">📧 Nouveau contrat: envoi de mail tech. & obelliard</button>
       <button class="tbtn" onclick="closeModal('formModal')">Annuler</button>
       <button class="tbtn danger" id="deleteBtn" style="display:none" onclick="deleteCurrentContract()">🗑 Supprimer</button>
@@ -2036,7 +2036,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/02-04-26-09:24';
+const APP_VERSION = 'V1/02-04-26-10:37';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5374,7 +5374,7 @@ function _updateSuspensionBtn(suspension) {
     btn.textContent = '🔧 En attente — Travaux/Fermé (cliquer pour lever)';
   } else {
     btn.style.background = '#f8fafc'; btn.style.color = '#475569'; btn.style.borderColor = '#cbd5e1';
-    btn.textContent = '⛔ Marquer suspension…';
+    btn.textContent = '⚠️ Alerte — Ne plus faire';
   }
 }
 
@@ -5384,44 +5384,32 @@ async function toggleSuspension() {
   const cur = r._suspension || null;
   let next;
   if (!cur) {
-    // Choisir le type de suspension
-    const choice = await new Promise(resolve => {
+    // Choisir le type de suspension via modale simple
+    next = await new Promise(resolve => {
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:center;justify-content:center';
       overlay.innerHTML = `
         <div style="background:#fff;border-radius:12px;padding:24px 28px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25);text-align:center">
-          <div style="font-size:16px;font-weight:800;color:#1e293b;margin-bottom:8px">⛔ Type de suspension</div>
-          <div style="font-size:12px;color:#64748b;margin-bottom:20px">${r.Installation}</div>
+          <div style="font-size:16px;font-weight:800;color:#1e293b;margin-bottom:8px">⚠️ Alerte — Ne plus faire</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:20px">${esc(r.Installation||'')}</div>
           <div style="display:flex;flex-direction:column;gap:10px">
-            <button onclick="this.closest('[data-overlay]').dataset.result='impaye'" data-overlay
-              style="padding:12px;background:#fee2e2;color:#dc2626;border:2px solid #fca5a5;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px">
+            <button id="_susp_impaye" style="padding:12px;background:#fee2e2;color:#dc2626;border:2px solid #fca5a5;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px">
               🚫 Impayé — ne pas intervenir
             </button>
-            <button onclick="this.closest('[data-overlay]').dataset.result='travaux_ferme'"
-              style="padding:12px;background:#dcfce7;color:#15803d;border:2px solid #86efac;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px">
+            <button id="_susp_travaux" style="padding:12px;background:#dcfce7;color:#15803d;border:2px solid #86efac;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px">
               🔧 Travaux / Site fermé — en attente
             </button>
-            <button onclick="this.closest('[data-overlay]').dataset.result='cancel'"
-              style="padding:8px;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:12px">
+            <button id="_susp_cancel" style="padding:8px;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:12px">
               Annuler
             </button>
           </div>
         </div>`;
-      overlay.querySelector('[data-overlay]') || overlay.firstElementChild.setAttribute('data-overlay','');
-      // Simplification : délégation de clic sur les boutons
-      overlay.addEventListener('click', e => {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        const res = btn.textContent.includes('Impayé') ? 'impaye'
-                  : btn.textContent.includes('Travaux') ? 'travaux_ferme'
-                  : 'cancel';
-        document.body.removeChild(overlay);
-        resolve(res);
-      });
       document.body.appendChild(overlay);
+      overlay.querySelector('#_susp_impaye').onclick  = () => { document.body.removeChild(overlay); resolve('impaye'); };
+      overlay.querySelector('#_susp_travaux').onclick = () => { document.body.removeChild(overlay); resolve('travaux_ferme'); };
+      overlay.querySelector('#_susp_cancel').onclick  = () => { document.body.removeChild(overlay); resolve(null); };
     });
-    if (!choice || choice === 'cancel') return;
-    next = choice;
+    if (!next) return;
   } else {
     // Lever la suspension
     if (!confirm(`Lever la suspension de "${r.Installation}" ?`)) return;
@@ -5431,7 +5419,7 @@ async function toggleSuspension() {
   _updateSuspensionBtn(next);
   await saveDB(r);
   applyFilters(); updateStats(); updateSynthese();
-  toast(next ? `⛔ "${r.Installation}" marqué(e) comme suspendu(e)` : `✅ Suspension levée pour "${r.Installation}"`, next ? 'warning' : 'success');
+  toast(next ? `⚠️ "${r.Installation}" — alerte activée (ne plus faire)` : `✅ Alerte levée pour "${r.Installation}"`, next ? 'warning' : 'success');
 }
 
 async function resilierContrat() {
