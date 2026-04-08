@@ -1926,7 +1926,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/08-04-26-15:55';
+const APP_VERSION = 'V1/08-04-26-16:01';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -10067,8 +10067,8 @@ function openTechMenu(e, filteredIdx, field) {
   title.textContent = (field === 'Technicien' ? 'Technicien 1' : field === 'Binome' ? 'Technicien 2' : 'Q7')
     + ' – ' + (filtered[filteredIdx]?.[field] || '–');
 
-  // Uniquement les noms complets des fiches, triés par service/agence
-  allTechsForMenu = sortTechFichesForDropdown(techFiches.filter(f=>getTechFullName(f))).map(getTechFullName);
+  // Fiches triées par service/agence — on garde les objets complets
+  allTechsForMenu = sortTechFichesForDropdown(techFiches.filter(f=>getTechFullName(f)));
   search.value = '';
   renderTechMenuList('');
 
@@ -10083,15 +10083,38 @@ function openTechMenu(e, filteredIdx, field) {
 
 function renderTechMenuList(query) {
   const list = document.getElementById('ctxTechList');
-  const techs = query
-    ? allTechsForMenu.filter(t => t.toLowerCase().includes(query.toLowerCase()))
+  const fiches = query
+    ? allTechsForMenu.filter(f => getTechFullName(f).toLowerCase().includes(query.toLowerCase()))
     : allTechsForMenu;
-  list.innerHTML = techs.map(t => {
-    const initials = t.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-    return `<div class="ctx-item" onclick="setTechnicien('${esc(t)}')">
-      <div class="tech-avatar">${initials}</div>${esc(t)}
+
+  let html = '';
+  let lastSrv = null, lastAgc = null;
+
+  fiches.forEach(f => {
+    const nom = getTechFullName(f);
+    const srv = f.service || '';
+    const agc = f.agence  || '';
+    const initials = nom.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+
+    // En-tête service
+    if (srv !== lastSrv) {
+      if (lastSrv !== null) html += '<div style="height:4px"></div>';
+      html += `<div style="padding:4px 10px 2px;font-size:9px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;background:#f8fafc;border-top:1px solid var(--line)">${esc(srv)||'Sans service'}</div>`;
+      lastSrv = srv; lastAgc = null;
+    }
+    // En-tête agence (sous le service)
+    if (agc !== lastAgc) {
+      html += `<div style="padding:2px 14px;font-size:9px;font-weight:700;color:#0369a1">🏢 ${esc(agc)||'Sans agence'}</div>`;
+      lastAgc = agc;
+    }
+    html += `<div class="ctx-item" onclick="setTechnicien('${esc(nom)}')">
+      <div class="tech-avatar">${initials}</div>${esc(nom)}
     </div>`;
-  }).join('') + `<div class="ctx-item ctx-reset" onclick="setTechnicien(null)">✕ Effacer</div>`;
+  });
+
+  if (!fiches.length) html = '<div style="padding:10px;font-size:12px;color:var(--sub);text-align:center">Aucun résultat</div>';
+  html += `<div class="ctx-item ctx-reset" onclick="setTechnicien(null)">✕ Effacer</div>`;
+  list.innerHTML = html;
 }
 
 function filterTechMenu(query) { renderTechMenuList(query); }
