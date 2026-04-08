@@ -89,83 +89,6 @@ input, select, textarea { font-family: inherit; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 @keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:.7} }
 
-/* ── Lignes suspendues : hachures ── */
-tr.suspension-impaye {
-  background: repeating-linear-gradient(
-    -45deg,
-    rgba(254,226,226,.55) 0px, rgba(254,226,226,.55) 6px,
-    rgba(255,255,255,.7)  6px, rgba(255,255,255,.7)  12px
-  ) !important;
-  outline: 2px solid rgba(220,38,38,.3);
-  outline-offset: -1px;
-}
-tr.suspension-impaye td { opacity: .82; }
-tr.suspension-travaux {
-  background: repeating-linear-gradient(
-    -45deg,
-    rgba(220,252,231,.6) 0px, rgba(220,252,231,.6) 6px,
-    rgba(255,255,255,.7) 6px, rgba(255,255,255,.7)  12px
-  ) !important;
-  outline: 2px solid rgba(22,163,74,.3);
-  outline-offset: -1px;
-}
-tr.suspension-travaux td { opacity: .82; }
-
-/* ── Lignes validité expirée : hachures bleues ── */
-tr.validite-expiree {
-  background: repeating-linear-gradient(
-    -45deg,
-    rgba(219,234,254,.6) 0px, rgba(219,234,254,.6) 6px,
-    rgba(255,255,255,.7) 6px, rgba(255,255,255,.7) 12px
-  ) !important;
-  outline: 2px solid rgba(59,130,246,.25);
-  outline-offset: -1px;
-}
-tr.validite-expiree td { opacity: .85; }
-
-/* ── Voyant sync temps réel ── */
-#realtimeBeacon {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.15);
-  border-radius: 20px;
-  padding: 4px 10px;
-  font-size: 11px;
-  color: rgba(255,255,255,.8);
-  white-space: nowrap;
-  cursor: default;
-}
-#realtimeBeacon .rb-dot {
-  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-  transition: background .4s, box-shadow .4s;
-}
-#realtimeBeacon.rb-connected .rb-dot {
-  background: #4ade80;
-  box-shadow: 0 0 6px #4ade80;
-  animation: rb-pulse 2.5s ease-in-out infinite;
-}
-#realtimeBeacon.rb-syncing .rb-dot {
-  background: #38bdf8;
-  box-shadow: 0 0 8px #38bdf8;
-  animation: rb-flash .5s ease-in-out 3;
-}
-#realtimeBeacon.rb-disconnected .rb-dot {
-  background: #f87171;
-  box-shadow: 0 0 4px #f87171;
-  animation: none;
-}
-@keyframes rb-pulse {
-  0%,100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: .55; transform: scale(1.25); }
-}
-@keyframes rb-flash {
-  0%,100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: .3; transform: scale(1.5); }
-}
-
-
 .hbtn {
   display: flex; align-items: center; gap: 5px;
   padding: 6px 13px; border-radius: 7px; border: none;
@@ -863,10 +786,6 @@ function loadSheetJS(callback) {
       </div>
     </div>
     <div class="header-spacer" style="display:flex;align-items:center;justify-content:center">
-      <div id="headerUserBadgeCenter" style="display:none;align-items:center;gap:8px;background:rgba(255,255,255,.12);border-radius:20px;padding:5px 14px 5px 5px;border:1px solid rgba(255,255,255,.2)">
-        <span id="headerUserInitialsBubble" style="background:rgba(255,255,255,.25);border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;cursor:pointer;flex-shrink:0" title="Déconnexion" onclick="logout()"></span>
-        <span id="headerUserFullName" style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;letter-spacing:.3px"></span>
-      </div>
       <span id="headerRowCount" style="display:none;font-size:13px;font-weight:800;background:rgba(255,255,255,.18);border-radius:10px;padding:3px 14px;color:#fff;white-space:nowrap;letter-spacing:.3px"></span>
     </div>
     <div class="header-actions">
@@ -874,19 +793,10 @@ function loadSheetJS(callback) {
         <div class="dot"></div>
         <span id="statusText">Chargement…</span>
       </div>
-      <!-- Voyant synchro temps réel Firebase -->
-      <div id="realtimeBeacon" title="Synchronisation Firebase temps réel">
-        <span class="rb-dot"></span>
-        <span id="realtimeBeaconText">Sync</span>
-      </div>
       <div id="currentUserBadge" style="display:none"></div>
       <span id="realtimeSyncIndicator" title="Données synchronisées en temps réel"
         style="font-size:10px;color:#86efac;background:rgba(0,0,0,.25);border-radius:10px;padding:1px 8px;opacity:0;transition:opacity 0.5s;white-space:nowrap">⚡ Sync</span>
       <span id="autoBackupIndicator" style="font-size:10px;color:#86efac;background:rgba(0,0,0,.25);border-radius:10px;padding:1px 8px;white-space:nowrap"></span>
-      <!-- Badge file d'attente mails -->
-      <span id="mailQueueBadge" onclick="_flushMailQueue()" title="Cliquer pour renvoyer maintenant"
-        style="display:none;align-items:center;font-size:10px;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:2px 10px;white-space:nowrap;cursor:pointer;gap:4px"
-        onmouseover="this.style.background='#fde68a'" onmouseout="this.style.background='#fef3c7'"></span>
       <button class="hbtn hbtn-ghost" id="btnPresence" onclick="openPresencePanel()" title="Voir les utilisateurs connectés" style="display:none;gap:4px;align-items:center">👥 <span id="presenceCount" style="background:rgba(255,255,255,.25);border-radius:10px;padding:0 6px;font-size:11px;font-weight:700">…</span></button>
       <button class="hbtn hbtn-ghost" id="btnHistory" onclick="openHistoryPanel()" title="Consulter les données à une date précédente" style="display:none">🕐 Historique</button>
       <button id="undoBtn" onclick="undoLast()" title="Aucune action à annuler" disabled
@@ -966,6 +876,7 @@ function loadSheetJS(callback) {
   <!-- BARRE INFOS : rowCount + légende VE -->
   <div style="display:flex;align-items:center;flex-wrap:nowrap;gap:6px;padding:5px 20px;background:var(--bg);border-bottom:1px solid var(--line);overflow:visible;position:relative;z-index:100">
     <button id="btnRetour" onclick="switchTab('indic')" title="Retour au tableau de bord" style="padding:3px 10px;font-size:11px;background:var(--navy);color:white;border:none;border-radius:6px;cursor:pointer;white-space:nowrap;flex-shrink:0">← Retour accueil</button>
+    <span id="rowCount" style="display:none;font-size:12px;color:var(--sub);font-family:'DM Mono',monospace;white-space:nowrap;min-width:100px;flex-shrink:0"></span>
 
     <!-- Filtre Service : menu déroulant custom avec icônes -->
     <input type="hidden" id="fService" value="">
@@ -989,21 +900,10 @@ function loadSheetJS(callback) {
         </div>
       </div>
     </div>
-    <span id="rowCount" style="font-size:12px;font-weight:700;color:var(--navy);font-family:'DM Mono',monospace;white-space:nowrap;flex-shrink:0;background:rgba(10,42,94,.08);border-radius:8px;padding:2px 10px"></span>
-    <!-- Bouton Nouveaux contrats -->
-    <button id="btnFilterNouveau" onclick="filterNouveauxContrats()" title="Afficher uniquement les nouveaux contrats (VE non réalisée/archivée)"
-      style="display:flex;align-items:center;gap:5px;padding:3px 10px;font-size:11px;font-weight:700;border:1.5px solid #f9a8d4;border-radius:6px;background:#fce7f3;cursor:pointer;color:#be185d;white-space:nowrap;flex-shrink:0;transition:all .15s"
-      onmouseover="this.style.background='#fbd0e8'" onmouseout="this.style.background='#fce7f3'">
-      ✦ Nouveaux
-    </button>
     <div id="veLegend" style="display:flex;align-items:center;flex-wrap:nowrap;gap:6px;flex:1;justify-content:flex-start;margin-left:16px;overflow:visible">
     <button id="filterUndoBtn" onclick="undoFilter()" disabled title="Aucun filtre précédent"
       style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:3px 9px;font-size:13px;font-weight:700;cursor:pointer;color:#64748b;opacity:0.4;line-height:1;flex-shrink:0"
       aria-label="Filtre précédent">⊘↩</button>
-    <button onclick="resetFilters()" title="Réinitialiser tous les filtres"
-      style="background:#fee2e2;border:1px solid #fca5a5;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;color:#dc2626;line-height:1;white-space:nowrap;flex-shrink:0">
-      ✕ Reset
-    </button>
     <div style="width:1px;height:18px;background:#e2e8f0;flex-shrink:0;margin:0 4px"></div><!-- séparateur -->
     <span class="ve-legend-label" style="flex-shrink:0">Légende VE :</span>
     <span class="ve-legend-item" style="background:#00B0F0;color:#1a237e" onclick="filterByVeColor('00B0F0')" title="Filtrer Archivé">Archivé <span class="ve-count" id="vc-00B0F0"></span></span>
@@ -1016,12 +916,9 @@ function loadSheetJS(callback) {
       <option value="">Options incluses (toutes)</option>
     </select>
     </div>
-    <!-- + Contrat tout à droite -->
-    <button id="btnAddContratBar" onclick="openAdd()" title="Ajouter un nouveau contrat"
-      style="margin-left:auto;display:flex;align-items:center;gap:5px;padding:4px 12px;font-size:12px;font-weight:800;border:2px solid #1d4ed8;border-radius:7px;background:#1e40af;color:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 2px 6px rgba(30,64,175,.3);transition:all .15s"
-      onmouseover="this.style.background='#1d4ed8';this.style.boxShadow='0 3px 10px rgba(30,64,175,.5)'"
-      onmouseout="this.style.background='#1e40af';this.style.boxShadow='0 2px 6px rgba(30,64,175,.3)'">
-      ＋ Contrat
+    <button onclick="resetFilters()" title="Réinitialiser tous les filtres"
+      style="margin-left:auto;background:#fee2e2;border:1px solid #fca5a5;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;color:#dc2626;line-height:1;white-space:nowrap;flex-shrink:0">
+      ✕ Reset filtres
     </button>
   </div>
 
@@ -1278,12 +1175,12 @@ function loadSheetJS(callback) {
 
         <!-- Manque rapport + Q7 en attente -->
         <div id="indicRapportQ7Row" style="display:none;gap:0;margin-bottom:0;flex-direction:column">
-          <div id="indicManqueRapportBar" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #16a34a;border-radius:0;padding:10px 16px;align-items:center;gap:12px;flex-wrap:wrap;border-top:none;border-bottom:none">
+          <div id="indicManqueRapportBar" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #16a34a;border-radius:0;padding:10px 16px;align-items:center;gap:12px;flex-wrap:nowrap;border-top:none;border-bottom:none">
             <span style="font-size:22px;font-weight:800;color:#16a34a" id="in-manque-rapport-total">–</span>
             <span style="font-size:12px;font-weight:700;color:#166534;line-height:1.3;flex:1">Manque rapport <span style="font-weight:400;color:#15803d;font-size:11px">— VE réalisée, rapport non remis</span></span>
             <button class="tbtn" style="background:#16a34a;color:#fff;border-color:#15803d;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="filterSansRapportForTech(null)">↗ Voir la liste</button>
           </div>
-          <div id="indicQ7RetardBar" style="display:none;background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #d97706;border-top:none;border-radius:0 0 0 6px;padding:10px 16px;align-items:center;gap:12px;flex-wrap:wrap">
+          <div id="indicQ7RetardBar" style="display:none;background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #d97706;border-top:none;border-radius:0 0 0 6px;padding:10px 16px;align-items:center;gap:12px;flex-wrap:nowrap">
             <span style="font-size:22px;font-weight:800;color:#d97706" id="in-q7-retard-total">–</span>
             <span style="font-size:12px;font-weight:700;color:#92400e;line-height:1.3;flex:1">Q7 en attente <span style="font-weight:400;color:#b45309;font-size:11px">— VE archivée, rapport Q7 non délivré</span></span>
             <button class="tbtn" style="background:#d97706;color:#fff;border-color:#d97706;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="filterFromIndic('q7_retard')">↗ Voir la liste</button>
@@ -1292,9 +1189,9 @@ function loadSheetJS(callback) {
       </div>
 
       <!-- Colonne droite : bouton mail global -->
-      <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#38bdf8;border:2px solid #0ea5e9;border-radius:16px;padding:6px 8px;min-width:72px;max-width:80px;cursor:pointer;gap:3px;text-align:center;align-self:stretch;box-shadow:0 4px 12px rgba(56,189,248,.35);transition:background .2s,box-shadow .2s" onmouseover="this.style.background='#0ea5e9';this.style.boxShadow='0 6px 16px rgba(14,165,233,.5)'" onmouseout="this.style.background='#38bdf8';this.style.boxShadow='0 4px 12px rgba(56,189,248,.35)'" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
+      <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#2563eb;border:2px solid #1d4ed8;border-radius:16px;padding:6px 8px;min-width:72px;max-width:80px;cursor:pointer;gap:3px;text-align:center;align-self:stretch;box-shadow:0 4px 12px rgba(37,99,235,.35);transition:background .2s,box-shadow .2s" onmouseover="this.style.background='#1d4ed8';this.style.boxShadow='0 6px 16px rgba(37,99,235,.5)'" onmouseout="this.style.background='#2563eb';this.style.boxShadow='0 4px 12px rgba(37,99,235,.35)'" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
         <span style="font-size:13px">📧</span>
-        <span style="font-size:8px;font-weight:800;color:#0c4a6e;line-height:1.4;text-transform:uppercase;letter-spacing:.5px">Envoyer<br>tous les<br>mails</span>
+        <span style="font-size:8px;font-weight:800;color:#fff;line-height:1.4;text-transform:uppercase;letter-spacing:.5px">Envoyer<br>tous les<br>mails</span>
         <span id="btnMailGlobalPastille" style="display:none;width:8px;height:8px;border-radius:50%;flex-shrink:0"></span>
       </div>
 
@@ -1311,24 +1208,6 @@ function loadSheetJS(callback) {
 
     <div id="indicAleasSection" class="synth-section" style="margin-top:28px;font-size:12px;color:#9f1239;background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #e11d48;border-bottom:none;padding:8px 12px;border-radius:6px 6px 0 0;letter-spacing:.3px;border-top:3px solid #e11d48">🚨 Aléas</div>
     <div id="indicAleasOk" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #16a34a;border-radius:8px;padding:8px 16px;margin-bottom:8px;font-size:12px;font-weight:700;color:#15803d">✅ Aucune anomalie</div>
-    <!-- Impayés -->
-    <div id="indicImpayeBar" style="display:none;background:repeating-linear-gradient(-45deg,rgba(254,226,226,.5) 0px,rgba(254,226,226,.5) 6px,#fff 6px,#fff 12px);border:1.5px solid #fca5a5;border-left:4px solid #dc2626;border-radius:8px;padding:10px 16px;margin-bottom:6px;align-items:center;gap:12px;flex-wrap:wrap">
-      <span style="font-size:20px">🚫</span>
-      <div style="flex:1">
-        <span style="font-size:13px;font-weight:800;color:#dc2626" id="in-impaye-total">–</span>
-        <span style="font-size:12px;font-weight:700;color:#7f1d1d"> installation(s) bloquée(s) — <span style="font-weight:400">impayés</span></span>
-      </div>
-      <button class="tbtn" style="background:#dc2626;color:#fff;border-color:#b91c1c;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap" onclick="filterFromIndic('impaye')">↗ Voir la liste</button>
-    </div>
-    <!-- Travaux / Fermés -->
-    <div id="indicTravauxBar" style="display:none;background:repeating-linear-gradient(-45deg,rgba(220,252,231,.55) 0px,rgba(220,252,231,.55) 6px,#fff 6px,#fff 12px);border:1.5px solid #86efac;border-left:4px solid #16a34a;border-radius:8px;padding:10px 16px;margin-bottom:10px;align-items:center;gap:12px;flex-wrap:wrap">
-      <span style="font-size:20px">🔧</span>
-      <div style="flex:1">
-        <span style="font-size:13px;font-weight:800;color:#15803d" id="in-travaux-total">–</span>
-        <span style="font-size:12px;font-weight:700;color:#14532d"> installation(s) en attente — <span style="font-weight:400">travaux / site fermé</span></span>
-      </div>
-      <button class="tbtn" style="background:#16a34a;color:#fff;border-color:#15803d;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap" onclick="filterFromIndic('travaux_ferme')">↗ Voir la liste</button>
-    </div>
     <div id="indicValiditeBar" style="display:none;background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #e11d48;border-radius:8px;padding:10px 16px;margin-bottom:10px;align-items:center;gap:20px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:22px;font-weight:800;color:#e11d48" id="in-validite-expire-total">–</span>
@@ -1942,7 +1821,6 @@ function loadSheetJS(callback) {
     </div>
     <div class="modal-footer">
       <button class="tbtn" id="resilieBtn" style="display:none;margin-right:auto;background:#fff7ed;color:#c2410c;border-color:#fed7aa;font-weight:700" onclick="resilierContrat()">🚫 Résilié</button>
-      <button class="tbtn" id="suspensionBtn" onclick="toggleSuspension()" style="display:none;font-weight:700" title="Marquer une alerte — ne plus intervenir sur ce site">⚠️ Alerte — Ne plus faire</button>
       <button class="tbtn" onclick="envoyerMailNouveauContrat()" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;font-weight:700" title="Envoyer un mail au technicien et à Olivier Belliard">📧 Nouveau contrat: envoi de mail tech. & obelliard</button>
       <button class="tbtn" onclick="closeModal('formModal')">Annuler</button>
       <button class="tbtn danger" id="deleteBtn" style="display:none" onclick="deleteCurrentContract()">🗑 Supprimer</button>
@@ -2048,7 +1926,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/02-04-26-11:00';
+const APP_VERSION = 'V1/08-04-26-15:55';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2488,33 +2366,21 @@ const SP = (() => {
           collection(_db, 'contrats'),
           (snap) => {
             // Toujours ignorer le tout premier snapshot (données initiales déjà chargées)
-            if (_firstSnapshot) {
-              _firstSnapshot = false;
-              // Voyant : connecté dès que le listener est établi
-              if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('connected');
-              return;
-            }
+            if (_firstSnapshot) { _firstSnapshot = false; return; }
             // Ne pas traiter si c'est notre propre écriture en cours
             if (window._fsLocalWrite) return;
-            // Voyant : réception en cours
-            if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('syncing');
             const newContracts = snap.docs.map(d => ({ _fsId: d.id, ...d.data() }));
             onUpdate(newContracts);
           },
-          (err) => {
-            console.warn('Realtime sync error:', err);
-            if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
-          }
+          (err) => { console.warn('Realtime sync error:', err); }
         );
       } catch(e) {
         console.warn('startRealtimeSync error:', e);
-        if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
       }
     },
 
     stopRealtimeSync() {
       if (window._fsUnsubscribe) { window._fsUnsubscribe(); window._fsUnsubscribe = null; }
-      if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
     },
   };
 })();
@@ -2604,9 +2470,6 @@ function activateOfflineMode(cache) {
     const d = new Date(cache.savedAt).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
     dateEl.textContent = `Données du cache — sauvegardé le ${d}`;
   }
-  // Voyant déconnecté
-  if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
-
   blockEditActions(true);
   // Ouvrir directement en lecture seule sans demander de connexion
   _currentUser = { login: 'invité', niveau: 'visualisation', prenom: 'Mode', nom: 'hors ligne' };
@@ -2819,7 +2682,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (!_historyMode) document.body.style.paddingTop = '52px';
     blockEditActions(true);
     toast('📵 Réseau perdu — passage en lecture seule', 'warning');
-    setRealtimeBeacon('disconnected', 'Hors ligne');
   });
 
   window.addEventListener('online', async () => {
@@ -2838,7 +2700,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (banner) banner.style.display = 'none';
     document.body.style.paddingTop = '';
     blockEditActions(false);
-    setRealtimeBeacon('connected', 'Temps réel');
     // Recharge les données depuis Firebase
     try {
       const data = await SP.loadAll();
@@ -3085,37 +2946,6 @@ function setStatus(type, text) {
               : 'Chargement…';
   }
 }
-
-/**
- * Contrôle le voyant de synchro temps réel.
- * state : 'connected' | 'syncing' | 'disconnected' | 'hidden'
- * label : texte affiché (optionnel)
- */
-function setRealtimeBeacon(state, label) {
-  const beacon = document.getElementById('realtimeBeacon');
-  const txt    = document.getElementById('realtimeBeaconText');
-  if (!beacon) return;
-  // Toujours visible sauf état 'hidden'
-  beacon.style.display = state === 'hidden' ? 'none' : 'flex';
-  beacon.className = '';   // reset
-  if (state === 'connected') {
-    beacon.classList.add('rb-connected');
-    beacon.title = '🟢 Synchronisation Firebase active — données en temps réel';
-    if (txt) txt.textContent = label || 'Temps réel';
-  } else if (state === 'syncing') {
-    beacon.classList.add('rb-syncing');
-    beacon.title = '⚡ Réception de nouvelles données…';
-    if (txt) txt.textContent = label || 'Mise à jour…';
-    // Repasser en connected après l'animation
-    clearTimeout(window._rbTimer);
-    window._rbTimer = setTimeout(() => setRealtimeBeacon('connected'), 2000);
-  } else if (state === 'disconnected') {
-    beacon.classList.add('rb-disconnected');
-    beacon.title = '🔴 Synchronisation temps réel inactive';
-    if (txt) txt.textContent = label || 'Hors ligne';
-  }
-}
-
 
 async function _saveEditableArchive() {
   const key = window._editableArchiveKey;
@@ -3935,7 +3765,16 @@ function applyFilters() {
       if ((r.VE1 || '').trim() && (r.VE2 || '').trim()) return false;
     }
     if (activeQuickFilter === 'validite_expire') {
-      if (!isValiditeExpiree(r)) return false;
+      function parseV(v) {
+        if (!v) return null; v = v.trim();
+        let m = v.match(/^(\d{2})\/(\d{2})\/(\d{2})$/); if (m) { const y=+m[3]; return new Date(y<50?2000+y:1900+y,+m[2]-1,+m[1]); }
+        m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); if (m) return new Date(+m[3],+m[2]-1,+m[1]);
+        if (/^\d{5}(\.\d+)?$/.test(v)) return new Date(Math.round((parseFloat(v)-25569)*86400*1000));
+        return null;
+      }
+      const now = new Date(); now.setHours(0,0,0,0);
+      const d = parseV(r.Fin_Validite);
+      if (!d || d >= now) return false;
     }
     if (activeQuickFilter === 'sans_tech') {
       if (r.Technicien && r.Technicien.trim()) return false;
@@ -3960,12 +3799,6 @@ function applyFilters() {
       } else {
         return false;
       }
-    }
-    if (activeQuickFilter === 'impaye') {
-      if (r._suspension !== 'impaye') return false;
-    }
-    if (activeQuickFilter === 'travaux_ferme') {
-      if (r._suspension !== 'travaux_ferme') return false;
     }
     if (activeQuickFilter === 'retard') {
       if (activeRetardTech) {
@@ -4227,7 +4060,7 @@ function filterFromIndic(type) {
   } else if (type === 'q7_retard') {
     activeQuickFilter = 'q7_retard';
     activeRetardTech = null;
-  } else if (type === 'debit' || type === 'formation' || type === 'recond' || type === 'apsad' || type === 'sans_tech' || type === 'sans_mat' || type === 'validite_expire' || type === 'sans_ve_v1' || type === 'sans_ve_v2' || type === 'sans_type' || type === 'mat_incoherent' || type === 'impaye' || type === 'travaux_ferme') {
+  } else if (type === 'debit' || type === 'formation' || type === 'recond' || type === 'apsad' || type === 'sans_tech' || type === 'sans_mat' || type === 'validite_expire' || type === 'sans_ve_v1' || type === 'sans_ve_v2' || type === 'sans_type' || type === 'mat_incoherent') {
     activeQuickFilter = type;
   } else if (type.startsWith('mat_')) {
     // Filtre par famille de matériel depuis le tableau de bord
@@ -4269,29 +4102,6 @@ function filterByVeColor(color) {
     if (idx !== undefined && items[idx]) items[idx].classList.add('active');
   }
   applyFilters();
-}
-
-function filterNouveauxContrats() {
-  _pushNow();
-  // Réinitialiser les autres filtres visuels
-  activeVeColorFilter = null;
-  document.querySelectorAll('#veLegend .ve-legend-item').forEach(el => el.classList.remove('active'));
-  // Filtrer : contrats créés dans l'appli dont VE1 ET VE2 ne sont pas Réalisée/Archivée
-  const realiseOuArchive = c => c === '92D050' || c === '00B0F0';
-  filtered = getFilteredDb().filter(r => {
-    if (!r._createdAt) return false;
-    const ve1c = getVeColorForRecord(r, 've1');
-    const ve2c = getVeColorForRecord(r, 've2');
-    return !realiseOuArchive(ve1c) && !realiseOuArchive(ve2c);
-  });
-  // Mettre à jour le style du bouton
-  const btn = document.getElementById('btnFilterNouveau');
-  if (btn) { btn.style.background = '#fbd0e8'; btn.style.borderColor = '#ec4899'; btn.style.boxShadow = '0 0 0 2px #fce7f3'; }
-  renderTable();
-  updateStats();
-  updateActiveFilters();
-  const n = filtered.length;
-  toast(`✦ ${n} nouveau${n>1?'x':''} contrat${n>1?'s':''}`, n ? 'success' : '');
 }
 
 function updateActiveFilters() {
@@ -4365,9 +4175,6 @@ function resetFilters() {
   if (btnQ7) btnQ7.style.background = '#FFC000';
   const q7Bar = document.getElementById('q7Bar');
   if (q7Bar) q7Bar.style.display = 'none';
-  // Reset bouton Nouveaux
-  const btnNouv = document.getElementById('btnFilterNouveau');
-  if (btnNouv) { btnNouv.style.background = '#fce7f3'; btnNouv.style.borderColor = '#f9a8d4'; btnNouv.style.boxShadow = ''; }
   // Reset stat buttons
   document.querySelectorAll('#veLegend .ve-legend-item').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.stat').forEach(s => s.classList.remove('active'));
@@ -4464,12 +4271,9 @@ function renderTable() {
       if (type === 'checkbox') {
         // Case à cocher : afficher si cochée
         if (!val) return;
-        // Afficher la quantité pour toutes les options non-default (BAES_BAEH, Extincteurs, custom…)
-        const defaultKeys = ['Debit','Astreinte','MO_Inclus','Formation_SSI','Reconditionnement',
-          'Filtres_DFA','Batterie','Entretien_DAS','Trienale_CS','Sono','Fan_Test',
-          'Form_Extincteurs','Verif_DAF','PCF_CCF'];
-        const showQty = !defaultKeys.includes(o.key);
-        if (showQty) {
+        // Avec quantité pour BAES_BAEH et Extincteurs
+        const qtyKeys = ['BAES_BAEH', 'Extincteurs'];
+        if (qtyKeys.includes(o.key)) {
           const qty = r[o.key + '_qty'];
           const display = (qty != null && qty > 0) ? label + '\u00a0<b>' + qty + '</b>' : label;
           optBadges.push(`<span title="${o.label}${qty ? ' : ' + qty : ''}" style="display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc">${display}</span>`);
@@ -4504,7 +4308,7 @@ function renderTable() {
       const ve1c = getVeColorForRecord(r, 've1');
       const ve2c = getVeColorForRecord(r, 've2');
       const realiseOuArchive = c => c === '92D050' || c === '00B0F0';
-      // Nouveau tant que NI VE1 NI VE2 n'est Réalisée ou Archivée
+      // Nouveau tant qu'aucune VE n'est Réalisée ou Archivée
       return !realiseOuArchive(ve1c) && !realiseOuArchive(ve2c);
     })();
     const nouveauBadge = isNouveau
@@ -4512,7 +4316,7 @@ function renderTable() {
       : '';
 
     return `
-    <tr title="${tooltip}" onclick="selectTableRow(this)" class="${r._suspension === 'impaye' ? 'suspension-impaye' : r._suspension === 'travaux_ferme' ? 'suspension-travaux' : isValiditeExpiree(r) ? 'validite-expiree' : ''}" style="cursor:pointer">
+    <tr title="${tooltip}" onclick="selectTableRow(this)" style="cursor:pointer">
       
       <td style="font-weight:700;color:#1e40af;min-width:265px;font-size:13px;text-align:left">
         <div style="display:flex;align-items:center;gap:4px">
@@ -4540,8 +4344,8 @@ function renderTable() {
         ${veCell(r.VE2, r.VE2_statut, r.Installation, 've2')}
         ${r.Q7_VE2_tech ? `<div style="margin-top:3px"><span style="display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#dc2626;color:#fff;white-space:nowrap" title="Q7 VE2 : ${esc(r.Q7_VE2_tech)}">Q7 · ${esc(r.Q7_VE2_tech)}</span></div>` : ''}
       </td>
-      <td oncontextmenu="openTechMenu(event, ${i}, 'Technicien')" style="cursor:context-menu">${esc(r.Technicien)||'<span style="color:#ccc">–</span>'}</td>
-      <td oncontextmenu="openTechMenu(event, ${i}, 'Binome')" style="cursor:context-menu">${esc(r.Binome)||'<span style="color:#ccc">–</span>'}</td>
+      <td oncontextmenu="openTechMenu(event, ${i}, 'Technicien')" ondblclick="if(hasPerm('editTechnicien'))openTechMenu(event,${i},'Technicien');else toast('🔒 Modification du technicien non autorisée','warning')" style="cursor:pointer" title="Double-clic : modifier le technicien">${esc(r.Technicien)||'<span style="color:#ccc">–</span>'}</td>
+      <td oncontextmenu="openTechMenu(event, ${i}, 'Binome')" ondblclick="if(hasPerm('editTechnicien'))openTechMenu(event,${i},'Binome');else toast('🔒 Modification du binôme non autorisée','warning')" style="cursor:pointer" title="Double-clic : modifier le binôme">${esc(r.Binome)||'<span style="color:#ccc">–</span>'}</td>
       <td style="min-width:80px;max-width:80px;width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${esc(r.Ville)||'<span style="color:#ccc">–</span>'}</td>
       <td style="min-width:105px;max-width:105px;width:105px;text-align:center">${esc(r.Fin_Validite)||'<span style="color:#ccc">–</span>'}</td>
       <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--blue);display:none">${((parseFloat(r.Detect_Tech1)||0)+(parseFloat(r.Detect_Tech2)||0)) || '<span style="color:#ccc">–</span>'}</td>
@@ -5019,8 +4823,6 @@ function openAdd() {
   document.getElementById('formIcon').textContent = '➕';
   document.getElementById('deleteBtn').style.display = 'none';
   document.getElementById('resilieBtn').style.display = 'none';
-  const suspBtnNew = document.getElementById('suspensionBtn');
-  if (suspBtnNew) suspBtnNew.style.display = 'none';
   // Repopulate tech selects depuis les fiches uniquement
   const techOpts = buildTechDropdownOptions('–');
   const ft = document.getElementById('f_Technicien');
@@ -5058,12 +4860,6 @@ function openEditById(id) {
   document.getElementById('formIcon').textContent = '✏️';
   document.getElementById('deleteBtn').style.display = '';
   document.getElementById('resilieBtn').style.display = (_currentUser?.niveau !== 'technicien') ? '' : 'none';
-  // Bouton suspension
-  const suspBtn = document.getElementById('suspensionBtn');
-  if (suspBtn && _currentUser?.niveau !== 'technicien') {
-    suspBtn.style.display = '';
-    _updateSuspensionBtn(r._suspension);
-  }
   // Fill form
   TEXT_FIELDS.forEach(f => {
     if (f === 'Fin_Validite') {
@@ -5207,7 +5003,7 @@ function saveContract() {
       // Préserver les champs gérés hors formulaire (commentaire, couleurs VE, Q7, etc.)
       const PRESERVE = ['Commentaire','VE1_statut','VE2_statut','VE1_color','VE2_color',
                         'Q7_VE1_tech','Q7_VE2_tech','Debit_color','Reconditionnement_color',
-                        'Formation_SSI_color','_createdAt','_suspension'];
+                        'Formation_SSI_color'];
       const existing = db[idx];
       PRESERVE.forEach(k => { if (existing[k] !== undefined && record[k] === undefined) record[k] = existing[k]; });
       db[idx] = record;
@@ -5364,65 +5160,6 @@ async function syncResiliesVersFirebase() {
   await saveResilies(list);
   toast(`✅ ${list.length} résiliés synchronisés dans Firebase`, 'success');
   openResiliesModal(); // refresh
-}
-
-function _updateSuspensionBtn(suspension) {
-  const btn = document.getElementById('suspensionBtn');
-  if (!btn) return;
-  if (suspension === 'impaye') {
-    btn.style.background = '#fee2e2'; btn.style.color = '#dc2626'; btn.style.borderColor = '#fca5a5';
-    btn.textContent = '🚫 Bloqué — Impayé (cliquer pour lever)';
-  } else if (suspension === 'travaux_ferme') {
-    btn.style.background = '#dcfce7'; btn.style.color = '#15803d'; btn.style.borderColor = '#86efac';
-    btn.textContent = '🔧 En attente — Travaux/Fermé (cliquer pour lever)';
-  } else {
-    btn.style.background = '#f8fafc'; btn.style.color = '#475569'; btn.style.borderColor = '#cbd5e1';
-    btn.textContent = '⚠️ Alerte — Ne plus faire';
-  }
-}
-
-async function toggleSuspension() {
-  const r = db.find(x => x._id === editingId);
-  if (!r) return;
-  const cur = r._suspension || null;
-  let next;
-  if (!cur) {
-    // Choisir le type de suspension via modale simple
-    next = await new Promise(resolve => {
-      const overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:center;justify-content:center';
-      overlay.innerHTML = `
-        <div style="background:#fff;border-radius:12px;padding:24px 28px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25);text-align:center">
-          <div style="font-size:16px;font-weight:800;color:#1e293b;margin-bottom:8px">⚠️ Alerte — Ne plus faire</div>
-          <div style="font-size:12px;color:#64748b;margin-bottom:20px">${esc(r.Installation||'')}</div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <button id="_susp_impaye" style="padding:12px;background:#fee2e2;color:#dc2626;border:2px solid #fca5a5;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px">
-              🚫 Impayé — ne pas intervenir
-            </button>
-            <button id="_susp_travaux" style="padding:12px;background:#dcfce7;color:#15803d;border:2px solid #86efac;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px">
-              🔧 Travaux / Site fermé — en attente
-            </button>
-            <button id="_susp_cancel" style="padding:8px;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:12px">
-              Annuler
-            </button>
-          </div>
-        </div>`;
-      document.body.appendChild(overlay);
-      overlay.querySelector('#_susp_impaye').onclick  = () => { document.body.removeChild(overlay); resolve('impaye'); };
-      overlay.querySelector('#_susp_travaux').onclick = () => { document.body.removeChild(overlay); resolve('travaux_ferme'); };
-      overlay.querySelector('#_susp_cancel').onclick  = () => { document.body.removeChild(overlay); resolve(null); };
-    });
-    if (!next) return;
-  } else {
-    // Lever la suspension
-    if (!confirm(`Lever la suspension de "${r.Installation}" ?`)) return;
-    next = null;
-  }
-  r._suspension = next;
-  _updateSuspensionBtn(next);
-  await saveDB(r);
-  applyFilters(); updateStats(); updateSynthese();
-  toast(next ? `⚠️ "${r.Installation}" — alerte activée (ne plus faire)` : `✅ Alerte levée pour "${r.Installation}"`, next ? 'warning' : 'success');
 }
 
 async function resilierContrat() {
@@ -5614,7 +5351,7 @@ function switchTab(tab) {
   const btnRetour = document.getElementById('btnRetour');
   if (btnRetour) btnRetour.style.display = isContrats ? '' : 'none';
   const hrc = document.getElementById('headerRowCount');
-  if (hrc) hrc.style.display = 'none';
+  if (hrc) hrc.style.display = isContrats ? '' : 'none';
   const fServiceBtns = document.getElementById('fServiceBtns');
   if (fServiceBtns) fServiceBtns.style.display = isContrats ? 'flex' : 'none';
   const dataStatus = document.getElementById('dataStatus');
@@ -5647,24 +5384,6 @@ function getVeMonthIndex(val) {
   return -1;
 }
 
-function parseValiditeDate(v) {
-  if (!v) return null;
-  v = v.trim();
-  let m = v.match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
-  if (m) { const y = +m[3]; return new Date(y < 50 ? 2000+y : 1900+y, +m[2]-1, +m[1]); }
-  m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
-  if (/^\d{5}(\.\d+)?$/.test(v)) return new Date(Math.round((parseFloat(v)-25569)*86400*1000));
-  return null;
-}
-
-function isValiditeExpiree(r) {
-  const d = parseValiditeDate(r.Fin_Validite);
-  if (!d) return false;
-  const now = new Date(); now.setHours(0,0,0,0);
-  return d < now;
-}
-
 function isVeFieldEnRetard(r, field) {
   const val = field === 've1' ? r.VE1 : r.VE2;
   const mIdx = getVeMonthIndex(val);
@@ -5679,7 +5398,6 @@ function isVeFieldEnRetard(r, field) {
 }
 
 function isVeEnRetard(r) {
-  if (r._suspension) return false; // suspendu → exclu des retards
   return isVeFieldEnRetard(r, 've1') || isVeFieldEnRetard(r, 've2');
 }
 
@@ -5766,110 +5484,6 @@ function filterTechMois(techName, mois, type) {
   activeQuickFilter = type === 'all' ? 'all' : type;
   switchTab('contrats');
   applyFilters();
-}
-
-/* ═══════════════════════════════════════════════
-   FILE D'ATTENTE MAILS — envoi différé
-   Sauvegarde en localStorage si hors ligne,
-   renvoi automatique à l'ouverture de l'app.
-═══════════════════════════════════════════════ */
-const MAIL_QUEUE_KEY = 'gestion_contrats_mail_queue';
-
-function _getMailQueue() {
-  try { return JSON.parse(localStorage.getItem(MAIL_QUEUE_KEY) || '[]'); }
-  catch { return []; }
-}
-
-function _saveMailQueue(queue) {
-  try { localStorage.setItem(MAIL_QUEUE_KEY, JSON.stringify(queue)); } catch {}
-}
-
-function _enqueueMailRetard(techNames) {
-  const queue = _getMailQueue();
-  const entry = {
-    type: 'retard',
-    techNames,
-    enqueuedAt: new Date().toISOString(),
-    monthKey: getMailSentKey(),  // ex: "2026-04"
-  };
-  // Éviter les doublons pour le même mois
-  const exists = queue.find(e => e.type === 'retard' && e.monthKey === entry.monthKey);
-  if (exists) {
-    // Fusionner les techniciens manquants
-    const missing = techNames.filter(t => !exists.techNames.includes(t));
-    if (missing.length) exists.techNames = [...exists.techNames, ...missing];
-  } else {
-    queue.push(entry);
-  }
-  _saveMailQueue(queue);
-  _updateMailQueueBadge();
-}
-
-function _clearMailQueueForMonth(monthKey) {
-  const queue = _getMailQueue().filter(e => e.monthKey !== monthKey);
-  _saveMailQueue(queue);
-  _updateMailQueueBadge();
-}
-
-function _updateMailQueueBadge() {
-  const queue = _getMailQueue();
-  const badge = document.getElementById('mailQueueBadge');
-  if (!badge) return;
-  if (queue.length === 0) { badge.style.display = 'none'; return; }
-  const total = queue.reduce((acc, e) => acc + (e.techNames?.length || 0), 0);
-  badge.style.display = 'flex';
-  badge.textContent = `📬 ${total} mail(s) en attente d'envoi`;
-}
-
-async function _flushMailQueue() {
-  const queue = _getMailQueue();
-  if (!queue.length) return;
-
-  const ok = await loadEmailJS();
-  if (!ok) {
-    console.warn('📬 File d\'attente : EmailJS indisponible, on réessaiera plus tard');
-    return;
-  }
-
-  let totalEnvoyes = 0;
-  const stillPending = [];
-
-  for (const entry of queue) {
-    if (entry.type !== 'retard') { stillPending.push(entry); continue; }
-    let nbEnvoyes = 0;
-    const echecs = [];
-    for (const techName of (entry.techNames || [])) {
-      const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === techName.toLowerCase());
-      const mail = fiche?.mail || '';
-      if (!mail) continue;
-      const sites = getRetardSitesForTech(techName);
-      if (!sites.length) continue;
-      const sitesList = sites.map(s => `• ${s.Installation || s.Client || s._id} (${s.Ville || ''})`).join('\n');
-      try {
-        await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          to_email:  mail,
-          tech_name: techName,
-          nb_sites:  String(sites.length),
-          sites_list: sitesList,
-        });
-        nbEnvoyes++;
-        totalEnvoyes++;
-      } catch(e) {
-        echecs.push(techName);
-      }
-    }
-    if (echecs.length > 0) {
-      stillPending.push({ ...entry, techNames: echecs });
-    }
-    if (nbEnvoyes > 0) await marquerMailEnvoye();
-  }
-
-  _saveMailQueue(stillPending);
-  _updateMailQueueBadge();
-
-  if (totalEnvoyes > 0) {
-    toast(`📧 ${totalEnvoyes} mail(s) en attente envoyé(s) avec succès`, 'success');
-  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -5982,15 +5596,7 @@ async function envoyerAlerteRetardAuto(force = false) {
   const dernier = getDernierJourOuvrable(now.getFullYear(), now.getMonth());
   const estDernierJourOuvrable = now.toDateString() === dernier.toDateString();
 
-  if (!force && !estDernierJourOuvrable) {
-    // Vérifier si un envoi était en attente (app fermée ou hors ligne avant)
-    const queue = _getMailQueue();
-    if (queue.length > 0) {
-      console.log('📬 File d\'attente mail : ' + queue.length + ' envoi(s) en attente — tentative…');
-      await _flushMailQueue();
-    }
-    return;
-  }
+  if (!force && !estDernierJourOuvrable) return;
 
   // Vérifier si déjà envoyé ce mois
   const dejaEnvoye = await isMailDejaEnvoye();
@@ -6004,15 +5610,9 @@ async function envoyerAlerteRetardAuto(force = false) {
 
   // Charger EmailJS
   const ok = await loadEmailJS();
-  if (!ok) {
-    // Hors ligne ou CDN indisponible → mettre en file d'attente
-    _enqueueMailRetard(techsAvecRetard);
-    console.warn('📬 EmailJS non chargé — envoi mis en file d\'attente pour la prochaine ouverture');
-    return;
-  }
+  if (!ok) { console.warn('EmailJS non chargé'); return; }
 
   let nbEnvoyes = 0;
-  let nbEchecs = [];
   for (const techName of techsAvecRetard) {
     const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === techName.toLowerCase());
     const mail = fiche?.mail || '';
@@ -6030,14 +5630,7 @@ async function envoyerAlerteRetardAuto(force = false) {
       nbEnvoyes++;
     } catch(e) {
       console.error('Erreur envoi mail pour', techName, e);
-      nbEchecs.push(techName);
     }
-  }
-
-  // Mettre les échecs en file d'attente
-  if (nbEchecs.length > 0) {
-    _enqueueMailRetard(nbEchecs);
-    toast(`⚠ ${nbEchecs.length} mail(s) en échec — seront renvoyés à la prochaine ouverture`, 'warning');
   }
 
   if (nbEnvoyes > 0) {
@@ -6469,7 +6062,6 @@ function updateSynthese() {
 
   // Calcul des installations avec Manque rapport (VE verte = réalisée sans rapport remis)
   const manqueRapportTotal = _src.filter(r => {
-    if (r._suspension) return false; // exclu si suspendu
     const ve1Green = (r.VE1_statut === '92D050') || (!r.VE1_statut && VE_COLORS[r.Installation]?.ve1 === '92D050');
     const ve2Green = (r.VE2_statut === '92D050') || (!r.VE2_statut && VE_COLORS[r.Installation]?.ve2 === '92D050');
     return ve1Green || ve2Green;
@@ -6483,7 +6075,6 @@ function updateSynthese() {
 
   // Calcul des Q7 en attente : VE archivée avec technicien Q7 renseigné et Q7 non délivré
   const isQ7EnAttente = r => {
-    if (r._suspension) return false; // exclu si suspendu
     const ve1Arch = getVeColorForRecord(r, 've1') === '00B0F0';
     const ve2Arch = getVeColorForRecord(r, 've2') === '00B0F0';
     const ve1Q7   = ve1Arch && r.Q7_VE1_tech && r.Q7_VE1_tech.trim();
@@ -6498,15 +6089,6 @@ function updateSynthese() {
     const el = document.getElementById('in-q7-retard-total');
     if (el) el.textContent = q7RetardTotal;
   }
-
-  // Calcul des installations suspendues (impayés + travaux/fermés)
-  const impayeTotal    = db.filter(r => r._suspension === 'impaye').length;
-  const travauxTotal   = db.filter(r => r._suspension === 'travaux_ferme').length;
-  const impayeBar  = document.getElementById('indicImpayeBar');
-  const travauxBar = document.getElementById('indicTravauxBar');
-  if (impayeBar)  { impayeBar.style.display  = impayeTotal  > 0 ? 'flex' : 'none'; const el = document.getElementById('in-impaye-total');  if (el) el.textContent = impayeTotal; }
-  if (travauxBar) { travauxBar.style.display = travauxTotal > 0 ? 'flex' : 'none'; const el = document.getElementById('in-travaux-total'); if (el) el.textContent = travauxTotal; }
-
   // Afficher la ligne conteneur si au moins une des deux barres est visible
   const rapportQ7Row = document.getElementById('indicRapportQ7Row');
   if (rapportQ7Row) rapportQ7Row.style.display = (manqueRapportTotal > 0 || q7RetardTotal > 0) ? 'flex' : 'none';
@@ -7855,15 +7437,15 @@ function saveTechOrderInline() {
 
 // ── PERMISSIONS PAR RÔLE ──────────────────────────────────────────────────
 const DEFAULT_ROLE_PERMS = {
-  technicien:   { edit:false, delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
-  chef_service: { edit:false, delete:false, manageTech:true,  importExport:false, rightClick:false, commentaire:true,  editVE:false },
-  gestion:      { edit:true,  delete:true,  manageTech:true,  importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
-  direction:    { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:false, editVE:false },
-  custom1:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
-  custom2:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
-  custom3:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
-  custom4:      { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:true,  editVE:false },
-  custom5:      { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:true,  editVE:false },
+  technicien:   { edit:false, delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true,  editTechnicien:false },
+  chef_service: { edit:false, delete:false, manageTech:true,  importExport:false, rightClick:false, commentaire:true,  editVE:false, editTechnicien:true  },
+  gestion:      { edit:true,  delete:true,  manageTech:true,  importExport:false, rightClick:true,  commentaire:true,  editVE:true,  editTechnicien:true  },
+  direction:    { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:false, editVE:false, editTechnicien:false },
+  custom1:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true,  editTechnicien:true  },
+  custom2:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true,  editTechnicien:true  },
+  custom3:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true,  editTechnicien:true  },
+  custom4:      { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:true,  editVE:false, editTechnicien:false },
+  custom5:      { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:true,  editVE:false, editTechnicien:false },
 };
 
 // Périmètre données par rôle perso : { detection: ['*'|'Aix'|'Alpes'|'Riviera'], protection: [...] }
@@ -7894,18 +7476,19 @@ function hasPerm(perm) {
 
 
 const PERM_LABELS = {
-  edit:          'Modifier / ajouter des contrats',
-  delete:        'Supprimer des contrats',
-  dupliquer:     'Dupliquer une ligne',
-  ajoutMateriel: 'Ajouter / modifier le matériel',
-  manageTech:    'Gérer les fiches techniciens',
-  manageOptions: 'Gérer les options',
-  importExport:  'Importer / Exporter',
-  rightClick:    'Clic droit VE (modifier statut)',
-  editVE:        'Double-clic VE (modifier le mois)',
-  commentaire:   'Ajouter un commentaire',
-  historique:    'Consulter l\'historique',
-  effacer:       'Effacer / réinitialiser des données',
+  edit:             'Modifier / ajouter des contrats',
+  delete:           'Supprimer des contrats',
+  dupliquer:        'Dupliquer une ligne',
+  ajoutMateriel:    'Ajouter / modifier le matériel',
+  manageTech:       'Gérer les fiches techniciens',
+  manageOptions:    'Gérer les options',
+  importExport:     'Importer / Exporter',
+  rightClick:       'Clic droit VE (modifier statut)',
+  editVE:           'Double-clic VE (modifier le mois)',
+  editTechnicien:   'Double-clic Technicien (modifier l\'affectation)',
+  commentaire:      'Ajouter un commentaire',
+  historique:       'Consulter l\'historique',
+  effacer:          'Effacer / réinitialiser des données',
 };
 const ROLE_LABELS = {
   technicien:   '👷 Technicien',
@@ -8534,9 +8117,6 @@ function closeLoginAndStart() {
   loadPrevMonthSnapshot().then(() => updateSynthese());
 
   // Écoute temps réel Firebase
-  setRealtimeBeacon('disconnected', 'Connexion…');
-  // Vider la file d'attente mails si des envois étaient en attente
-  setTimeout(() => { _updateMailQueueBadge(); _flushMailQueue(); }, 5000);
   SP.startRealtimeSync((newContracts) => {
     if (_historyMode || _offlineMode) return;
     // Fusion intelligente : met à jour uniquement les contrats modifiés
@@ -8659,13 +8239,6 @@ function applyAccessLevel() {
   const btnGererOpts = document.getElementById('btnGererOptions');
   if (btnGererOpts) btnGererOpts.style.display = (isAdmin || hasPerm('manageOptions')) ? '' : 'none';
 
-  // Bouton +Contrat dans la barre de filtres : visible seulement si peut éditer
-  const btnAddBar = document.getElementById('btnAddContratBar');
-  if (btnAddBar) btnAddBar.style.display = hasPerm('edit') ? '' : 'none';
-  // Bouton Nouveaux : toujours visible dans l'onglet contrats
-  const btnNouv = document.getElementById('btnFilterNouveau');
-  if (btnNouv) btnNouv.style.display = '';
-
   // Résiliés : visible pour tous (techniciens en lecture seule — bouton Restaurer déjà caché)
   const btnResilies = document.querySelector('.dash-nav-item[onclick*="openResiliesModal"]');
   if (btnResilies) btnResilies.style.display = '';
@@ -8690,19 +8263,13 @@ function updateUserBadgeHeader() {
   if (!_currentUser) return;
   const initials = [_currentUser.prenom, _currentUser.nom].filter(Boolean).map(s=>s[0].toUpperCase()).join('') || (_currentUser.login||'??').substring(0,2).toUpperCase();
   const fullName = ((_currentUser.prenom||'') + ' ' + (_currentUser.nom||'')).trim();
-  // Badge dans le titre (gauche) — masqué car déplacé au centre
+  // Badge complet dans le titre (rond + nom)
   const userNameEl = document.getElementById('headerUserName');
-  if (userNameEl) userNameEl.style.display = 'none';
-  // Badge central avec bulle initiales + prénom nom
-  const centerBadge = document.getElementById('headerUserBadgeCenter');
-  if (centerBadge) {
-    const bubbleEl = document.getElementById('headerUserInitialsBubble');
-    const nameEl = document.getElementById('headerUserFullName');
-    if (bubbleEl) bubbleEl.textContent = initials;
-    if (nameEl) nameEl.textContent = fullName;
-    centerBadge.style.display = 'flex';
+  if (userNameEl) {
+    userNameEl.innerHTML = `<span style="background:rgba(255,255,255,.25);border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;vertical-align:middle;cursor:pointer" title="Déconnexion" onclick="logout()">${initials}</span> <span style="vertical-align:middle;font-size:12px;font-weight:600">${fullName}</span>`;
+    userNameEl.style.display = 'flex';
   }
-  // Initiales uniquement à droite (déconnexion) — masquées
+  // Initiales uniquement à droite (déconnexion) — masquées car déjà dans le titre
   const badge = document.getElementById('currentUserBadge');
   if (badge) badge.style.display = 'none';
 }
@@ -9393,9 +8960,6 @@ function blockEditActions(block) {
       btn.style.pointerEvents = block ? 'none' : '';
     }
   });
-  // Désactiver le bouton +Contrat de la barre de filtres
-  const btnAdd = document.getElementById('btnAddContratBar');
-  if (btnAdd) { btnAdd.style.opacity = block ? '.35' : ''; btnAdd.style.pointerEvents = block ? 'none' : ''; }
   // Badge lecture seule (coin bas-droit) — couleur selon le mode
   let overlay = document.getElementById('historyOverlay');
   if (block) {
