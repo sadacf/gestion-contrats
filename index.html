@@ -712,6 +712,13 @@ tr.validite-expiree td { opacity: .85; }
   color: var(--sub); font-size: 12px;
   border-top: 1px solid var(--line); padding: 7px 14px;
 }
+#ctxTechList .ctx-group-header {
+  padding: 5px 14px 3px;
+  font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .7px;
+  color: #64748b; background: #f1f5f9;
+  border-top: 1px solid var(--line); border-bottom: 1px solid #e2e8f0;
+  pointer-events: none; user-select: none;
+}
 #ctxMenu .ctx-title {
   padding: 8px 14px; font-size: 10.5px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .6px;
@@ -2048,7 +2055,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/08-04-26-18:43';
+const APP_VERSION = 'V1/09-04-26-07:28';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4518,11 +4525,11 @@ function renderTable() {
         <div style="display:flex;align-items:center;gap:4px">
           ${typeIcon}
           ${r.Lien_Dossier
-            ? `<div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}</div>`
+            ? `<div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}</div>`
             : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}</div>`
           }
           ${nouveauBadge}
-          ${r.Lien_Dossier ? `<span onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}');event.stopPropagation()" title="Ouvrir le dossier rapports" style="cursor:pointer;font-size:11px;flex-shrink:0;transition:transform .15s;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#bfdbfe;border-radius:4px;border:1px solid #93c5fd" onmouseover="this.style.transform='scale(1.15)';this.style.background='#93c5fd'" onmouseout="this.style.transform='scale(1)';this.style.background='#bfdbfe'">✉️</span>` : ''}
+          ${r.Lien_Dossier ? `<span onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" title="Ouvrir le dossier rapports" style="cursor:pointer;font-size:11px;flex-shrink:0;transition:transform .15s;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#bfdbfe;border-radius:4px;border:1px solid #93c5fd" onmouseover="this.style.transform='scale(1.15)';this.style.background='#93c5fd'" onmouseout="this.style.transform='scale(1)';this.style.background='#bfdbfe'">✉️</span>` : ''}
         </div>
         ${r.Client ? `<div style="font-size:11px;color:#64748b;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:360px">${esc(r.Client)}</div>` : ''}
         ${r.Commentaire
@@ -4540,8 +4547,8 @@ function renderTable() {
         ${veCell(r.VE2, r.VE2_statut, r.Installation, 've2')}
         ${r.Q7_VE2_tech ? `<div style="margin-top:3px"><span style="display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#dc2626;color:#fff;white-space:nowrap" title="Q7 VE2 : ${esc(r.Q7_VE2_tech)}">Q7 · ${esc(r.Q7_VE2_tech)}</span></div>` : ''}
       </td>
-      <td oncontextmenu="openTechMenu(event, ${i}, 'Technicien')" style="cursor:context-menu">${esc(r.Technicien)||'<span style="color:#ccc">–</span>'}</td>
-      <td oncontextmenu="openTechMenu(event, ${i}, 'Binome')" style="cursor:context-menu">${esc(r.Binome)||'<span style="color:#ccc">–</span>'}</td>
+      <td oncontextmenu="openTechMenu(event, ${i}, 'Technicien')" ondblclick="if(hasPerm('editTechInline')){event.stopPropagation();openTechMenu(event,${i},'Technicien')}else{toast('🔒 Modification du technicien non autorisée','warning')}" style="cursor:context-menu" title="Clic droit ou double-clic : modifier le technicien">${esc(r.Technicien)||'<span style="color:#ccc">–</span>'}</td>
+      <td oncontextmenu="openTechMenu(event, ${i}, 'Binome')" ondblclick="if(hasPerm('editTechInline')){event.stopPropagation();openTechMenu(event,${i},'Binome')}else{toast('🔒 Modification du technicien non autorisée','warning')}" style="cursor:context-menu" title="Clic droit ou double-clic : modifier le technicien">${esc(r.Binome)||'<span style="color:#ccc">–</span>'}</td>
       <td style="min-width:80px;max-width:80px;width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${esc(r.Ville)||'<span style="color:#ccc">–</span>'}</td>
       <td style="min-width:105px;max-width:105px;width:105px;text-align:center">${esc(r.Fin_Validite)||'<span style="color:#ccc">–</span>'}</td>
       <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--blue);display:none">${((parseFloat(r.Detect_Tech1)||0)+(parseFloat(r.Detect_Tech2)||0)) || '<span style="color:#ccc">–</span>'}</td>
@@ -4839,24 +4846,27 @@ function getDossierRacine() {
   return localStorage.getItem(DOSSIER_RACINE_KEY) || '';
 }
 
-function buildCheminDossier(sousDossier, statut, dept) {
+function buildCheminDossier(sousDossier, statut, dept, sousRep) {
   const racine = getDossierRacine().replace(/[\\\/]+$/, '');
   if (!racine) return '';
-  const sousRep = document.getElementById('f_Dossier_SousRep')?.value.trim() || '';
+  // sousRep peut venir en paramètre (appel depuis tableau) ou du DOM (appel depuis formulaire)
+  const sr = (sousRep !== undefined && sousRep !== null)
+    ? sousRep
+    : (document.getElementById('f_Dossier_SousRep')?.value.trim() || '');
   const parts = [racine];
   if (dept)        parts.push(dept);
-  if (sousRep)     parts.push(sousRep);
+  if (sr)          parts.push(sr);
   if (sousDossier) parts.push(sousDossier);
   return parts.join('\\');
 }
 
-function ouvrirDossier(sousDossier, statut, dept) {
+function ouvrirDossier(sousDossier, statut, dept, sousRep) {
   // Si c'est une URL web → ouvrir directement dans le navigateur
   if (sousDossier && /^https?:\/\//i.test(sousDossier)) {
     window.open(sousDossier, '_blank');
     return;
   }
-  const chemin = buildCheminDossier(sousDossier, statut, dept);
+  const chemin = buildCheminDossier(sousDossier, statut, dept, sousRep);
   if (!chemin) {
     toast('⚙️ Chemin utilisateur non configuré — cliquez sur ⚙️ pour le définir', 'warning');
     return;
@@ -7855,15 +7865,15 @@ function saveTechOrderInline() {
 
 // ── PERMISSIONS PAR RÔLE ──────────────────────────────────────────────────
 const DEFAULT_ROLE_PERMS = {
-  technicien:   { edit:false, delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
-  chef_service: { edit:false, delete:false, manageTech:true,  importExport:false, rightClick:false, commentaire:true,  editVE:false },
-  gestion:      { edit:true,  delete:true,  manageTech:true,  importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
-  direction:    { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:false, editVE:false },
-  custom1:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
-  custom2:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
-  custom3:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true  },
-  custom4:      { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:true,  editVE:false },
-  custom5:      { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:true,  editVE:false },
+  technicien:   { edit:false, delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true,  editTechInline:false },
+  chef_service: { edit:false, delete:false, manageTech:true,  importExport:false, rightClick:false, commentaire:true,  editVE:false, editTechInline:false },
+  gestion:      { edit:true,  delete:true,  manageTech:true,  importExport:false, rightClick:true,  commentaire:true,  editVE:true,  editTechInline:true  },
+  direction:    { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:false, editVE:false, editTechInline:false },
+  custom1:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true,  editTechInline:true  },
+  custom2:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true,  editTechInline:true  },
+  custom3:      { edit:true,  delete:false, manageTech:false, importExport:false, rightClick:true,  commentaire:true,  editVE:true,  editTechInline:true  },
+  custom4:      { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:true,  editVE:false, editTechInline:false },
+  custom5:      { edit:false, delete:false, manageTech:false, importExport:false, rightClick:false, commentaire:true,  editVE:false, editTechInline:false },
 };
 
 // Périmètre données par rôle perso : { detection: ['*'|'Aix'|'Alpes'|'Riviera'], protection: [...] }
@@ -7894,18 +7904,19 @@ function hasPerm(perm) {
 
 
 const PERM_LABELS = {
-  edit:          'Modifier / ajouter des contrats',
-  delete:        'Supprimer des contrats',
-  dupliquer:     'Dupliquer une ligne',
-  ajoutMateriel: 'Ajouter / modifier le matériel',
-  manageTech:    'Gérer les fiches techniciens',
-  manageOptions: 'Gérer les options',
-  importExport:  'Importer / Exporter',
-  rightClick:    'Clic droit VE (modifier statut)',
-  editVE:        'Double-clic VE (modifier le mois)',
-  commentaire:   'Ajouter un commentaire',
-  historique:    'Consulter l\'historique',
-  effacer:       'Effacer / réinitialiser des données',
+  edit:            'Modifier / ajouter des contrats',
+  delete:          'Supprimer des contrats',
+  dupliquer:       'Dupliquer une ligne',
+  ajoutMateriel:   'Ajouter / modifier le matériel',
+  manageTech:      'Gérer les fiches techniciens',
+  manageOptions:   'Gérer les options',
+  importExport:    'Importer / Exporter',
+  rightClick:      'Clic droit VE (modifier statut)',
+  editVE:          'Double-clic VE (modifier le mois)',
+  editTechInline:  'Double-clic technicien (modifier Tech 1 / Tech 2)',
+  commentaire:     'Ajouter un commentaire',
+  historique:      'Consulter l\'historique',
+  effacer:         'Effacer / réinitialiser des données',
 };
 const ROLE_LABELS = {
   technicien:   '👷 Technicien',
@@ -10519,15 +10530,59 @@ function openTechMenu(e, filteredIdx, field) {
 
 function renderTechMenuList(query) {
   const list = document.getElementById('ctxTechList');
-  const techs = query
-    ? allTechsForMenu.filter(t => t.toLowerCase().includes(query.toLowerCase()))
-    : allTechsForMenu;
-  list.innerHTML = techs.map(t => {
-    const initials = t.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-    return `<div class="ctx-item" onclick="setTechnicien('${esc(t)}')">
-      <div class="tech-avatar">${initials}</div>${esc(t)}
+  const q = query ? query.toLowerCase() : '';
+
+  if (q) {
+    // Mode recherche : liste plate filtrée, sans séparateurs
+    const techs = allTechsForMenu.filter(t => t.toLowerCase().includes(q));
+    list.innerHTML = techs.map(t => {
+      const initials = t.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+      return `<div class="ctx-item" onclick="setTechnicien('${esc(t)}')">
+        <div class="tech-avatar">${initials}</div>${esc(t)}
+      </div>`;
+    }).join('') + `<div class="ctx-item ctx-reset" onclick="setTechnicien(null)">✕ Effacer</div>`;
+    return;
+  }
+
+  // Mode normal : groupé par service → agence
+  const srvOrder = {'Détection':0,'Detection':0,'Protection':1,'Direction':2,'Administratif':3};
+  const agcOrder = {'Aix':0,'Alpes':1,'Riviera':2};
+  const sorted = sortTechFichesForDropdown(techFiches.filter(f => getTechFullName(f)));
+
+  let html = '';
+  let lastSrv = null, lastAgc = null;
+
+  sorted.forEach(f => {
+    const name = getTechFullName(f);
+    const srv  = f.service || '';
+    const agc  = f.agence  || '';
+    const groupLabel = [srv, agc].filter(Boolean).join(' · ') || 'Autres';
+
+    if (srv !== lastSrv || agc !== lastAgc) {
+      html += `<div class="ctx-group-header">${esc(groupLabel)}</div>`;
+      lastSrv = srv; lastAgc = agc;
+    }
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    html += `<div class="ctx-item" onclick="setTechnicien('${esc(name)}')">
+      <div class="tech-avatar">${initials}</div>${esc(name)}
     </div>`;
-  }).join('') + `<div class="ctx-item ctx-reset" onclick="setTechnicien(null)">✕ Effacer</div>`;
+  });
+
+  // Techniciens orphelins (dans les contrats mais sans fiche)
+  const ficheNames = sorted.map(getTechFullName).map(n => n.toLowerCase());
+  const orphelins = allTechsForMenu.filter(n => !ficheNames.includes(n.toLowerCase()));
+  if (orphelins.length) {
+    html += `<div class="ctx-group-header">Autres</div>`;
+    orphelins.forEach(t => {
+      const initials = t.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+      html += `<div class="ctx-item" onclick="setTechnicien('${esc(t)}')">
+        <div class="tech-avatar" style="background:linear-gradient(135deg,#94a3b8,#64748b)">${initials}</div>${esc(t)}
+      </div>`;
+    });
+  }
+
+  html += `<div class="ctx-item ctx-reset" onclick="setTechnicien(null)">✕ Effacer</div>`;
+  list.innerHTML = html;
 }
 
 function filterTechMenu(query) { renderTechMenuList(query); }
