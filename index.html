@@ -841,7 +841,7 @@ function loadSheetJS(callback) {
 <!-- WELCOME SCREEN -->
 <div id="welcome">
   <div>
-    <div class="wicon">🔥</div>
+    <div class="wicon">📟</div>
     <h2>Gestion Contrats</h2>
     <p>Première utilisation : importez vos données existantes depuis le fichier <strong>contrats_data.json</strong> pour initialiser la base. Après cela, toutes vos données seront sauvegardées automatiquement dans votre navigateur.</p>
     <div class="dropzone" id="welcomeDrop" onclick="document.getElementById('jsonImportInput').click()">
@@ -979,20 +979,20 @@ function loadSheetJS(callback) {
     <div id="fServiceBtns" style="position:relative;display:inline-block">
       <button id="fServiceDropdownBtn" onclick="toggleServiceDropdown(event)"
         style="display:flex;align-items:center;gap:6px;padding:3px 10px;font-size:12px;font-weight:700;border:1.5px solid #86efac;border-radius:6px;background:#dcfce7;cursor:pointer;color:#166534;white-space:nowrap;min-width:130px;justify-content:space-between">
-        <span id="fServiceLabel" style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">🔥🚿</span> Tous</span>
+        <span id="fServiceLabel" style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">📟🧯</span> Tous</span>
         <span style="font-size:10px;opacity:.7">▾</span>
       </button>
       <div id="fServiceMenu" style="display:none;position:fixed;z-index:99999;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);min-width:150px;overflow:visible">
         <div onclick="setServiceFilter('')" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:12px;font-weight:600;color:#166534;background:#f0fdf4" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
-          <span style="font-size:15px">🔥🚿</span> Tous
+          <span style="font-size:15px">📟🧯</span> Tous
         </div>
         <div style="height:1px;background:#e2e8f0"></div>
         <div onclick="setServiceFilter('DET')" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:12px;font-weight:600;color:#1d4ed8;background:#fff" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#fff'">
-          <span style="font-size:15px">🔥</span> Détection
+          <span style="font-size:15px">📟</span> Détection
         </div>
         <div style="height:1px;background:#e2e8f0"></div>
         <div onclick="setServiceFilter('PROT')" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:12px;font-weight:600;color:#c2410c;background:#fff" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='#fff'">
-          <span style="font-size:15px">🚿</span> Protection
+          <span style="font-size:15px">🧯</span> Protection
         </div>
       </div>
     </div>
@@ -2055,7 +2055,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/09-04-26-07:35';
+const APP_VERSION = 'V1/09-04-26-07:48';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4343,13 +4343,13 @@ function setServiceFilter(val) {
   const lbl = document.getElementById('fServiceLabel');
   if (btn && lbl) {
     if (val === '') {
-      lbl.innerHTML = '<span style="font-size:15px">🔥🚿</span> Tous';
+      lbl.innerHTML = '<span style="font-size:15px">📟🧯</span> Tous';
       btn.style.borderColor = '#86efac'; btn.style.background = '#dcfce7'; btn.style.color = '#166534';
     } else if (val === 'DET') {
-      lbl.innerHTML = '<span style="font-size:15px">🔥</span> Détection';
+      lbl.innerHTML = '<span style="font-size:15px">📟</span> Détection';
       btn.style.borderColor = '#93c5fd'; btn.style.background = '#dbeafe'; btn.style.color = '#1d4ed8';
     } else if (val === 'PROT') {
-      lbl.innerHTML = '<span style="font-size:15px">🚿</span> Protection';
+      lbl.innerHTML = '<span style="font-size:15px">🧯</span> Protection';
       btn.style.borderColor = '#fdba74'; btn.style.background = '#ffedd5'; btn.style.color = '#c2410c';
     }
   }
@@ -4500,8 +4500,8 @@ function renderTable() {
 
     const typeIcon = (() => {
       const t = (r.Type_Contrat||'').toUpperCase();
-      if (t === 'PROT') return '<span title="Protection" style="font-size:13px;flex-shrink:0">🚿</span>';
-      if (['V1','V2','M1','M2','DET','DETECTION'].includes(t)) return '<span title="Détection" style="font-size:13px;flex-shrink:0">🔥</span>';
+      if (t === 'PROT') return '<span title="Protection" style="font-size:13px;flex-shrink:0">🧯</span>';
+      if (['V1','V2','M1','M2','DET','DETECTION'].includes(t)) return '<span title="Détection" style="font-size:13px;flex-shrink:0">📟</span>';
       return '';
     })();
 
@@ -8033,7 +8033,7 @@ function renderDataPermsGrid() {
   const dataPerms = getDataPerms();
   const agences = ['Aix', 'Alpes', 'Riviera'];
   const types = ['detection', 'protection'];
-  const typeLabels = { detection: '🔥 Détection', protection: '🚿 Protection' };
+  const typeLabels = { detection: '📟 Détection', protection: '🧯 Protection' };
   const grid = document.getElementById('roleDataGrid');
   if (!grid) return;
 
