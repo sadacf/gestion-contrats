@@ -2055,7 +2055,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/09-04-26-07:28';
+const APP_VERSION = 'V1/09-04-26-07:35';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -6642,15 +6642,25 @@ function updateSynthese() {
   // ── Répartition Matériel dynamique ──
   const matSection = document.getElementById('indicMatSection');
   if (matSection) {
+    // Matériels exclus de la grille (affichés ailleurs ou non pertinents ici)
+    const MAT_EXCLUS = ['ECS/CMSI', 'PROTECTION'];
+
     const matCount = {};
     _src.forEach(r => {
       const m = (r.Type_Materiel || '').trim() || '(sans matériel)';
+      if (MAT_EXCLUS.includes(m)) return; // exclure
       matCount[m] = (matCount[m] || 0) + 1;
     });
+
+    // Cartes fixes supplémentaires : Extincteurs (somme) + BAES (nb contrats)
+    const totalExtincteurs = _src.reduce((acc, r) => acc + (parseFloat(r.Extincteurs) || 0), 0);
+    const nbBaes = _src.filter(r => r.BAES_BAEH && String(r.BAES_BAEH).trim() !== '' && r.BAES_BAEH !== false).length;
+
     const matColors = { 'ECS':'#dbeafe', 'CMSI':'#ede9fe', 'ECS/CMSI':'#e0e7ff', 'PROTECTION':'#ffedd5', 'BAES':'#fef9c3', 'RIA':'#d1fae5', 'CAT.B':'#fce7f3', 'DECT':'#e0f2fe', 'HABITATION':'#f0fdf4', '(sans matériel)':'#f1f5f9' };
     const matText   = { 'ECS':'#1d4ed8', 'CMSI':'#6d28d9', 'ECS/CMSI':'#4338ca', 'PROTECTION':'#c2410c', 'BAES':'#92400e', 'RIA':'#065f46', 'CAT.B':'#be185d', 'DECT':'#0369a1', 'HABITATION':'#166534', '(sans matériel)':'#64748b' };
     const sorted = Object.entries(matCount).sort((a,b) => b[1]-a[1]);
-    matSection.innerHTML = sorted.map(([mat, cnt]) => {
+
+    let matHtml = sorted.map(([mat, cnt]) => {
       const bg   = matColors[mat] || '#f8fafc';
       const txt  = matText[mat]  || '#334155';
       const pct  = _src.length > 0 ? Math.round(cnt/_src.length*100) : 0;
@@ -6665,7 +6675,34 @@ function updateSynthese() {
         <div style="font-size:9px;color:${txt};opacity:.7;margin-top:1px">${pct}%</div>
       </div>`;
     }).join('');
-    if (sorted.length === 0) matSection.innerHTML = '<div style="font-size:12px;color:#94a3b8;padding:8px">Aucune donnée</div>';
+
+    // Carte fixe : Total extincteurs
+    if (totalExtincteurs > 0 || true) {
+      matHtml += `<div title="Total extincteurs déclarés dans les contrats"
+        style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:7px 10px;transition:transform .1s,box-shadow .1s"
+        onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,.1)'"
+        onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="font-size:18px;font-weight:800;color:#c2410c;line-height:1">🧯 ${totalExtincteurs}</div>
+        <div style="font-size:10px;font-weight:700;color:#c2410c;margin-top:2px">Extincteurs</div>
+        <div style="font-size:9px;color:#c2410c;opacity:.7;margin-top:3px">total déclarés</div>
+      </div>`;
+    }
+
+    // Carte fixe : Contrats avec BAES
+    if (nbBaes > 0 || true) {
+      const pctBaes = _src.length > 0 ? Math.round(nbBaes / _src.length * 100) : 0;
+      matHtml += `<div title="${nbBaes} contrat(s) avec BAES/BAEH — cliquer pour filtrer" onclick="filterFromIndic('mat_BAES')"
+        style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:7px 10px;cursor:pointer;transition:transform .1s,box-shadow .1s"
+        onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,.1)'"
+        onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="font-size:18px;font-weight:800;color:#92400e;line-height:1">💡 ${nbBaes}</div>
+        <div style="font-size:10px;font-weight:700;color:#92400e;margin-top:2px">BAES / BAEH</div>
+        <div style="margin-top:4px;height:3px;background:#92400e22;border-radius:2px"><div style="height:100%;width:${pctBaes}%;background:#92400e;border-radius:2px;transition:width .3s"></div></div>
+        <div style="font-size:9px;color:#92400e;opacity:.7;margin-top:1px">${pctBaes}% des contrats</div>
+      </div>`;
+    }
+
+    matSection.innerHTML = matHtml || '<div style="font-size:12px;color:#94a3b8;padding:8px">Aucune donnée</div>';
   }
 
 
