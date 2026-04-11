@@ -767,6 +767,9 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
     <span style="font-size:11px;color:rgba(255,255,255,.7)" id="userLbl"></span>
     <button class="hbtn" onclick="doLogout()" style="padding:4px 9px">⏻</button>
     <span id="appVersionLbl" style="font-size:9px;color:rgba(255,255,255,.35);white-space:nowrap;margin-left:4px;cursor:pointer" onclick="openVersionModal()" title="Gérer la version">v1.0 — 11/04/2026</span>
+  </header>
+
+
 
   <!-- Modal version -->
   <div id="versionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9500;align-items:center;justify-content:center">
@@ -782,15 +785,13 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
           <input id="vDateInput" type="date" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit">
         </div>
       </div>
-      <button onclick="setVersionToday()" style="width:100%;padding:7px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--sub);margin-bottom:10px">📅 Mettre la date d'aujourd'hui</button>
+      <button onclick="setVersionToday()" style="width:100%;padding:7px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--sub);margin-bottom:10px">📅 Aujourd'hui</button>
       <div style="display:flex;gap:8px">
         <button onclick="document.getElementById('versionModal').style.display='none'" style="flex:1;padding:9px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--sub)">Annuler</button>
         <button onclick="saveVersion()" style="flex:1;padding:9px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Enregistrer</button>
       </div>
     </div>
   </div>
-  </header>
-
 
   <div class="tabs">
     <div class="view-select-wrap" style="margin:6px 4px 6px 0">
@@ -890,7 +891,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
 
 
     <!-- Panel États RDV -->
-    <div id="cfgbody-states" class="hidden" style="flex:1;overflow-y:auto;padding:16px 20px;display:none">
+    <div id="cfgbody-states" class="hidden" style="flex:1;overflow-y:auto;padding:16px 20px">
       <div style="font-size:11px;color:var(--sub);margin-bottom:14px;line-height:1.5">Personnalisez la couleur de fond, la bordure et la couleur du texte de chaque état de RDV.</div>
       <div id="stateColorsList"></div>
       <div style="display:flex;gap:8px;margin-top:14px">
