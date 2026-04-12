@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
 <title>Planning ACF Incendie</title>
 <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.10.0/lib/msal-browser.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
@@ -143,7 +143,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .gantt th.tod{background:var(--blue)!important;color:#fff!important;}
 .gantt th.weh{background:#f8fafc;color:#94a3b8;}
 .gantt th.ferh{background:repeating-linear-gradient(-45deg,rgba(253,230,138,.5) 0,rgba(253,230,138,.5) 5px,#f1f5f9 5px,#f1f5f9 10px)!important;}
-.gtc{padding:7px 10px;font-size:10px;font-weight:700;color:var(--navy);background:#f8fafc;border-right:2px solid #e2e8f0;border-bottom:1px solid var(--line);white-space:nowrap;width:185px;min-width:185px;max-width:185px;vertical-align:middle;overflow:hidden;}
+.gtc{padding:7px 10px;font-size:10px;font-weight:700;color:var(--navy);background:#f8fafc;border-right:2px solid #e2e8f0;border-bottom:1px solid var(--line);white-space:nowrap;width:120px;min-width:120px;max-width:120px;vertical-align:middle;overflow:hidden;}
 .gav{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:7px;font-weight:800;color:#fff;margin-right:5px;flex-shrink:0;vertical-align:middle;}
 .gsvc{font-size:8px;color:var(--sub);display:block;margin-top:1px;margin-left:32px;}
 .ggrp td{background:#f1f5f9!important;font-size:10px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.3px;padding:4px 12px;cursor:default!important;border-top:2px solid #e2e8f0!important;border-bottom:1px solid var(--line)!important;}
@@ -500,7 +500,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
   z-index:20;
   background:#f8fafc;
   border-right:2px solid #e2e8f0!important;
-  width:185px;min-width:185px;max-width:185px;
+  width:120px;min-width:120px;max-width:120px;
 }
 /* Ligne de groupe */
 .gantt tr.ggrp td{
@@ -682,6 +682,33 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
   border-radius:4px 0 0 4px;
 }
 
+/* ── RESPONSIVE MOBILE ─────────────────────────────── */
+@media(max-width:600px){
+  .hdr{padding:0 10px;gap:6px;height:48px;}
+  .hdr-logo{font-size:13px;}
+  .hdr-logo-icon{width:22px;height:22px;font-size:11px;}
+  .hdr-sep{display:none;}
+  .conn{display:none;}
+  .last-sync{display:none;}
+  #userLbl{display:none;}
+  #appVersionLbl{display:none;}
+  .hbtn{padding:4px 7px;font-size:11px;}
+  /* Toolbar : scroll horizontal compact */
+  #toolbar{padding:4px 8px;gap:4px;}
+  .tbtn,.flt-btn,.minical-btn,.undo-btn{padding:3px 7px;font-size:10px;}
+  /* Gantt : réduire encore la colonne ressource */
+  .gantt td.gtc,.gantt th.res-col{width:80px!important;min-width:80px!important;max-width:80px!important;}
+  /* Vue sélecteur plus compact */
+  .view-select{font-size:11px;padding:4px 22px 4px 7px;}
+  /* Bouton nouvel event */
+  #btnNew{font-size:11px;padding:5px 10px;}
+  /* Masquer backlog badge */
+  #backlogBadge{display:none!important;}
+}
+@media(max-width:400px){
+  .hdr-logo span{display:none;}
+  [onclick="openConfig()"]{display:none!important;}
+}
 /* ── FLÈCHES NAVIGATION (overlay sur header gantt) ──── */
 /* boutons nav inline dans cellule mois */
 .gnav-btn{
@@ -2256,7 +2283,7 @@ function renderMonthGantt(){
   const tbl=document.getElementById('gantt');
 
   // Largeur colonne ressource fixe, colonnes jour auto
-  const RES_W=160;
+  const RES_W=120;
 
   let h='<thead>';
   // Ligne 1 : flèche + ressource + mois/année + flèche
@@ -2424,7 +2451,7 @@ function renderWeek(){
   let h='<thead>';
   // Ligne 1 : RESSOURCE + mois/année avec flèches intégrées
   h+='<tr>';
-  h+='<th rowspan="3" style="width:185px;min-width:185px;max-width:185px;text-align:center;padding:7px 4px;position:sticky;top:0;left:0;z-index:41;background:#f1f5f9;vertical-align:middle;font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.5px">Ressource</th>';
+  h+='<th rowspan="3" style="width:120px;min-width:120px;max-width:120px;text-align:center;padding:7px 4px;position:sticky;top:0;left:0;z-index:41;background:#f1f5f9;vertical-align:middle;font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.5px">Ressource</th>';
   monthGroups.forEach((g,gi)=>{
     const isFirst=gi===0, isLast=gi===monthGroups.length-1;
     const lArrow=isFirst?`<button class="gnav-btn" onclick="navPeriod(-1)" title="Précédent">&#8592;</button> `:'';
@@ -2455,7 +2482,10 @@ function renderWeek(){
       h+=`<th class="${cls}" data-date="${key}" style="text-align:center;padding:3px 2px"><div style="font-size:10px;font-weight:700;opacity:${isT?1:.7}">${DF[di]}</div><div ${_todayCircle} style="${_todayCircle?'':''}font-size:14px;font-weight:800">${d.getDate()}</div>${ferLabel}</th>`;
     }
   });
-  h+='</tr></thead><tbody>';grps.forEach(({agence,service,res})=>{h+=`<tr class="ggrp"><td colspan="${days.length+1}">${agence?'🏢 '+esc(agence)+' - ':''}${esc(service||'Sans service')}</td></tr>`;res.forEach(r=>{const tc=r.color||TC[0];const _phoneHtml=(_view==='month4'&&r.phone)?`<div style="font-size:9px;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">📱 ${esc(r.phone)}</div>`:'';h+=`<tr><td class="gtc"><div style="display:flex;align-items:center;gap:5px"><span class="gav" style="background:${tc}">${ini(r.name)}</span><div style="min-width:0"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.name)}</div>${r.service?`<span class="gsvc">${esc(r.service)}</span>`:''}${_phoneHtml}</div></div></td>`;// Pré-calcul des spans multi-jours pour cette ressource
+  h+='</tr></thead><tbody>';grps.forEach(({agence,service,res})=>{h+=`<tr class="ggrp"><td colspan="${days.length+1}">${agence?'🏢 '+esc(agence)+' - ':''}${esc(service||'Sans service')}</td></tr>`;res.forEach(r=>{const tc=r.color||TC[0];const _phoneHtml=(_view==='month4'&&r.phone)?`<div style="font-size:9px;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">📱 ${esc(r.phone)}</div>`:'';const _nameParts=r.name.trim().split(/\s+/);
+    const _prenom=_nameParts[0]||'';
+    const _nom=_nameParts.slice(1).join(' ')||'';
+    h+=`<tr><td class="gtc"><div style="display:flex;align-items:center;gap:4px"><span class="gav" style="background:${tc}">${ini(r.name)}</span><div style="min-width:0;line-height:1.2"><div style="font-size:9px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(_nom||_prenom)}</div><div style="font-size:8px;color:rgba(0,0,0,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_nom?esc(_prenom):''}</div>${r.service?`<span class="gsvc" style="font-size:7px">${esc(r.service)}</span>`:''}</div></div></td>`;// Pré-calcul des spans multi-jours pour cette ressource
 const _spans4=[];
 const _covIdx=new Set(); // indices couverts (non-premier jour)
 days.forEach((d2,di2)=>{
@@ -2527,7 +2557,7 @@ days.forEach((d,di)=>{const key=dk(d),isT=d.getTime()===today.getTime(),isWE=d.g
     if(oldCg) oldCg.remove();
     const cg=document.createElement('colgroup');
     const c0=document.createElement('col');
-    c0.style.cssText='width:185px;min-width:185px;max-width:185px';
+    c0.style.cssText='width:120px;min-width:120px;max-width:120px';
     cg.appendChild(c0);
     for(let i=0;i<nDataCols;i++){
       const c=document.createElement('col');
@@ -2549,7 +2579,7 @@ days.forEach((d,di)=>{const key=dk(d),isT=d.getTime()===today.getTime(),isWE=d.g
 function renderTimeline(){
   const H_START=8, H_END=18;
   const nHours=H_END-H_START; // 9 heures
-  const RES_W=160;
+  const RES_W=120;
   const ROW_H=52;
   const ROW_PAD=4;
 
@@ -4510,7 +4540,7 @@ function renderGanttLong(){
   // Ligne mois (seulement pour trimestriel/semestriel)
   if(hasMonthRow){
     h+='<tr>';
-  h+='<th rowspan="2" style="width:185px;min-width:185px;max-width:185px;text-align:center;padding:7px 4px;position:sticky;left:0;z-index:41;background:#f1f5f9;vertical-align:middle;font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase">Ressource</th>';
+  h+='<th rowspan="2" style="width:120px;min-width:120px;max-width:120px;text-align:center;padding:7px 4px;position:sticky;left:0;z-index:41;background:#f1f5f9;vertical-align:middle;font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase">Ressource</th>';
     monthGroups2.forEach((g,gi)=>{
       const isFirst=gi===0, isLast=gi===monthGroups2.length-1;
       const lArrow=isFirst?`<button class="gnav-btn" onclick="navPeriod(-1)" title="Précédent">&#8592;</button> `:'';
@@ -4520,7 +4550,7 @@ function renderGanttLong(){
     h+='</tr><tr>';
   } else {
     h+='<tr>';
-  h+='<th style="width:185px;min-width:185px;max-width:185px;text-align:center;padding:7px 4px;position:sticky;left:0;z-index:41;background:#f1f5f9;font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase">Ressource</th>';
+  h+='<th style="width:120px;min-width:120px;max-width:120px;text-align:center;padding:7px 4px;position:sticky;left:0;z-index:41;background:#f1f5f9;font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase">Ressource</th>';
   }
   cols.forEach(c=>{
     const isNow=today>=c.dateStart&&today<=c.dateEnd;
@@ -4560,13 +4590,13 @@ function renderGanttLong(){
     if(!wrap2) return;
     // Pas de min-width : les colonnes se répartissent pour tenir sans scroll
     wrap2.style.overflowX='hidden';
-    const availW2=wrap2.clientWidth-185-2;
+    const availW2=wrap2.clientWidth-120-2;
     const nCols2=Math.max(1,cols.length);
     const cw2=Math.max(0,Math.floor(availW2/nCols2));
     const old2=document.querySelector('#gantt colgroup');
     if(old2)old2.remove();
     const cg2=document.createElement('colgroup');
-    const c2=document.createElement('col');c2.style.cssText='width:185px;min-width:185px;max-width:185px';cg2.appendChild(c2);
+    const c2=document.createElement('col');c2.style.cssText='width:120px;min-width:120px;max-width:120px';cg2.appendChild(c2);
     for(let i=0;i<nCols2;i++){const c=document.createElement('col');c.style.cssText=`width:${cw2}px`;cg2.appendChild(c);}
     document.getElementById('gantt').prepend(cg2);
   });
