@@ -1466,6 +1466,8 @@ function loadSheetJS(callback) {
           <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fef3f2;border:1px solid #fca5a5;border-radius:5px;padding:3px 8px"><input type="checkbox" value="v1"           onchange="renderEvolutionCharts()"> V1/M1</label>
           <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fef3f2;border:1px solid #fca5a5;border-radius:5px;padding:3px 8px"><input type="checkbox" value="v2"           onchange="renderEvolutionCharts()"> V2/M2</label>
           <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#f0fdf4;border:1px solid #86efac;border-radius:5px;padding:3px 8px"><input type="checkbox" value="sansType"     onchange="renderEvolutionCharts()"> Sans type</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#e0f2fe;border:1px solid #7dd3fc;border-radius:5px;padding:3px 8px;font-weight:700"><input type="checkbox" value="archivage"   checked onchange="renderEvolutionCharts()"> 📁 Archivage VE</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fdf4ff;border:1px solid #e9d5ff;border-radius:5px;padding:3px 8px"><input type="checkbox" value="connexions" checked onchange="renderEvolutionCharts()"> 👤 Connexions</label>
         </div>
       </div>
 
@@ -1486,6 +1488,51 @@ function loadSheetJS(callback) {
 
     <!-- GRILLE GRAPHIQUES -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" id="evolutionCharts"></div>
+
+    <!-- VOLUME CONTRATS : Total / Détection / Protection (pleine largeur) -->
+    <div id="totalDetectProtSection" style="margin-top:20px;display:none">
+      <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div style="font-size:13px;font-weight:800;color:var(--navy)">📊 Volume de contrats <span style="font-size:11px;font-weight:400;color:var(--sub)">(contrats actifs par mois)</span></div>
+          <div style="display:flex;gap:12px;font-size:11px">
+            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#1e40af;border-radius:2px"></span> Total</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#3b82f6;border-radius:2px"></span> Détection</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#92400e;border-radius:2px"></span> Protection</span>
+          </div>
+        </div>
+        <canvas id="evChart_totalDetectProt" height="120"></canvas>
+      </div>
+    </div>
+
+    <!-- ARCHIVAGE VE (pleine largeur) -->
+    <div id="archivageChartSection" style="margin-top:20px;display:none">
+      <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div style="font-size:13px;font-weight:800;color:var(--navy)">📁 Archivage des rapports VE — par mois planifié <span style="font-size:11px;font-weight:400;color:var(--sub)">(VEs archivées = bleues)</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px">
+            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#0ea5e9;border-radius:2px"></span> Détection archivé</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#f97316;border-radius:2px"></span> PROT archivé</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#0ea5e9;border-radius:2px;opacity:.45"></span> Détection en attente</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#f97316;border-radius:2px;opacity:.45"></span> PROT en attente</span>
+          </div>
+        </div>
+        <canvas id="evChart_archivage" height="120"></canvas>
+        <div style="margin-top:8px;font-size:10.5px;color:#94a3b8;font-style:italic">Pour chaque mois, comptage des VE1 et VE2 planifiées ce mois et dont le rapport est archivé (bleu). Reflète l'état actuel de la base.</div>
+      </div>
+    </div>
+
+    <!-- CONNEXIONS PAR UTILISATEUR (pleine largeur) -->
+    <div id="connexionsChartSection" style="margin-top:20px;display:none">
+      <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div style="font-size:13px;font-weight:800;color:var(--navy)">👤 Connexions par utilisateur <span style="font-size:11px;font-weight:400;color:var(--sub)">(enregistrées localement)</span></div>
+          <button onclick="if(confirm('Effacer tout l\'historique des connexions ?')){localStorage.removeItem('gestion_contrats_login_log');renderEvolutionCharts();toast('Historique effacé','success')}" style="border:1px solid #fca5a5;background:#fef2f2;color:#ef4444;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer">🗑 Effacer historique</button>
+        </div>
+        <canvas id="evChart_connexions" height="120"></canvas>
+        <div id="connexionsEmpty" style="display:none;text-align:center;padding:30px;color:#94a3b8;font-size:13px">Aucune connexion enregistrée sur ce poste.<br><span style="font-size:11px">L'historique se constitue dès la prochaine connexion.</span></div>
+        <div style="margin-top:8px;font-size:10.5px;color:#94a3b8;font-style:italic">Historique stocké dans le navigateur de ce PC (localStorage). Limité aux 2 000 dernières connexions.</div>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -2055,7 +2102,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/11-04-26-10:14';
+const APP_VERSION = 'V1/13-04-26-21:14';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2405,10 +2452,25 @@ const SP = (() => {
         if (payload.veColors   !== undefined) tasks.push(writeConfig('veColors',   payload.veColors));
         if (payload.techFiches !== undefined) tasks.push(this.saveTechFiches(payload.techFiches));
         if (payload.contracts  !== undefined) tasks.push(this.importContracts(payload.contracts));
+        // Sync résiliés vers Firebase (chaque item = un document dans la collection 'resilies')
+        if (payload.resilies !== undefined) {
+          payload.resilies.forEach(r => {
+            const fsId = r._fsId || r._id || ('res_' + Date.now() + '_' + Math.random().toString(36).slice(2,7));
+            tasks.push(fsSet('resilies', fsId, { ...r, _fsId: fsId }));
+          });
+        }
         await Promise.all(tasks);
       } catch(e) {
         console.warn('saveAll Firebase error:', e);
       }
+    },
+
+    // ── Suppression d'un résiliée dans Firebase ────────────────────────────
+    async deleteResilie(fsId) {
+      try {
+        await initFirebase();
+        await fsDelete('resilies', fsId);
+      } catch(e) { console.warn('deleteResilie Firebase error:', e); }
     },
 
     // ── Présence utilisateurs ───────────────────────────────────────────────
@@ -2729,8 +2791,19 @@ window.addEventListener('DOMContentLoaded', async () => {
       Object.assign(VE_COLORS, data.veColors);
       localStorage.setItem('gestion_contrats_ve_colors', JSON.stringify(data.veColors));
     }
-    if (data.resilies && data.resilies.length > 0) {
-      localStorage.setItem(RESILIE_KEY, JSON.stringify(data.resilies));
+    // Merge Firebase + localStorage resilies (union — évite d'écraser les résiliés locaux)
+    if (data.resilies) {
+      try {
+        const localRes = JSON.parse(localStorage.getItem(RESILIE_KEY) || '[]');
+        const mergeMap = {};
+        // Firebase en premier, local ensuite (local a la priorité pour les entrées communes)
+        [...data.resilies, ...localRes].forEach(r => {
+          const k = r._id || (r._resilieAt + '|' + r.Installation);
+          mergeMap[k] = r;
+        });
+        const merged = Object.values(mergeMap).sort((a,b) => new Date(b._resilieAt||0) - new Date(a._resilieAt||0));
+        if (merged.length > 0) localStorage.setItem(RESILIE_KEY, JSON.stringify(merged));
+      } catch(e) {}
     }
     if (data.options) {
       _options = data.options.map(o => {
@@ -4529,6 +4602,7 @@ function renderTable() {
             : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}</div>`
           }
           ${nouveauBadge}
+          ${r.Lien_Dossier ? `<span onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" title="Ouvrir le dossier rapports" style="cursor:pointer;font-size:11px;flex-shrink:0;transition:transform .15s;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#bfdbfe;border-radius:4px;border:1px solid #93c5fd" onmouseover="this.style.transform='scale(1.15)';this.style.background='#93c5fd'" onmouseout="this.style.transform='scale(1)';this.style.background='#bfdbfe'">✉️</span>` : ''}
         </div>
         ${r.Client ? `<div style="font-size:11px;color:#64748b;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:360px">${esc(r.Client)}</div>` : ''}
         ${r.Commentaire
@@ -5316,12 +5390,13 @@ async function getResilies() {
   } catch { fromLocal = []; }
 
   // Fusionne les deux en évitant les doublons (par _id)
+  // Firebase en premier, puis local — le local a la priorité (plus récent, Firebase peut être en retard)
   const map = {};
-  [...fromLocal, ...fromFirebase].forEach(r => {
+  [...fromFirebase, ...fromLocal].forEach(r => {
     const key = r._id || (r._resilieAt + '|' + r.Installation);
     map[key] = r;
   });
-  const merged = Object.values(map).sort((a,b) => new Date(b._resilieAt) - new Date(a._resilieAt));
+  const merged = Object.values(map).sort((a,b) => new Date(b._resilieAt||0) - new Date(a._resilieAt||0));
 
   // Met à jour le localStorage avec la liste fusionnée
   if (merged.length > 0) {
@@ -5514,6 +5589,10 @@ async function restaurerResilie(idx) {
   const { _resilieAt, _resilieBy, _fsId, ...contrat } = r;
   db.push(contrat);
   list.splice(idx, 1);
+  // Supprimer le résiliée de Firebase si on connaît son fsId
+  if (_fsId) {
+    try { await SP.deleteResilie(_fsId); } catch(e) { console.warn('Delete Firebase resilie failed:', e); }
+  }
   await saveResilies(list);
   saveDB();
   buildFilters(); updateStats(); applyFilters(); updateSynthese();
@@ -5524,7 +5603,16 @@ async function restaurerResilie(idx) {
 /* ═══════════════════════════════════════════════
    UTILITIES
 ═══════════════════════════════════════════════ */
-function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+function closeModal(id) {
+  document.getElementById(id)?.classList.remove('open');
+  // Si c'est la fiche contrat qui se ferme et qu'il y a des mises à jour en attente → appliquer
+  if (id === 'formModal') {
+    editingId = null;
+    if (window._pendingRealtimeCount > 0) {
+      _applyRealtimeRefresh(window._pendingRealtimeCount);
+    }
+  }
+}
 
 function typeBadge(t) {
   if (!t) return '<span class="badge b-def">–</span>';
@@ -7341,26 +7429,36 @@ function computeMonthlyStatsPeriode(periodeLabels, techFilter) {
       ? active.filter(r => [r.Technicien, r.Binome].map(t => (t||'').trim()).includes(techFilter))
       : active;
 
-    // Retards : contrats en retard pour ce tech
-    const retards = (techFilter
-      ? active.filter(r => {
-          const isTech = [r.Technicien, r.Binome].map(t=>(t||'').trim()).includes(techFilter);
-          return isTech && isVeEnRetard(r);
-        })
-      : active.filter(isVeEnRetard)).length;
+    // Archivage VE par mois planifié : VEs dont le mois planifié = ce mois ET statut bleu (00B0F0)
+    const curMonthIdx = month - 1; // 0-indexed
+    let ve_arch_detect = 0, ve_arch_prot = 0;
+    (techFilter ? techActive : active).forEach(r => {
+      const isProt = r.Type_Contrat === 'PROT';
+      ['ve1','ve2'].forEach(field => {
+        const mIdx = getVeMonthIndex(field === 've1' ? r.VE1 : r.VE2);
+        if (mIdx !== curMonthIdx) return;
+        if (getVeColorForRecord(r, field) !== '00B0F0') return;
+        if (isProt) ve_arch_prot++; else ve_arch_detect++;
+      });
+    });
 
-    // Q7 : contrats Q7 en attente pour ce tech (responsable Q7)
-    const q7 = active.filter(r => {
-      const ve1Arch = (r.VE1_statut === '00B0F0') || (!r.VE1_statut && VE_COLORS[r.Installation]?.ve1 === '00B0F0');
-      const ve2Arch = (r.VE2_statut === '00B0F0') || (!r.VE2_statut && VE_COLORS[r.Installation]?.ve2 === '00B0F0');
-      const ve1Q7 = ve1Arch && r.Q7_VE1_tech && (!r.Q7 || !r.Q7.toString().trim());
-      const ve2Q7 = ve2Arch && r.Q7_VE2_tech && (!r.Q7 || !r.Q7.toString().trim());
-      if (!techFilter) return ve1Q7 || ve2Q7;
-      return (ve1Q7 && (r.Q7_VE1_tech||'').trim() === techFilter) ||
-             (ve2Q7 && (r.Q7_VE2_tech||'').trim() === techFilter);
-    }).length;
+    // Q7 par mois planifié : VEs planifiées CE mois avec Q7 assigné mais non traité
+    // (métrique par mois planifié → courbe non plate, montre la charge Q7 par mois)
+    let q7 = 0;
+    (techFilter ? techActive : active).forEach(r => {
+      if (r._suspension) return;
+      ['ve1','ve2'].forEach(field => {
+        const mIdx = getVeMonthIndex(field === 've1' ? r.VE1 : r.VE2);
+        if (mIdx !== curMonthIdx) return;
+        const q7Tech = field === 've1' ? r.Q7_VE1_tech : r.Q7_VE2_tech;
+        if (!q7Tech || !q7Tech.trim()) return;
+        if (techFilter && q7Tech.trim() !== techFilter) return;
+        const q7Done = r.Q7 && r.Q7.toString().trim();
+        if (!q7Done) q7++;
+      });
+    });
 
-    // Sans rapport : VE réalisées sans rapport pour ce tech
+    // Sans rapport : VE réalisées (vertes) sans rapport pour ce tech
     const rapport = active.filter(r => {
       const ve1Green = (r.VE1_statut === '92D050') || (!r.VE1_statut && VE_COLORS[r.Installation]?.ve1 === '92D050');
       const ve2Green = (r.VE2_statut === '92D050') || (!r.VE2_statut && VE_COLORS[r.Installation]?.ve2 === '92D050');
@@ -7368,6 +7466,35 @@ function computeMonthlyStatsPeriode(periodeLabels, techFilter) {
       const isTech = [r.Technicien, r.Binome].map(t=>(t||'').trim()).includes(techFilter);
       return isTech && (ve1Green || ve2Green);
     }).length;
+
+    // VEs en attente par mois planifié : planifiées CE mois non encore archivées ni réalisées
+    // (remplace l'ancien "retards" global → courbe non plate)
+    let retards = 0;
+    (techFilter ? techActive : active).forEach(r => {
+      if (r._suspension) return;
+      ['ve1','ve2'].forEach(field => {
+        const mIdx = getVeMonthIndex(field === 've1' ? r.VE1 : r.VE2);
+        if (mIdx !== curMonthIdx) return;
+        const color = getVeColorForRecord(r, field);
+        // Non archivée (bleu), non réalisée (vert), non N+1 (rose)
+        if (color === '00B0F0' || color === '92D050' || color === 'FF00FF' || color === 'SO') return;
+        retards++;
+      });
+    });
+
+    // VEs en attente par type pour le graphique archivage (4 séries)
+    let ve_attente_detect = 0, ve_attente_prot = 0;
+    (techFilter ? techActive : active).forEach(r => {
+      if (r._suspension) return;
+      const isProt = r.Type_Contrat === 'PROT';
+      ['ve1','ve2'].forEach(field => {
+        const mIdx = getVeMonthIndex(field === 've1' ? r.VE1 : r.VE2);
+        if (mIdx !== curMonthIdx) return;
+        const color = getVeColorForRecord(r, field);
+        if (color === '00B0F0' || color === '92D050' || color === 'FF00FF' || color === 'SO') return;
+        if (isProt) ve_attente_prot++; else ve_attente_detect++;
+      });
+    });
 
     // Indicateurs globaux (non liés à un tech spécifique — utilisent techActive)
     return {
@@ -7381,8 +7508,86 @@ function computeMonthlyStatsPeriode(periodeLabels, techFilter) {
       rapport,
       recond:   techActive.filter(r => r.Reconditionnement && r.Reconditionnement.toString().trim() !== '').length,
       sansType: techActive.filter(r => !r.Type_Contrat || !r.Type_Contrat.toString().trim()).length,
+      ve_arch_detect,
+      ve_arch_prot,
+      ve_attente_detect,
+      ve_attente_prot,
     };
   });
+}
+
+// ── Graphique multi-séries (archivage, connexions) ──────────────────────────
+function mkChartEvolMulti(canvasId, datasets, labels, legendPos) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  if (_evolutionCharts[canvasId]) { _evolutionCharts[canvasId].destroy(); }
+  // Appliquer borderDash si défini dans chaque dataset
+  const finalDatasets = datasets.map(ds => ({
+    ...ds,
+    borderDash: ds.borderDash || []
+  }));
+  _evolutionCharts[canvasId] = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets: finalDatasets },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: true, position: legendPos || 'top',
+          labels: { boxWidth: 20, padding: 14, font: { size: 11 } }
+        }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#f0f4f8' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ── Calcul stats connexions depuis localStorage ───────────────────────────
+function computeLoginStats(periodeLabels) {
+  const LOG_KEY = 'gestion_contrats_login_log';
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); } catch(e) {}
+
+  // Construire liste des utilisateurs uniques, avec label lisible
+  const userMap = {}; // login -> "Prénom Nom" ou login
+  log.forEach(e => {
+    if (!e.login) return;
+    if (!userMap[e.login]) {
+      userMap[e.login] = [e.prenom, e.nom].filter(Boolean).join(' ').trim() || e.login;
+    }
+  });
+  const logins = Object.keys(userMap).sort();
+
+  // Palette couleurs
+  const palette = ['#7c3aed','#0ea5e9','#16a34a','#f97316','#e11d48','#d97706','#0891b2','#9333ea','#15803d','#c2410c'];
+
+  // Pour chaque mois de la période, compter par utilisateur
+  const datasets = logins.map((login, i) => {
+    const data = periodeLabels.map(({ month, year }) =>
+      log.filter(e => {
+        if (e.login !== login || !e.ts) return false;
+        const d = new Date(e.ts);
+        return d.getMonth() + 1 === month && d.getFullYear() === year;
+      }).length
+    );
+    const color = palette[i % palette.length];
+    return {
+      label:           userMap[login],
+      data,
+      borderColor:     color,
+      backgroundColor: color + '22',
+      borderWidth:     2,
+      pointBackgroundColor: color,
+      pointRadius:     4,
+      fill:            false,
+      tension:         0.3
+    };
+  });
+
+  return { datasets, hasData: log.length > 0 };
 }
 
 function mkChartEvol(canvasId, titre, data, labels, color) {
@@ -7432,20 +7637,20 @@ function _drawEvolutionCharts() {
   });
 
   const config = [
-    { key: 'total',    titre: 'Total contrats',       color: '#1e40af' },
-    { key: 'detect',   titre: 'Détection',             color: '#3b82f6' },
-    { key: 'prot',     titre: 'Protection',             color: '#92400e' },
     { key: 'v1',       titre: 'V1/M1',                 color: '#f97316' },
     { key: 'v2',       titre: 'V2/M2',                 color: '#ef4444' },
-    { key: 'retards',  titre: 'Retards VE',             color: '#e11d48' },
-    { key: 'q7',       titre: 'Q7 en attente',          color: '#d97706' },
+    { key: 'retards',  titre: 'VEs en attente / mois',   color: '#e11d48' },
+    { key: 'q7',       titre: 'Q7 non traités / mois',   color: '#d97706' },
     { key: 'rapport',  titre: 'Sans rapport',            color: '#16a34a' },
     { key: 'recond',   titre: 'Reconditionnements',      color: '#7c3aed' },
     { key: 'sansType', titre: 'Sans type contrat',       color: '#94a3b8' },
   ].filter(c => coches[c.key]);
 
-  // Détruit les anciens graphiques non affichés
+  // Détruit les anciens graphiques de la grille non affichés
+  // (les graphiques spéciaux pleine largeur sont gérés séparément)
+  const specialCharts = new Set(['evChart_totalDetectProt','evChart_archivage','evChart_connexions']);
   Object.keys(_evolutionCharts).forEach(id => {
+    if (specialCharts.has(id)) return; // géré séparément
     if (!config.find(c => 'evChart_' + c.key === id)) {
       _evolutionCharts[id]?.destroy();
       delete _evolutionCharts[id];
@@ -7488,12 +7693,86 @@ function _drawEvolutionCharts() {
     </div>`;
   }).join('');
 
-  // Dessine chaque graphique
+  // Dessine chaque graphique mono-série
   config.forEach(c => {
     const techLocal = _evolTechPerChart[c.key] !== undefined ? _evolTechPerChart[c.key] : '';
     const stats = techLocal !== '' ? computeMonthlyStatsPeriode(periode, techLocal) : statsGlobal;
     mkChartEvol('evChart_' + c.key, c.titre, stats.map(s => s[c.key]), labels, c.color);
   });
+
+  // ── Volume contrats : Total / Détection / Protection combinés ───────────
+  const showTDP = coches['total'] || coches['detect'] || coches['prot'];
+  const tdpSection = document.getElementById('totalDetectProtSection');
+  if (tdpSection) tdpSection.style.display = showTDP ? 'block' : 'none';
+  if (showTDP) {
+    const mkDs = (label, key, color) => ({
+      label, data: statsGlobal.map(s => s[key]),
+      borderColor: color, backgroundColor: color + '22',
+      borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 4, fill: true, tension: 0.3
+    });
+    const tdpDatasets = [];
+    if (coches['total'])  tdpDatasets.push(mkDs('Total',      'total',  '#1e40af'));
+    if (coches['detect']) tdpDatasets.push(mkDs('Détection',  'detect', '#3b82f6'));
+    if (coches['prot'])   tdpDatasets.push(mkDs('Protection', 'prot',   '#92400e'));
+    mkChartEvolMulti('evChart_totalDetectProt', tdpDatasets, labels);
+  } else {
+    if (_evolutionCharts['evChart_totalDetectProt']) {
+      _evolutionCharts['evChart_totalDetectProt'].destroy();
+      delete _evolutionCharts['evChart_totalDetectProt'];
+    }
+  }
+
+  // ── Archivage VE (4 séries : archivé/en attente × Detect/PROT) ──────────
+  const showArchivage = coches['archivage'];
+  const archSection = document.getElementById('archivageChartSection');
+  if (archSection) archSection.style.display = showArchivage ? 'block' : 'none';
+  if (showArchivage) {
+    const mkDs4 = (label, key, color, dash) => ({
+      label, data: statsGlobal.map(s => s[key]),
+      borderColor: color, backgroundColor: color + (dash ? '11' : '22'),
+      borderWidth: dash ? 2 : 2.5,
+      borderDash: dash ? [5, 4] : [],
+      pointBackgroundColor: color, pointRadius: 4, fill: true, tension: 0.3
+    });
+    mkChartEvolMulti('evChart_archivage', [
+      mkDs4('Détection archivé',    've_arch_detect',    '#0ea5e9', false),
+      mkDs4('PROT archivé',         've_arch_prot',      '#f97316', false),
+      mkDs4('Détection en attente', 've_attente_detect', '#0ea5e9', true),
+      mkDs4('PROT en attente',      've_attente_prot',   '#f97316', true),
+    ], labels);
+  } else {
+    if (_evolutionCharts['evChart_archivage']) {
+      _evolutionCharts['evChart_archivage'].destroy();
+      delete _evolutionCharts['evChart_archivage'];
+    }
+  }
+
+  // ── Connexions par utilisateur (graphique multi-courbes pleine largeur) ─
+  const showConnexions = coches['connexions'];
+  const connSection = document.getElementById('connexionsChartSection');
+  if (connSection) connSection.style.display = showConnexions ? 'block' : 'none';
+  if (showConnexions) {
+    const { datasets: connDatasets, hasData } = computeLoginStats(periode);
+    const emptyDiv = document.getElementById('connexionsEmpty');
+    const canvas   = document.getElementById('evChart_connexions');
+    if (!hasData || connDatasets.length === 0) {
+      if (emptyDiv)  emptyDiv.style.display  = 'block';
+      if (canvas)    canvas.style.display    = 'none';
+      if (_evolutionCharts['evChart_connexions']) {
+        _evolutionCharts['evChart_connexions'].destroy();
+        delete _evolutionCharts['evChart_connexions'];
+      }
+    } else {
+      if (emptyDiv) emptyDiv.style.display = 'none';
+      if (canvas)   canvas.style.display   = 'block';
+      mkChartEvolMulti('evChart_connexions', connDatasets, labels, 'right');
+    }
+  } else {
+    if (_evolutionCharts['evChart_connexions']) {
+      _evolutionCharts['evChart_connexions'].destroy();
+      delete _evolutionCharts['evChart_connexions'];
+    }
+  }
 }
 
 // Redessine un seul graphique après changement de son filtre tech
@@ -7506,10 +7785,12 @@ function _redrawChart(key) {
   const stats      = computeMonthlyStatsPeriode(periode, tech);
   const colorMap   = { total:'#1e40af', detect:'#3b82f6', prot:'#92400e', v1:'#f97316',
                         v2:'#ef4444', retards:'#e11d48', q7:'#d97706', rapport:'#16a34a',
-                        recond:'#7c3aed', sansType:'#94a3b8' };
+                        recond:'#7c3aed', sansType:'#94a3b8',
+                        ve_arch_detect:'#0ea5e9', ve_arch_prot:'#f97316' };
   const titreMap   = { total:'Total contrats', detect:'Détection', prot:'Protection', v1:'V1/M1',
-                        v2:'V2/M2', retards:'Retards VE', q7:'Q7 en attente', rapport:'Sans rapport',
-                        recond:'Reconditionnements', sansType:'Sans type contrat' };
+                        v2:'V2/M2', retards:'VEs en attente / mois', q7:'Q7 non traités / mois', rapport:'Sans rapport',
+                        recond:'Reconditionnements', sansType:'Sans type contrat',
+                        ve_arch_detect:'Archivage Détection', ve_arch_prot:'Archivage Protection' };
   mkChartEvol('evChart_' + key, titreMap[key] || key, stats.map(s => s[key]), labels, colorMap[key] || '#64748b');
   // Met à jour l'apparence du select
   _drawEvolutionCharts();
@@ -8536,6 +8817,20 @@ function closeLoginAndStart() {
   applyAccessLevel();
   if (_offlineMode) blockEditActions(true);
 
+  // ── Enregistrer la connexion (historique local pour graphique) ──
+  try {
+    const _LOG_KEY = 'gestion_contrats_login_log';
+    const _log = JSON.parse(localStorage.getItem(_LOG_KEY) || '[]');
+    _log.push({
+      login:  _currentUser.login,
+      prenom: _currentUser.prenom || '',
+      nom:    _currentUser.nom    || '',
+      ts:     Date.now()
+    });
+    if (_log.length > 2000) _log.splice(0, _log.length - 2000);
+    localStorage.setItem(_LOG_KEY, JSON.stringify(_log));
+  } catch(e) {}
+
   if (db.length > 0) {
     buildFilters();
     rebuildOptionFilter();
@@ -8584,6 +8879,9 @@ function closeLoginAndStart() {
   setRealtimeBeacon('disconnected', 'Connexion…');
   // Vider la file d'attente mails si des envois étaient en attente
   setTimeout(() => { _updateMailQueueBadge(); _flushMailQueue(); }, 5000);
+  // Compteur de mises à jour reçues pendant qu'une fiche est ouverte
+  window._pendingRealtimeCount = 0;
+
   SP.startRealtimeSync((newContracts) => {
     if (_historyMode || _offlineMode) return;
     // Fusion intelligente : met à jour uniquement les contrats modifiés
@@ -8591,13 +8889,12 @@ function closeLoginAndStart() {
     newContracts.forEach(nc => {
       const idx = db.findIndex(x => x._id === nc._id || x._fsId === nc._fsId);
       if (idx >= 0) {
-        // Vérifie si le contrat a vraiment changé
         if (JSON.stringify(db[idx]) !== JSON.stringify(nc)) {
           db[idx] = nc;
           nbModifs++;
         }
       } else {
-        db.push(nc); // nouveau contrat
+        db.push(nc);
         nbModifs++;
       }
     });
@@ -8607,32 +8904,16 @@ function closeLoginAndStart() {
     db = db.filter(c => newIds.has(c._id) || newIds.has(c._fsId));
     nbModifs += avant - db.length;
 
-    if (nbModifs === 0) return; // rien de changé
+    if (nbModifs === 0) return;
 
-    // Ne pas rafraîchir si le formulaire d'édition est ouvert
+    // Fiche ouverte : accumuler silencieusement, afficher une seule bannière
     if (editingId !== null) {
-      // Juste une notification discrète
-      toast(`🔄 ${nbModifs} modification(s) reçue(s) — fermer la fiche pour voir`, '');
+      window._pendingRealtimeCount += nbModifs;
+      _showPendingBanner(window._pendingRealtimeCount);
       return;
     }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-    buildFilters();
-    applyFilters();
-    updateStats();
-    updateSynthese();
-
-    // Notification visible
-    const indicator = document.getElementById('realtimeSyncIndicator');
-    if (indicator) {
-      indicator.textContent = `⚡ Sync (${nbModifs})`;
-      indicator.style.opacity = '1';
-      clearTimeout(window._syncIndicatorTimer);
-      window._syncIndicatorTimer = setTimeout(() => {
-        indicator.style.opacity = '0';
-        indicator.textContent = '⚡ Sync';
-      }, 3000);
-    }
+    _applyRealtimeRefresh(nbModifs);
   });
   // Snapshot quotidien automatique (admin et chef_service seulement)
   const lvlSnap = _currentUser.niveau;
@@ -8648,6 +8929,53 @@ function closeLoginAndStart() {
   const lvlH = _currentUser?.niveau;
   const canHistory = lvlH === 'admin' || lvlH === 'administrateur' || lvlH === 'chef_service' || hasPerm('historique');
   if (btnH) btnH.style.display = canHistory ? '' : 'none';
+}
+
+// ── Bannière discrète "mises à jour en attente" ──────────────────────────────
+function _showPendingBanner(count) {
+  let banner = document.getElementById('_pendingUpdateBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = '_pendingUpdateBanner';
+    banner.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);' +
+      'background:#1e40af;color:#fff;border-radius:20px;padding:7px 18px;font-size:12px;font-weight:700;' +
+      'z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(30,64,175,.35);' +
+      'white-space:nowrap;cursor:pointer;';
+    banner.onclick = () => {
+      document.getElementById('formModal')?.classList.remove('open');
+      editingId = null;
+      _applyRealtimeRefresh(window._pendingRealtimeCount);
+    };
+    document.body.appendChild(banner);
+  }
+  banner.innerHTML = `🔄 <strong>${count}</strong> mise${count>1?'s':''} à jour reçue${count>1?'s':''} — <u>Fermer la fiche</u> pour actualiser`;
+  banner.style.display = 'flex';
+}
+
+function _hidePendingBanner() {
+  const banner = document.getElementById('_pendingUpdateBanner');
+  if (banner) banner.style.display = 'none';
+  window._pendingRealtimeCount = 0;
+}
+
+function _applyRealtimeRefresh(nbModifs) {
+  _hidePendingBanner();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  buildFilters();
+  applyFilters();
+  updateStats();
+  updateSynthese();
+  // Indicateur sync dans le header
+  const indicator = document.getElementById('realtimeSyncIndicator');
+  if (indicator) {
+    indicator.textContent = `⚡ Sync (${nbModifs})`;
+    indicator.style.opacity = '1';
+    clearTimeout(window._syncIndicatorTimer);
+    window._syncIndicatorTimer = setTimeout(() => {
+      indicator.style.opacity = '0';
+      indicator.textContent = '⚡ Sync';
+    }, 3000);
+  }
 }
 
 function niveauLabel(n) {
@@ -10917,9 +11245,12 @@ function applyDashLogo(dataUrl) {
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    // N'enregistrer le SW que sur SharePoint — évite le 404 en local / aperçu
+    const _swHost = location.hostname;
+    if (!_swHost.includes('sharepoint.com') && !_swHost.includes('sharepointonline.com')) return;
     navigator.serviceWorker.register('/gestion-contrats/sw.js')
       .then(r => console.log('SW enregistré:', r.scope))
-      .catch(e => console.log('SW erreur:', e));
+      .catch(e => console.warn('SW non disponible:', e.message));
   });
 }
 </script>
