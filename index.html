@@ -2102,7 +2102,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/13-04-26-21:14';
+const APP_VERSION = 'V1/13-04-26-21:20';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4602,7 +4602,6 @@ function renderTable() {
             : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}</div>`
           }
           ${nouveauBadge}
-          ${r.Lien_Dossier ? `<span onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" title="Ouvrir le dossier rapports" style="cursor:pointer;font-size:11px;flex-shrink:0;transition:transform .15s;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#bfdbfe;border-radius:4px;border:1px solid #93c5fd" onmouseover="this.style.transform='scale(1.15)';this.style.background='#93c5fd'" onmouseout="this.style.transform='scale(1)';this.style.background='#bfdbfe'">✉️</span>` : ''}
         </div>
         ${r.Client ? `<div style="font-size:11px;color:#64748b;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:360px">${esc(r.Client)}</div>` : ''}
         ${r.Commentaire
