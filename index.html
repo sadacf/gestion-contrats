@@ -1190,7 +1190,13 @@ function loadSheetJS(callback) {
         <button class="dash-nav-item" onclick="openImport()" style="padding-left:20px">
           <span class="nav-icon">📥</span> IMPORTER
         </button>
-        <button class="dash-nav-item" onclick="exportJSON()" style="padding-left:20px">
+        <div style="margin:4px 10px 2px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:7px 10px;font-size:10.5px;color:rgba(255,255,255,.85);line-height:1.55">
+          <strong style="color:#fff">💾 Export JSON = sauvegarde 100%</strong><br>
+          Contrats · Résiliés · Techniciens<br>
+          Permissions · Couleurs VE<br>
+          <span style="opacity:.75">→ Enregistrer dans OneDrive<br>→ Réimporter via 📥 en cas de perte</span>
+        </div>
+        <button class="dash-nav-item" onclick="exportJSON()" style="padding-left:20px" title="Sauvegarde complète 100% — à faire chaque semaine">
           <span class="nav-icon">💾</span> EXPORTER JSON
         </button>
       </div>
@@ -2116,7 +2122,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/14-04-26-07:36';
+const APP_VERSION = 'V1/14-04-26-07:58';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -3046,7 +3052,14 @@ function afficherRappelSauvegarde() {
   `;
   div.innerHTML = `
     <div style="font-size:15px;font-weight:700;margin-bottom:8px">💾 Rappel sauvegarde mensuelle</div>
-    <div style="opacity:0.9;margin-bottom:12px">Pensez à exporter vos données et à sauvegarder le fichier JSON dans votre OneDrive !</div>
+    <div style="opacity:0.9;font-size:12px;margin-bottom:8px;line-height:1.6">
+      L'export JSON contient <strong>100% de vos données</strong> :<br>
+      contrats · résiliés · techniciens · permissions · couleurs VE<br>
+      Sauvegardez ce fichier dans votre <strong>OneDrive</strong>.
+    </div>
+    <div style="background:rgba(255,255,255,.15);border-radius:7px;padding:8px 10px;margin-bottom:10px;font-size:11px;line-height:1.6">
+      💡 En cas de problème, ce fichier peut être réimporté via <em>📥 IMPORTER</em> pour tout restaurer.
+    </div>
     <div style="display:flex;gap:8px">
       <button onclick="exportJSON(); marquerSauvegardeEffectuee();" style="background:#fff;color:#1e40af;border:none;border-radius:6px;padding:6px 14px;font-weight:700;cursor:pointer;font-size:12px">💾 Exporter maintenant</button>
       <button onclick="marquerSauvegardeEffectuee();" style="background:rgba(255,255,255,0.2);color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:12px">Plus tard</button>
@@ -3472,22 +3485,43 @@ async function loadData(jsonText) {
     if (importedTechFiches) techFiches = importedTechFiches;
     if (importedAgences)    agencesList = importedAgences;
 
-    // Restaurer utilisateurs et permissions si présents dans le JSON
-    const importedUsers     = parsed.users     || null;
-    const importedRolePerms = parsed.rolePerms || null;
-    const importedOptions   = parsed.options   || null;
+    // Restaurer TOUS les champs du JSON (correction complète)
+    const importedUsers      = parsed.users      || null;
+    const importedRolePerms  = parsed.rolePerms  || null;
+    const importedDataPerms  = parsed.dataPerms  || null;
+    const importedOptions    = parsed.options    || null;
     const importedFamilleMat = parsed.familleMat || null;
-    const importedResilies  = parsed.resilies  || null;
+    const importedTechOrder  = parsed.techOrder  || null;
+    const importedVeColors   = parsed.veColors   || null;
+    const importedResilies   = parsed.resilies   || null;
 
-    if (importedUsers)      localStorage.setItem(USERS_KEY, JSON.stringify(importedUsers));
-    if (importedRolePerms)  localStorage.setItem('gestion_contrats_rolePerms', JSON.stringify(importedRolePerms));
-    if (importedOptions)    localStorage.setItem('gestion_contrats_options', JSON.stringify(importedOptions));
+    // Restaurer localStorage immédiatement
+    if (importedUsers)     localStorage.setItem(USERS_KEY, JSON.stringify(importedUsers));
+    if (importedRolePerms) localStorage.setItem('gestion_contrats_rolePerms', JSON.stringify(importedRolePerms));
+    if (importedDataPerms) localStorage.setItem('gestion_contrats_dataPerms', JSON.stringify(importedDataPerms));
+    if (importedOptions)   localStorage.setItem('gestion_contrats_options', JSON.stringify(importedOptions));
     if (importedFamilleMat && importedFamilleMat.length > 0) {
       familleMat = importedFamilleMat;
-      localStorage.setItem(FAM_MAT_KEY, JSON.stringify(familleMat));
+      localStorage.setItem(FAM_MAT_KEY, JSON.stringify(importedFamilleMat));
     }
+    if (importedTechOrder && importedTechOrder.length > 0) {
+      _techOrder = importedTechOrder;
+      localStorage.setItem('gestion_contrats_techorder', JSON.stringify(importedTechOrder));
+    }
+    if (importedVeColors && Object.keys(importedVeColors).length > 0) {
+      Object.assign(VE_COLORS, importedVeColors);
+      localStorage.setItem('gestion_contrats_ve_colors', JSON.stringify(importedVeColors));
+    }
+    // Résiliés : fusionner avec l'existant (ne jamais écraser avec moins)
     if (importedResilies && importedResilies.length > 0) {
-      localStorage.setItem(RESILIE_KEY, JSON.stringify(importedResilies));
+      const existingRes = JSON.parse(localStorage.getItem(RESILIE_KEY) || '[]');
+      const mergeMap = {};
+      [...existingRes, ...importedResilies].forEach(r => {
+        const k = r._id || (r._resilieAt + '|' + r.Installation);
+        if (k) mergeMap[k] = r;
+      });
+      const mergedRes = Object.values(mergeMap).sort((a,b) => new Date(b._resilieAt||0) - new Date(a._resilieAt||0));
+      localStorage.setItem(RESILIE_KEY, JSON.stringify(mergedRes));
     }
 
     setStatus('saving', `⏳ Synchronisation de ${db.length} contrats vers Firebase…`);
@@ -3499,21 +3533,25 @@ async function loadData(jsonText) {
         setStatus('saving', `⏳ Synchronisation de ${importedTechFiches.length} techniciens…`);
         await SP.saveTechFiches(techFiches);
       }
-      await SP.saveAll({
+      // Sync Firebase — ne pas passer resilies:[] si absent du JSON
+      const saveAllPayload = {
         agences    : agencesList,
-        techOrder  : _techOrder,
-        users      : importedUsers     || JSON.parse(localStorage.getItem(USERS_KEY) || '[]'),
-        rolePerms  : importedRolePerms || JSON.parse(localStorage.getItem('gestion_contrats_rolePerms') || 'null'),
-        options    : importedOptions   || JSON.parse(localStorage.getItem('gestion_contrats_options') || 'null'),
+        techOrder  : importedTechOrder  || _techOrder,
+        users      : importedUsers      || JSON.parse(localStorage.getItem(USERS_KEY) || '[]'),
+        rolePerms  : importedRolePerms  || JSON.parse(localStorage.getItem('gestion_contrats_rolePerms') || 'null'),
+        options    : importedOptions    || JSON.parse(localStorage.getItem('gestion_contrats_options') || 'null'),
         familleMat : importedFamilleMat || familleMat,
-        resilies   : importedResilies  || [],
-      });
-      if (importedResilies && importedResilies.length > 0)
-        await saveResilies(importedResilies);
+        veColors   : importedVeColors   || JSON.parse(localStorage.getItem('gestion_contrats_ve_colors') || 'null'),
+      };
+      if (importedDataPerms) saveAllPayload.dataPerms = importedDataPerms;
+      await SP.saveAll(saveAllPayload);
+      // Sync résiliés séparément (fusion Firebase)
+      if (importedResilies && importedResilies.length > 0) {
+        await saveResilies(JSON.parse(localStorage.getItem(RESILIE_KEY) || '[]'));
+      }
       setStatus('loaded', `${db.length} contrats (Firebase ✓)`);
     } catch(e) {
       console.warn('Import Firebase error:', e);
-      // Sauvegarde locale même si Firebase échoue
       saveDB();
       SP.saveAll({ techFiches, agences: agencesList });
       setStatus('loaded', `${db.length} contrats (local)`);
@@ -3522,8 +3560,10 @@ async function loadData(jsonText) {
     hideWelcome();
     closeModal('importModal');
     init();
-    const techMsg = importedTechFiches ? `, ${importedTechFiches.length} techniciens` : '';
-    toast(`✅ ${db.length} contrats${techMsg} importés`, 'success');
+    const techMsg     = importedTechFiches ? `, ${importedTechFiches.length} techniciens` : '';
+    const resiliesMsg = importedResilies   ? `, ${importedResilies.length} résiliés` : '';
+    toast(`✅ ${db.length} contrats${techMsg}${resiliesMsg} importés avec succès`, 'success');
+
   } catch(e) {
     toast('Erreur de lecture JSON: ' + e.message, 'error');
   }
@@ -3586,8 +3626,11 @@ async function exportJSON() {
     agences:    agencesList,
     users:      JSON.parse(localStorage.getItem(USERS_KEY) || '[]'),
     rolePerms:  JSON.parse(localStorage.getItem('gestion_contrats_rolePerms') || 'null'),
+    dataPerms:  JSON.parse(localStorage.getItem('gestion_contrats_dataPerms') || 'null'),
     options:    JSON.parse(localStorage.getItem('gestion_contrats_options') || 'null'),
     familleMat: familleMat,
+    techOrder:  _techOrder || JSON.parse(localStorage.getItem('gestion_contrats_techorder') || '[]'),
+    veColors:   JSON.parse(localStorage.getItem('gestion_contrats_ve_colors') || 'null'),
     resilies:   resilies,
     exportedAt: new Date().toISOString(),
     version:    'gestion_contrats_v1',
@@ -3599,7 +3642,7 @@ async function exportJSON() {
   const d = new Date().toISOString().slice(0,10);
   a.href = url; a.download = `contrats_data_backup_${d}.json`;
   a.click(); URL.revokeObjectURL(url);
-  toast(`💾 Sauvegarde exportée (${db.length} contrats, ${techFiches.length} techniciens, ${resilies.length} résiliés)`, 'success');
+  toast(`💾 Export complet — ${db.length} contrats · ${techFiches.length} techniciens · ${resilies.length} résiliés · couleurs VE · permissions`, 'success');
 }
 
 // ── SAUVEGARDE AUTOMATIQUE (fermeture + toutes les 15 min) ─────────────────
@@ -9164,38 +9207,62 @@ function todayKey() {
 }
 
 function snapshotKeyToLabel(key) {
-  // snapshot_YYYY-MM-DD → libellé lisible
-  const m = key.match(/snapshot_(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) return key;
-  const days = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const days   = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
   const months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  const d = new Date(+m[1], +m[2]-1, +m[3]);
-  return `${days[d.getDay()]} ${+m[3]} ${months[d.getMonth()]} ${m[1]}`;
+  // snap_day_YYYY_MM_DD → libellé lisible
+  let m = key.match(/snap_day_(\d{4})_(\d{2})_(\d{2})/);
+  if (m) {
+    const d = new Date(+m[1], +m[2]-1, +m[3]);
+    return `${days[d.getDay()]} ${+m[3]} ${months[d.getMonth()]} ${m[1]}`;
+  }
+  // snapshot_YYYY-MM-DD (ancienne clé manuelle) → libellé lisible
+  m = key.match(/snapshot_(\d{4})-(\d{2})-(\d{2})/);
+  if (m) {
+    const d = new Date(+m[1], +m[2]-1, +m[3]);
+    return `${days[d.getDay()]} ${+m[3]} ${months[d.getMonth()]} ${m[1]}`;
+  }
+  return key;
 }
 
 async function saveDailySnapshotIfNeeded() {
   if (!db || db.length === 0) return;
-  // Snapshot hebdomadaire uniquement (le lundi) — allégé
+  // Snapshot quotidien — une fois par jour à la première connexion
   const now = new Date();
-  if (now.getDay() !== 1) return; // 1 = lundi
-  const weekKey = 'gestion_contrats_snap_week_' + now.getFullYear() + '_' + Math.ceil(now.getDate() / 7);
-  if (localStorage.getItem(weekKey + '_done')) return; // déjà fait cette semaine
+  const dayKey = 'gestion_contrats_snap_day_' + now.getFullYear()
+    + '_' + String(now.getMonth()+1).padStart(2,'0')
+    + '_' + String(now.getDate()).padStart(2,'0');
+  if (localStorage.getItem(dayKey + '_done')) return; // déjà fait aujourd'hui
   try {
-    // Snapshot allégé : champs essentiels uniquement
-    const ESSENTIAL = ['_id','Installation','Client','Ville','Type_Contrat','Technicien','VE1','VE2','Fin_Validite'];
+    // Snapshot complet : tous les champs (le localStorage le supporte)
+    const ESSENTIAL = ['_id','_fsId','Installation','Client','Ville','Type_Contrat','Type_Materiel',
+      'Technicien','Binome','VE1','VE2','VE1_statut','VE2_statut','Fin_Validite',
+      'Commentaire','Lien_Dossier','Dossier_Dept','Dossier_SousRep','Reconditionnement',
+      'Q7','Q7_VE1_tech','Q7_VE2_tech','_suspension'];
     const slim = db.map(r => {
       const s = {};
       ESSENTIAL.forEach(k => { if (r[k] !== undefined && r[k] !== null) s[k] = r[k]; });
       return s;
     });
-    localStorage.setItem(weekKey, JSON.stringify({ contracts: slim, savedAt: now.toISOString(), count: db.length }));
-    localStorage.setItem(weekKey + '_done', '1');
-    // Purge : garder seulement les 4 dernières semaines
-    Object.keys(localStorage).filter(k => k.startsWith('gestion_contrats_snap_week_') && !k.endsWith('_done'))
-      .sort().slice(0, -4).forEach(k => { localStorage.removeItem(k); localStorage.removeItem(k + '_done'); });
-    console.log(`✅ Snapshot hebdomadaire : ${slim.length} contrats (allégé)`);
+    // Inclure les résiliés
+    let _resiliesSnap = [];
+    try { _resiliesSnap = JSON.parse(localStorage.getItem(RESILIE_KEY) || '[]'); } catch(e) {}
+    localStorage.setItem(dayKey, JSON.stringify({
+      contracts: slim,
+      resilies:  _resiliesSnap,
+      savedAt:   now.toISOString(),
+      count:     db.length
+    }));
+    localStorage.setItem(dayKey + '_done', '1');
+    // Purge : garder seulement les 30 derniers jours
+    const allDayKeys = Object.keys(localStorage)
+      .filter(k => k.startsWith('gestion_contrats_snap_day_') && !k.endsWith('_done'))
+      .sort();
+    allDayKeys.slice(0, Math.max(0, allDayKeys.length - 30))
+      .forEach(k => { localStorage.removeItem(k); localStorage.removeItem(k + '_done'); });
+    console.log(`✅ Snapshot quotidien : ${slim.length} contrats + ${_resiliesSnap.length} résiliés`);
+    toast('📸 Snapshot quotidien créé', 'success');
   } catch(e) {
-    console.warn('Snapshot hebdomadaire non enregistré:', e);
+    console.warn('Snapshot quotidien non enregistré:', e);
   }
 }
 
@@ -9222,7 +9289,9 @@ function getSPSiteUrl() {
 }
 
 async function saveSnapshot(key, contracts) {
-  const payload = JSON.stringify({ contracts, savedAt: new Date().toISOString(), count: contracts.length });
+  let _resiliesForSnap = [];
+  try { _resiliesForSnap = JSON.parse(localStorage.getItem(RESILIE_KEY) || '[]'); } catch(e) {}
+  const payload = JSON.stringify({ contracts, resilies: _resiliesForSnap, savedAt: new Date().toISOString(), count: contracts.length });
   if (!SP.isOnSharePoint) {
     localStorage.setItem('gestion_contrats_' + key, payload);
     // Tenir à jour la liste des clés de snapshots
@@ -9266,6 +9335,7 @@ async function getSpDigest() {
 async function listAvailableSnapshots() {
   const snaps = [];
   if (!SP.isOnSharePoint) {
+    // Snapshots via index (manuels / annuels)
     const keys = JSON.parse(localStorage.getItem('gestion_contrats_snapshot_index') || '[]');
     for (const k of keys) {
       const raw = localStorage.getItem('gestion_contrats_' + k);
@@ -9276,6 +9346,20 @@ async function listAvailableSnapshots() {
         } catch {}
       }
     }
+    // Snapshots quotidiens automatiques (clés snap_day_YYYY_MM_DD)
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('gestion_contrats_snap_day_') && !k.endsWith('_done'))
+      .sort().reverse()
+      .forEach(k => {
+        try {
+          const d = JSON.parse(localStorage.getItem(k) || '{}');
+          // Clé courte pour l'affichage : snap_day_2026_04_14 → utilisé dans snapshotKeyToLabel
+          const shortKey = k.replace('gestion_contrats_', '');
+          if (!snaps.find(s => s.key === shortKey)) {
+            snaps.push({ key: shortKey, count: d.count || (d.contracts && d.contracts.length) || '?', savedAt: d.savedAt, resilies: d.resilies?.length || 0 });
+          }
+        } catch {}
+      });
   } else {
     try {
       const siteUrl = getSPSiteUrl();
@@ -9379,7 +9463,7 @@ async function loadRestoreList() {
     snaps.filter(s => !isAnnualKey(s.key)).sort((a,b) => b.key.localeCompare(a.key)).slice(0, 10).forEach(s => {
       items.push({
         label: `📅 ${snapshotKeyToLabel(s.key)}`,
-        sub: `${s.count||'?'} contrats`,
+        sub: `${s.count||'?'} contrats${s.resilies > 0 ? ` · ${s.resilies} résiliés` : ''}`,
         count: s.count || 0,
         key: s.key,
         type: 'snapshot'
@@ -9525,6 +9609,23 @@ async function loadSnapshot(key) {
     document.body.style.paddingTop = '52px';
   }
   const bannerDate = document.getElementById('historyBannerDate');
+  // Restaurer les résiliés du snapshot si disponibles
+  if (snap.resilies && snap.resilies.length > 0) {
+    try {
+      const currentResilies = JSON.parse(localStorage.getItem(RESILIE_KEY) || '[]');
+      if (snap.resilies.length > currentResilies.length) {
+        // Le snapshot a plus de résiliés → fusionner
+        const map = {};
+        [...currentResilies, ...snap.resilies].forEach(r => {
+          const k = r._id || (r._resilieAt + '|' + r.Installation);
+          if (k) map[k] = r;
+        });
+        const merged = Object.values(map).sort((a,b) => new Date(b._resilieAt||0) - new Date(a._resilieAt||0));
+        localStorage.setItem(RESILIE_KEY, JSON.stringify(merged));
+        console.log(`[Snapshot] Résiliés restaurés : ${merged.length} (dont ${snap.resilies.length} du snapshot)`);
+      }
+    } catch(e) {}
+  }
   const archiveLabel = isAnnual ? annualKeyToLabel(key) : `Données du ${snapshotKeyToLabel(key)}`;
   const editBadge = isEditableArchive ? ' 🖊 <span style="color:#fbbf24;font-weight:700">Modifiable (1er trimestre)</span>' : '';
   if (bannerDate) bannerDate.innerHTML = `${archiveLabel} — ${snap.count||db.length} contrats${editBadge}`;
@@ -11192,10 +11293,29 @@ function applyDashLogo(dataUrl) {
     </div>
     <!-- Onglet Restaurer -->
     <div id="histPanel-restore" style="display:none;padding:20px">
-      <div style="background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #ea580c;border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:#9a3412">
-        ⚠️ <strong>Attention</strong> — La restauration remplace les données actuelles par une version antérieure. Cette action est irréversible sauf si vous avez un snapshot récent.
+
+      <!-- Bulle explicative -->
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 16px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:800;color:#1e40af;margin-bottom:8px">📖 Comment utiliser la restauration ?</div>
+        <div style="font-size:11.5px;color:#1e3a5f;line-height:1.75">
+          <div style="margin-bottom:5px">Un <strong>snapshot quotidien</strong> est créé automatiquement chaque jour à votre première connexion (comptes admin / chef de service).</div>
+          <div style="margin-bottom:5px">Il contient les <strong>contrats actifs</strong> et la liste des <strong>résiliés</strong> tels qu'ils étaient ce jour-là.</div>
+          <div style="margin-bottom:10px">Utilisez-le si des données ont été <strong>supprimées ou modifiées par erreur</strong> et que vous souhaitez revenir à un état antérieur.</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:flex-start;gap:6px"><span style="color:#1d4ed8;font-weight:700;flex-shrink:0">①</span><span>Choisissez la date à restaurer dans la liste ci-dessous</span></div>
+            <div style="display:flex;align-items:flex-start;gap:6px"><span style="color:#1d4ed8;font-weight:700;flex-shrink:0">②</span><span>Cliquez <strong>🔄 Restaurer</strong> — une confirmation vous sera demandée</span></div>
+            <div style="display:flex;align-items:flex-start;gap:6px"><span style="color:#1d4ed8;font-weight:700;flex-shrink:0">③</span><span>L'application recharge avec les données de ce jour</span></div>
+          </div>
+        </div>
       </div>
-      <div id="historyRestoreList" style="max-height:300px;overflow-y:auto">
+
+      <!-- Avertissement -->
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #ea580c;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11.5px;color:#9a3412;display:flex;align-items:flex-start;gap:8px">
+        <span style="font-size:15px;flex-shrink:0">⚠️</span>
+        <div><strong>Attention</strong> — La restauration remplace les données actuelles par une version antérieure. Cette action est irréversible sauf si vous avez un snapshot plus récent. Prévenez les autres utilisateurs avant de restaurer.</div>
+      </div>
+
+      <div id="historyRestoreList" style="max-height:260px;overflow-y:auto">
         <div style="text-align:center;color:#94a3b8;padding:30px;font-size:13px">⏳ Chargement…</div>
       </div>
     </div>
