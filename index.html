@@ -2150,7 +2150,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/14-04-26-08:22';
+const APP_VERSION = 'V1/14-04-26-08:53';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -9061,36 +9061,49 @@ function closeLoginAndStart() {
 
   SP.startRealtimeSync((newContracts) => {
     if (_historyMode || _offlineMode) return;
-    // Fusion intelligente : met à jour uniquement les contrats modifiés
-    let nbModifs = 0;
+
+    // Fusion intelligente — détecter précisément ce qui a changé
+    const changes = []; // { type: 'modif'|'ajout'|'suppression', installation, by, at }
     newContracts.forEach(nc => {
       const idx = db.findIndex(x => x._id === nc._id || x._fsId === nc._fsId);
       if (idx >= 0) {
         if (JSON.stringify(db[idx]) !== JSON.stringify(nc)) {
+          // Ignorer nos propres modifications
+          const by = nc.lastEditedBy || '';
+          const myName = _currentUser ? (`${_currentUser.prenom||''} ${_currentUser.nom||''}`).trim() || _currentUser.login : '';
+          if (by && by !== myName) {
+            changes.push({ type: 'modif', installation: nc.Installation || '?', by, at: nc.lastEditedAt || null });
+          }
           db[idx] = nc;
-          nbModifs++;
         }
       } else {
+        const by = nc.lastEditedBy || '';
+        changes.push({ type: 'ajout', installation: nc.Installation || '?', by, at: nc.lastEditedAt || null });
         db.push(nc);
-        nbModifs++;
       }
     });
-    // Supprime les contrats retirés par un autre utilisateur
+    // Suppressions
     const newIds = new Set(newContracts.map(c => c._id || c._fsId));
     const avant = db.length;
-    db = db.filter(c => newIds.has(c._id) || newIds.has(c._fsId));
-    nbModifs += avant - db.length;
+    db = db.filter(c => {
+      const kept = newIds.has(c._id) || newIds.has(c._fsId);
+      if (!kept) changes.push({ type: 'suppression', installation: c.Installation || '?', by: '', at: null });
+      return kept;
+    });
 
-    if (nbModifs === 0) return;
+    const nbModifs = changes.length + (avant - db.length > 0 ? 0 : 0); // already counted in changes
+    if (changes.length === 0) return;
 
-    // Fiche ouverte : accumuler silencieusement, afficher une seule bannière
+    // Fiche ouverte : accumuler, afficher une bannière détaillée
     if (editingId !== null) {
-      window._pendingRealtimeCount += nbModifs;
+      window._pendingRealtimeCount += changes.length;
+      window._pendingRealtimeChanges = (window._pendingRealtimeChanges || []).concat(changes);
       _showPendingBanner(window._pendingRealtimeCount);
       return;
     }
 
-    _applyRealtimeRefresh(nbModifs);
+    _showRealtimeNotif(changes);
+    _applyRealtimeRefresh(changes.length);
   });
   // Snapshot quotidien automatique (admin et chef_service seulement)
   const lvlSnap = _currentUser.niveau;
@@ -9115,9 +9128,9 @@ function _showPendingBanner(count) {
     banner = document.createElement('div');
     banner.id = '_pendingUpdateBanner';
     banner.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);' +
-      'background:#1e40af;color:#fff;border-radius:20px;padding:7px 18px;font-size:12px;font-weight:700;' +
-      'z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(30,64,175,.35);' +
-      'white-space:nowrap;cursor:pointer;';
+      'background:#1e40af;color:#fff;border-radius:12px;padding:10px 18px;font-size:12px;font-weight:700;' +
+      'z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 6px 20px rgba(30,64,175,.4);' +
+      'cursor:pointer;max-width:480px;';
     banner.onclick = () => {
       document.getElementById('formModal')?.classList.remove('open');
       editingId = null;
@@ -9125,18 +9138,78 @@ function _showPendingBanner(count) {
     };
     document.body.appendChild(banner);
   }
-  banner.innerHTML = `🔄 <strong>${count}</strong> mise${count>1?'s':''} à jour reçue${count>1?'s':''} — <u>Fermer la fiche</u> pour actualiser`;
+  const changes = window._pendingRealtimeChanges || [];
+  // Résumer par auteur
+  const byAuthor = {};
+  changes.forEach(c => { const k = c.by || 'Inconnu'; byAuthor[k] = (byAuthor[k]||0)+1; });
+  const authorSummary = Object.entries(byAuthor).map(([by,n]) => `<strong>${by}</strong> (${n})`).join(', ');
+  banner.innerHTML = `
+    <span style="font-size:18px">🔄</span>
+    <div>
+      <div>${count} modif${count>1?'s':''} en attente${authorSummary ? ' — par ' + authorSummary : ''}</div>
+      <div style="font-size:10.5px;opacity:.85;margin-top:2px"><u>Cliquer</u> ou fermer la fiche pour appliquer</div>
+    </div>`;
   banner.style.display = 'flex';
+}
+
+// ── Notification temps réel (fiche non ouverte) ───────────────────────────────
+function _showRealtimeNotif(changes) {
+  if (!changes || changes.length === 0) return;
+
+  // Grouper par auteur
+  const byAuthor = {};
+  changes.forEach(c => {
+    const k = c.by || 'Système';
+    if (!byAuthor[k]) byAuthor[k] = [];
+    byAuthor[k].push(c);
+  });
+
+  const icons = { modif: '✏️', ajout: '➕', suppression: '🗑️' };
+  const labels = { modif: 'modifié', ajout: 'ajouté', suppression: 'supprimé' };
+
+  Object.entries(byAuthor).forEach(([author, list], authorIdx) => {
+    // Construire le contenu de la notif
+    const lines = list.slice(0, 4).map(c =>
+      `<div style="display:flex;align-items:center;gap:5px;font-size:11px;opacity:.92">
+        <span>${icons[c.type]||'•'}</span>
+        <span>${labels[c.type]||c.type} <strong>${c.installation}</strong></span>
+      </div>`
+    ).join('');
+    const extra = list.length > 4 ? `<div style="font-size:10px;opacity:.7;margin-top:2px">+ ${list.length - 4} autre(s)…</div>` : '';
+    const timeStr = list[0]?.at ? (() => { try { return new Date(list[0].at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); } catch(e) { return ''; } })() : '';
+
+    const notif = document.createElement('div');
+    notif.style.cssText = `position:fixed;top:${72 + authorIdx * 110}px;right:16px;z-index:9990;
+      background:#fff;border:1px solid #e2e8f0;border-left:4px solid #1e40af;border-radius:10px;
+      padding:12px 14px;max-width:320px;box-shadow:0 6px 20px rgba(0,0,0,.12);
+      animation:_slideIn .3s ease;pointer-events:auto;`;
+    notif.innerHTML = `
+      <style>@keyframes _slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}</style>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px">
+        <div style="font-size:12px;font-weight:800;color:#1e40af">⚡ Mise à jour en temps réel</div>
+        <button onclick="this.closest('div[style]').remove()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;padding:0;line-height:1">✕</button>
+      </div>
+      <div style="font-size:11.5px;color:#475569;margin-bottom:6px">par <strong style="color:#1e293b">${author}</strong>${timeStr ? ' à ' + timeStr : ''}</div>
+      ${lines}${extra}`;
+    document.body.appendChild(notif);
+    // Auto-disparaître après 7s
+    setTimeout(() => { notif.style.transition = 'opacity .5s'; notif.style.opacity = '0'; setTimeout(() => notif.remove(), 500); }, 7000);
+    notif.addEventListener('mouseenter', () => clearTimeout(notif._timer));
+    notif.addEventListener('mouseleave', () => { notif._timer = setTimeout(() => { notif.style.transition='opacity .5s'; notif.style.opacity='0'; setTimeout(()=>notif.remove(),500); }, 3000); });
+  });
 }
 
 function _hidePendingBanner() {
   const banner = document.getElementById('_pendingUpdateBanner');
   if (banner) banner.style.display = 'none';
   window._pendingRealtimeCount = 0;
+  window._pendingRealtimeChanges = [];
 }
 
 function _applyRealtimeRefresh(nbModifs) {
+  const pendingChanges = window._pendingRealtimeChanges || [];
   _hidePendingBanner();
+  if (pendingChanges.length > 0) _showRealtimeNotif(pendingChanges);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   buildFilters();
   applyFilters();
