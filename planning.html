@@ -643,6 +643,10 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
   )!important;
   background-size:auto!important;
 }
+
+/* Astreinte : fond de cellule discret, pas un event */
+.gd.has-astreinte{background:#f0efff!important;}
+.gev-astreinte,.tl-ev-astreinte{display:none!important;}
 /* ── VUE 4 SEMAINES : cellules plus hautes, gev spacieux ─── */
 .gantt.month4-view td.gd{
   vertical-align:top;
@@ -886,6 +890,8 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
       🔔 En cours & À planifier
       <span id="backlogBadge" style="background:#e03131;color:#fff;border-radius:10px;padding:0 5px;font-size:9px;font-weight:800;display:none"></span>
     </button>
+    <button class="tbtn" onclick="openAstreinteModal()" style="display:flex;align-items:center;gap:5px;color:#d97706;border-color:#d97706">⚡ Astreinte</button>
+    <button class="tbtn" onclick="openImportAstreinte()" style="display:flex;align-items:center;gap:5px;color:#d97706;border-color:#d97706;font-size:10px">📥 Import astreintes</button>
     <button class="tbtn" onclick="openAppelsList()" style="display:flex;align-items:center;gap:5px">📞 Appels clients</button>
     <button class="tbtn" onclick="openPlanningPMEImport()" style="display:flex;align-items:center;gap:5px;color:#e05a1e;border-color:#e05a1e">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="#e05a1e"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
@@ -1613,6 +1619,7 @@ const TM_DEFAULT={
   prot:  {label:'Protection', icon:'🚿',color:'#0369a1',   bg:'#e0f2fe', locked:true},
   form:  {label:'Formation',  icon:'🎓',color:'var(--c-form)',bg:'#f5f3ff',locked:true},
   rec:   {label:'Réception',  icon:'📦',color:'#0891b2',   bg:'#e0f7fa', locked:true},
+  astreinte:{label:'Astreinte',icon:'🔔',color:'#d97706',bg:'#fef3c7',locked:true},
   autre: {label:'Autre',      icon:'📌',color:'var(--c-autre)',bg:'#fef3c7',locked:true},
 };
 let TM={...TM_DEFAULT};  // peut être enrichi depuis Firebase
@@ -2035,12 +2042,18 @@ evs.push({_id:`${r._id||r._fsId}_${f}`,type:f.toLowerCase(),date:dk(d),tech,titl
     });
     if(!techs.length||!types.length) evs.push({...base,type:types[0]||'autre',date:e.date});
   });return evs;}
-function filtEvs(){return buildEvs().filter(e=>{if(_fTechs.size>0&&!_fTechs.has(e.tech))return false;if(_fTypes.has(e.type))return false;return true;});}
+function filtEvs(){return buildEvs().filter(e=>{if(e.type==='astreinte')return false;if(_fTechs.size>0&&!_fTechs.has(e.tech))return false;if(_fTypes.has(e.type))return false;return true;});}
+
+function _mkAstrBand(id,extraStyle){
+  return '<div class="astr-edit-band" data-astrid="'+id+'" title="Cliquer pour modifier" style="font-size:9px;font-weight:800;color:#fff;background:#7c6fcd;padding:2px 4px;white-space:nowrap;overflow:hidden;text-align:center;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;'+extraStyle+'">ASTREINTE COMPLETE</div>';
+}
+function filtEvsFull(){return buildEvs();}
 function _sortEvs(arr){return arr.sort((a,b)=>{const ta=a.startTime||'00:00',tb=b.startTime||'00:00';return ta.localeCompare(tb);});}
 function byDay(evs){const m={};evs.forEach(e=>{(m[e.date]=m[e.date]||[]).push(e);});Object.values(m).forEach(a=>_sortEvs(a));return m;}
 function byDT(evs){const m={};evs.forEach(e=>{const k=e.date+'|'+e.tech;(m[k]=m[k]||[]).push(e);});Object.values(m).forEach(a=>_sortEvs(a));return m;}
 // ── FILTRES ─────────────────────────────────────────────────────────────
 let _fltAgences=new Set();    // agences sélectionnées (vide = toutes)
+const _getAg=r=>{if(!r)return '';for(const k of Object.keys(r)){if(k.toLowerCase()==='agence'&&r[k])return String(r[k]).trim();}return '';};
 let _fltServices=new Set();   // services sélectionnés
 let _fltRes=new Set();        // ressources sélectionnées
 
@@ -2106,16 +2119,9 @@ function toggleFilter(type){
     // Panel groupé : peupler les deux sections avec checkboxes
     const res=_resources.filter(r=>r.active!==false);
     const svcVals=[...new Set(res.map(r=>r.service||'').filter(Boolean))].sort();
-    // Chercher le champ agence avec toutes les variantes possibles
-    const _getAgence=r=>{
-      for(const k of Object.keys(r)){
-        if(k.toLowerCase()==='agence'&&r[k]) return r[k];
-      }
-      return '';
-    };
-    const agcVals=[...new Set(res.map(r=>_getAgence(r)).filter(Boolean))].sort();
-    // Fallback sur la config si aucune agence trouvée
-    if(!agcVals.length) agcVals.push(...AGENCES.filter(a=>a));
+    // Agences : utiliser les valeurs de la config + celles trouvées dans les ressources
+    const _resDyn=[...new Set([...res.map(_getAg),...AGENCES].filter(Boolean))].sort();
+    const agcVals=_resDyn;
     // Section Service
     const si=document.getElementById('fltServiceItems');
     if(si) si.innerHTML=svcVals.length
@@ -2180,7 +2186,7 @@ function updFilterBadges(){
 // Appliquer les filtres actifs aux ressources
 function getFilteredRes(){
   return actRes().filter(r=>{
-    if(_fltAgences.size>0&&!_fltAgences.has(r.agence||'')) return false;
+    if(_fltAgences.size>0){const _rAg=_getAg(r);if(![..._fltAgences].some(a=>a.toLowerCase()===_rAg.toLowerCase()))return false;}
     if(_fltServices.size>0&&!_fltServices.has(r.service||'')) return false;
     if(_fltRes.size>0&&!_fltRes.has(r.name)) return false;
     return true;
@@ -2499,10 +2505,11 @@ function renderMonthGantt(){
     h+=`<tr class="ggrp"><td colspan="${days.length+1}">${agence?'🏢 '+esc(agence)+' – ':''}${esc(service||'Sans service')}</td></tr>`;
     res.forEach(r=>{
       const tc=r.color||TC[0];
-      h+=`<tr><td class="gtc" style="position:sticky;left:0;z-index:4;background:#f8fafc;width:${RES_W}px;min-width:${RES_W}px;max-width:${RES_W}px">
+      const _astrActive=_events.some(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=days[days.length-1]&&(e.dateEnd?e.dateEnd>=days[0]:days.includes(e.date)));
+    h+=`<tr><td class="gtc" style="position:sticky;left:0;z-index:4;background:${_astrActive?'#fef9ee':'#f8fafc'};width:${RES_W}px;min-width:${RES_W}px;max-width:${RES_W}px">
         <span class="gav" style="background:${tc}">${ini(r.name)}</span>
         <div style="min-width:0;line-height:1.3">
-          <div style="font-size:10px;font-weight:800;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((r.name.trim().split(/\s+/).slice(1).join(' ')||r.name).toUpperCase())}</div>
+          <div style="font-size:10px;font-weight:800;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((r.name.trim().split(/\s+/).slice(1).join(' ')||r.name).toUpperCase())} ${_astrActive?'<span style="font-size:8px;background:#f59e0b;color:#fff;border-radius:4px;padding:0 4px;vertical-align:middle">⚡</span>':''}</div>
           <div style="font-size:9px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name.trim().split(/\s+/)[0]||''}</div>
         </div>
       </td>`;
@@ -2513,7 +2520,8 @@ function renderMonthGantt(){
         const isFr=isFer(key);
         const isVS=isVacSco(key);
         let bg=isT?'#eff6ff':isFr?'repeating-linear-gradient(-45deg,rgba(253,230,138,.3) 0,rgba(253,230,138,.3) 5px,#fff 5px,#fff 10px)':isWE?'#fafafa':isVS?'#f0fdf4':'';
-        const de=evs.filter(e=>e.tech===r.name&&e.date===key);
+        const _astrToday=evs.filter(e=>e.tech===r.name&&e.type==='astreinte'&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
+        const de=evs.filter(e=>e.tech===r.name&&e.date===key&&e.type!=='astreinte');
         const dropAttrs=isWE||isFr?'':` data-date="${key}" data-tech="${esc(r.name)}" ondragover="ganttDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="ganttDrop(event,this)" oncontextmenu="event.preventDefault();ganttCellRClick(event,this);"`;
         const clkAttr=isWE||isFr?'':` onclick="openNewEvent('${key}','${esc(r.name)}')"`;
         h+=`<td style="padding:1px 2px;vertical-align:top;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:28px;background:${bg};cursor:${isWE||isFr?'default':'pointer'}" ${dropAttrs}${clkAttr}>`;
@@ -2711,6 +2719,7 @@ days.forEach((d,di)=>{const key=dk(d),isT=d.getTime()===today.getTime(),isWE=d.g
     const tr3=e.startTime&&e.endTime?e.startTime.replace(':','h')+'-'+e.endTime.replace(':','h'):(e.startTime?e.startTime.replace(':','h'):'');
     const eid3=esc(e._id);
     const _isConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));
+    const _isAstreinte=e.type==='astreinte'||e.types?.includes('astreinte');
     const _tls=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):tm.label;
     const _nbJ=sp.ei-sp.si+1;
     const _nbJReal=e._origDates?e._origDates.length:_nbJ;
@@ -2718,17 +2727,22 @@ days.forEach((d,di)=>{const key=dk(d),isT=d.getTime()===today.getTime(),isWE=d.g
     if(_spanCompact){
       // Même format que les événements simples en vue compacte
       const _abbr2=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label[0]).join(''):tm.label.slice(0,3);
-      _spanHtml+=`<div class="gev gev-span${_isConge?' gev-hatch':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-top:3px solid ${bd3};border-radius:2px;padding:1px 0;margin-bottom:1px;width:100%;display:block;overflow:hidden;cursor:pointer" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" data-tip="1"${e.note?' — '+esc(e.note):''}"><div style="font-size:7px;font-weight:800;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px;opacity:.9">${_abbr2}</div><div style="font-size:7px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px">${esc(e.title)}</div>${e.note?`<div style="width:6px;height:6px;border-radius:50%;background:#f59f00;margin:1px auto"></div>`:''}</div>`;
+      _spanHtml+=`<div class="gev gev-span${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-top:3px solid ${bd3};border-radius:2px;padding:1px 0;margin-bottom:1px;width:100%;display:block;overflow:hidden;cursor:pointer" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" data-tip="1"${e.note?' — '+esc(e.note):''}"><div style="font-size:7px;font-weight:800;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px;opacity:.9">${_abbr2}</div><div style="font-size:7px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px">${esc(e.title)}</div>${e.note?`<div style="width:6px;height:6px;border-radius:50%;background:#f59f00;margin:1px auto"></div>`:''}</div>`;
     } else {
-      _spanHtml+=`<div class="gev gev-span${_isConge?' gev-hatch':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:3px solid ${bd3};border-radius:4px;padding:2px 5px;margin-bottom:2px;display:block;width:100%;box-sizing:border-box" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)"><div style="font-size:8px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="font-style:italic;font-weight:800;opacity:.9">${_tls}</span> ${esc(e.title)}${tr3?` <span style="font-size:8px;opacity:.8">${tr3}</span>`:''}<span style="font-size:8px;background:rgba(0,0,0,.18);border-radius:8px;padding:0 4px;margin-left:3px;font-weight:800">${workDaysLabel(e._origDates||[])}</span>${e.note?`<div style="font-size:9px;background:rgba(253,230,138,.85);color:#92400e;border-radius:2px;padding:0 3px;margin-top:2px">📌 ${esc(e.note)}</div>`:''}</div></div>`;
+      _spanHtml+=`<div class="gev gev-span${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:3px solid ${bd3};border-radius:4px;padding:2px 5px;margin-bottom:2px;display:block;width:100%;box-sizing:border-box" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)"><div style="font-size:8px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="font-style:italic;font-weight:800;opacity:.9">${_tls}</span> ${esc(e.title)}${tr3?` <span style="font-size:8px;opacity:.8">${tr3}</span>`:''}<span style="font-size:8px;background:rgba(0,0,0,.18);border-radius:8px;padding:0 4px;margin-left:3px;font-weight:800">${workDaysLabel(e._origDates||[])}</span>${e.note?`<div style="font-size:9px;background:rgba(253,230,138,.85);color:#92400e;border-radius:2px;padding:0 3px;margin-top:2px">📌 ${esc(e.note)}</div>`:''}</div></div>`;
     }
   });
-  const ev=_deSlice.map(e=>{const tm=TM[e.type]||TM.autre;const sc3=STATE_COLORS[e.rdvState||''];const bg3=sc3?sc3.bg:tm.bg,cl3=sc3?sc3.text:tm.color,bd3=sc3?sc3.border:tc;const tr3=e.startTime&&e.endTime?e.startTime.replace(':','h')+'-'+e.endTime.replace(':','h'):(e.startTime?e.startTime.replace(':','h'):'');const eid3=esc(e._id);const durH=e.duration||(e.startTime&&e.endTime?(()=>{const[hs2,ms3]=(e.startTime||'08:00').split(':').map(Number);const[he2,me2]=(e.endTime||'12:00').split(':').map(Number);return Math.round((he2*60+me2-hs2*60-ms3)/60*10)/10;})():null);const durLbl=durH!=null?(durH<1?Math.round(durH*60)+'m':(Number.isInteger(durH)?durH+'h':durH.toString().replace('.',',')+'h')):'';const multiCls=e.isMultiDay?(e.isFirstDay?'multi-first':e.isLastDay?'multi-last':'multi-mid'):'';const _isConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));const borderL=e.isMultiDay&&!e.isFirstDay?'none':('3px solid '+bd3);let dayIndicator='';if(e.isMultiDay&&e._origDates){dayIndicator=`<span style="font-size:8px;background:rgba(0,0,0,.15);border-radius:8px;padding:0 4px;margin-left:3px;font-weight:700">${e._dayIdx+1}/${workDaysLabel(e._origDates)}</span>`;}else if(e.isMultiDay){const tag=e.isFirstDay?'1er':e.isLastDay?'fin':'';dayIndicator=tag?`<span style="font-size:8px;background:rgba(0,0,0,.15);border-radius:8px;padding:0 4px;margin-left:3px">${tag}</span>`:'';}if(_view==='bimonth'||_view==='quarter'){
+  const ev=_deSlice.map(e=>{const tm=TM[e.type]||TM.autre;const sc3=STATE_COLORS[e.rdvState||''];const bg3=sc3?sc3.bg:tm.bg,cl3=sc3?sc3.text:tm.color,bd3=sc3?sc3.border:tc;const tr3=e.startTime&&e.endTime?e.startTime.replace(':','h')+'-'+e.endTime.replace(':','h'):(e.startTime?e.startTime.replace(':','h'):'');const eid3=esc(e._id);const durH=e.duration||(e.startTime&&e.endTime?(()=>{const[hs2,ms3]=(e.startTime||'08:00').split(':').map(Number);const[he2,me2]=(e.endTime||'12:00').split(':').map(Number);return Math.round((he2*60+me2-hs2*60-ms3)/60*10)/10;})():null);const durLbl=durH!=null?(durH<1?Math.round(durH*60)+'m':(Number.isInteger(durH)?durH+'h':durH.toString().replace('.',',')+'h')):'';const multiCls=e.isMultiDay?(e.isFirstDay?'multi-first':e.isLastDay?'multi-last':'multi-mid'):'';const _isConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));
+    const _isAstreinte=e.type==='astreinte'||e.types?.includes('astreinte');const borderL=e.isMultiDay&&!e.isFirstDay?'none':('3px solid '+bd3);let dayIndicator='';if(e.isMultiDay&&e._origDates){dayIndicator=`<span style="font-size:8px;background:rgba(0,0,0,.15);border-radius:8px;padding:0 4px;margin-left:3px;font-weight:700">${e._dayIdx+1}/${workDaysLabel(e._origDates)}</span>`;}else if(e.isMultiDay){const tag=e.isFirstDay?'1er':e.isLastDay?'fin':'';dayIndicator=tag?`<span style="font-size:8px;background:rgba(0,0,0,.15);border-radius:8px;padding:0 4px;margin-left:3px">${tag}</span>`:'';}if(_view==='bimonth'||_view==='quarter'){
     // Vue très compacte : bandeau coloré + abréviation type
     const _abbr=(e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label[0]).join(''):tm.label.slice(0,3));
     const _isConge2=_isConge;
-    return`<div class="gev${_isConge2?' gev-hatch':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-top:3px solid ${bd3};border-radius:2px;padding:1px 0;margin-bottom:1px;width:100%;display:block;overflow:hidden;cursor:pointer" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" data-evid="${eid3}" data-tip="1"${e.note?' — '+esc(e.note):''}"><div style="font-size:7px;font-weight:800;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px;opacity:.9">${_abbr}</div><div style="font-size:7px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px">${esc(e.title)}</div>${e.note?`<div style="width:6px;height:6px;border-radius:50%;background:#f59f00;margin:1px auto"></div>`:''}</div>`;}
-  if(_view==='month4'){const _tl4=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):tm.label;return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:${borderL};padding:2px 3px;margin-bottom:1px;border-radius:3px" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]"><div style="font-size:8px;font-weight:600;line-height:1.3;white-space:normal;overflow:hidden"><span style="font-style:italic;font-weight:800;opacity:.9">${_tl4}</span> ${esc(e.title)}${tr3?` <span style="font-size:8px;opacity:.8">${tr3}</span>`:''}${dayIndicator}${e.note?`<div style="font-size:9px;background:rgba(253,230,138,.85);color:#92400e;border-radius:2px;padding:0 3px;margin-top:2px">📌 ${esc(e.note)}</div>`:''}</div></div>`;}return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:${borderL}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]">${durLbl?`<div class="gev-dur">${durLbl}</div>`:''}<div style="font-size:8px;font-weight:800;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).icon).join('')+' '+(e.types.map(t=>(TM[t]||TM.autre).label).join('+')):tm.icon+' '+tm.label}${dayIndicator}</div><div style="font-size:9px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.title)}</div>${tr3?`<div style="font-size:8px;opacity:.75;white-space:nowrap">${tr3}</div>`:''} ${e.note?`<div style="font-size:9px;background:rgba(253,230,138,.8);color:#92400e;border-radius:2px;padding:0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`:''}</div>`;}).join('');const moreHtml=_moreCount>0?`<div class="cmore" style="width:100%;padding:1px 3px" onclick="event.stopPropagation()">+${_moreCount}</div>`:'';const evFinal=_spanHtml+ev+moreHtml;const multi=(de.length>0||_daySpans.length>0)?' gd-multi':'';const cl=(isWE||isFr)?'':` ondblclick="event.stopPropagation();if(!event.target.closest('[data-evid]')){openNewEvent('${key}','${esc(r.name)}')}" onmousedown="gdSelStart(event,this)"`; const dropAttrs=(isWE||isFr)?'':' data-date="'+key+'" data-tech="'+esc(r.name)+'" ondragover="ganttDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="ganttDrop(event,this)" oncontextmenu="event.preventDefault();ganttCellRClick(event,this);"';const spacer='';const _colspanAttr=_colspan>1?` colspan="${_colspan}"`:'';h+=`<td class="${cls}${multi}"${_colspanAttr}${cl}${dropAttrs}>${spacer}${evFinal}</td>`;});h+='</tr>';});});if(!grps.length||grps.every(g=>!g.res.length))h+=`<tr><td colspan="${days.length+1}" style="padding:40px;text-align:center;color:var(--sub)">Aucune ressource active - configurez l'onglet Ressources</td></tr>`;h+='</tbody>';
+    return`<div class="gev${_isConge2?' gev-hatch':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-top:3px solid ${bd3};border-radius:2px;padding:1px 0;margin-bottom:1px;width:100%;display:block;overflow:hidden;cursor:pointer" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" data-evid="${eid3}" data-tip="1"${e.note?' — '+esc(e.note):''}"><div style="font-size:7px;font-weight:800;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px;opacity:.9">${_abbr}</div><div style="font-size:7px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px">${esc(e.title)}</div>${e.note?`<div style="width:6px;height:6px;border-radius:50%;background:#f59f00;margin:1px auto"></div>`:''}</div>`;}
+  if(_view==='month4'){const _tl4=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):tm.label;return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:${borderL};padding:2px 3px;margin-bottom:1px;border-radius:3px" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]"><div style="font-size:8px;font-weight:600;line-height:1.3;white-space:normal;overflow:hidden"><span style="font-style:italic;font-weight:800;opacity:.9">${_tl4}</span> ${esc(e.title)}${tr3?` <span style="font-size:8px;opacity:.8">${tr3}</span>`:''}${dayIndicator}${e.note?`<div style="font-size:9px;background:rgba(253,230,138,.85);color:#92400e;border-radius:2px;padding:0 3px;margin-top:2px">📌 ${esc(e.note)}</div>`:''}</div></div>`;}return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:${borderL}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]">${durLbl?`<div class="gev-dur">${durLbl}</div>`:''}<div style="font-size:8px;font-weight:800;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).icon).join('')+' '+(e.types.map(t=>(TM[t]||TM.autre).label).join('+')):tm.icon+' '+tm.label}${dayIndicator}</div><div style="font-size:9px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.title)}</div>${tr3?`<div style="font-size:8px;opacity:.75;white-space:nowrap">${tr3}</div>`:''} ${e.note?`<div style="font-size:9px;background:rgba(253,230,138,.8);color:#92400e;border-radius:2px;padding:0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`:''}</div>`;}).join('');const moreHtml=_moreCount>0?`<div class="cmore" style="width:100%;padding:1px 3px" onclick="event.stopPropagation()">+${_moreCount}</div>`:'';const evFinal=_spanHtml+ev+moreHtml;const multi=(de.length>0||_daySpans.length>0)?' gd-multi':'';const cl=(isWE||isFr)?'':` ondblclick="event.stopPropagation();if(!event.target.closest('[data-evid]')){openNewEvent('${key}','${esc(r.name)}')}" onmousedown="gdSelStart(event,this)"`; const dropAttrs=(isWE||isFr)?'':' data-date="'+key+'" data-tech="'+esc(r.name)+'" ondragover="ganttDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="ganttDrop(event,this)" oncontextmenu="event.preventDefault();ganttCellRClick(event,this);"';const spacer='';const _colspanAttr=_colspan>1?` colspan="${_colspan}"`:'';const _astrToday=_events.filter(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
+        const _hasAstr=(_astrToday||[]).length>0;
+        const _astrEvId=(_astrToday[0]?._fsId||_astrToday[0]?._id||'');
+        const _astrBand=_hasAstr?_mkAstrBand(_astrEvId,''):'';
+        h+=`<td class="${cls}${multi}${_hasAstr?' has-astreinte':''}"${_colspanAttr}${cl}${dropAttrs}>${_astrBand}${evFinal}</td>`;});});});if(!grps.length||grps.every(g=>!g.res.length))h+=`<tr><td colspan="${days.length+1}" style="padding:40px;text-align:center;color:var(--sub)">Aucune ressource active - configurez l'onglet Ressources</td></tr>`;h+='</tbody>';
   document.getElementById('gantt').innerHTML=h;
   requestAnimationFrame(()=>{
     const wrap=document.getElementById('ganttWrap');
@@ -2926,7 +2940,8 @@ function renderTimeline(){
         const isVS=isVacSco(key);
         const isT=d.getTime()===today.getTime();
         // RDV normaux (mono-jour ou multi-jour éclaté)
-        const de=allResEvs.filter(e=>e.date===key&&(!e.isMultiDay||!spanIds.has(e._id.split('__')[0])));
+        const _astrToday2=allResEvs.filter(e=>e.type==='astreinte'&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
+        const de=allResEvs.filter(e=>e.date===key&&e.type!=='astreinte'&&(!e.isMultiDay||!spanIds.has(e._id.split('__')[0])));
         let bgCell=isT?'#f5f7ff':isWE||isFr?'#fafafa':isVS?'#f9fef9':'var(--card)';
         const dropAttrs=isWE||isFr?'':` data-date="${key}" data-tech="${esc(r.name)}" ondragover="ganttDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="ganttDrop(event,this)" oncontextmenu="event.preventDefault();ganttCellRClick(event,this);"`;
         const mouseAttr=isWE||isFr?'':` onmousedown="tlSelStart(event,'${key}','${esc(r.name)}',this)"`;
@@ -2937,6 +2952,11 @@ function renderTimeline(){
         for(let hh=H_START+1;hh<H_END;hh++){
           h+=`<div style="position:absolute;left:${(hh-H_START)*HOUR_W}px;top:${SPAN_H}px;bottom:0;width:1px;background:rgba(0,0,0,.04)"></div>`;
         }
+
+        // Bandeau astreinte
+        const _tlAstr=_events.some(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
+        const _tlAstrEv=_events.find(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
+        if(_tlAstrEv){const _aid=_tlAstrEv._fsId||_tlAstrEv._id||'';h+=_mkAstrBand(_aid,'position:absolute;top:0;left:0;right:0;height:16px;display:flex;align-items:center;justify-content:center;z-index:3;user-select:none;font-size:10px;');}
 
         // RDV normaux
         let _lanes=[];
@@ -4555,17 +4575,20 @@ async function ctxDissociate(){
   if(allTechs2.length<=1){ toast("Ce RDV n'a qu'une ressource","warn"); return; }
   if(!confirm("Créer un RDV indépendant pour "+techToDissociate+"?\nLe RDV original sera conservé.")) return;
   try{
-    const newEv={type:ev.type,types:ev.types||[ev.type],date:ev.date,dateEnd:ev.dateEnd||'',
-      tech:techToDissociate,techs:[techToDissociate],title:ev.title,note:ev.note||'',
-      duration:ev.duration,startTime:ev.startTime||'08:00',endTime:ev.endTime||'17:00',
+    const _rawEv={type:ev.type||'autre',types:ev.types||[ev.type||'autre'],date:ev.date,dateEnd:ev.dateEnd||'',
+      tech:techToDissociate,techs:[techToDissociate],title:ev.title||'',note:ev.note||'',
+      duration:ev.duration||'',startTime:ev.startTime||'08:00',endTime:ev.endTime||'17:00',
       allDay:ev.allDay||false,status:ev.rdvState||'non_confirme',rdvState:ev.rdvState||'non_confirme',
       createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),
       by:_user?.login||'?',dissociatedFrom:ev._fsId||ev._id||''};
+    // Supprimer les champs undefined (Firebase les rejette)
+    const newEv=Object.fromEntries(Object.entries(_rawEv).filter(([,v])=>v!==undefined));
     await fsAdd('planning_events',newEv,'Dissociation : '+techToDissociate+' / '+ev.title);
     // Retirer la ressource dissociée de l'événement original
     const remainingTechs=allTechs2.filter(t=>t!==techToDissociate);
-    const updOrig={...ev,techs:remainingTechs,tech:remainingTechs[0]||'',updatedAt:new Date().toISOString()};
-    delete updOrig._fsId;
+    const _raw2={...ev,techs:remainingTechs,tech:remainingTechs[0]||''  ,updatedAt:new Date().toISOString()};
+    delete _raw2._fsId; delete _raw2._id;
+    const updOrig=Object.fromEntries(Object.entries(_raw2).filter(([,v])=>v!==undefined));
     await fsSet('planning_events',ev._fsId,updOrig,'Dissociation retrait : '+techToDissociate+' / '+ev.title);
     toast('RDV dissocié pour '+techToDissociate,'ok');
   }catch(e){ toast('❌ '+e.message,'err'); }
@@ -6905,6 +6928,542 @@ async function doPPMImport(){
   setTimeout(closePlanningPMEImport, 3000);
 }
 
+// ── GESTION DES ASTREINTES ──────────────────────────────────────────────────
+let _astrRepeat='none';
+
+function openAstreinteModal(){
+  const sel=document.getElementById('astrRes');
+  if(sel){
+    const actives=_resources.filter(r=>r.active!==false);
+    sel.innerHTML=actives.map(r=>`<option value="${esc(r.name)}">${r.name}</option>`).join('');
+  }
+  const today=new Date();
+  const mon=new Date(today);mon.setDate(today.getDate()-(today.getDay()||7)+1);
+  document.getElementById('astrStart').value=dk(mon);
+  document.getElementById('astrWeeks').value='1';
+  document.getElementById('astrNote').value='';
+  document.getElementById('astrRepeatCount').value='12';
+  document.getElementById('astrRepeatN').value='4';
+  // Fin d'année par défaut
+  const endOfYear=new Date(today.getFullYear(),11,31);
+  const eu=document.getElementById('astrRepeatUntil');
+  if(eu) eu.value=dk(endOfYear);
+  _astrRepeat='none';
+  setAstrRepeat('none');
+  updateAstrPreview();
+  document.getElementById('astreinteOverlay').style.display='flex';
+}
+
+function closeAstreinte(){ document.getElementById('astreinteOverlay').style.display='none'; }
+
+function setAstrRepeat(mode){
+  _astrRepeat=mode;
+  document.querySelectorAll('.astr-rb').forEach(b=>{
+    const active=b.dataset.r===mode;
+    b.style.border=active?'1.5px solid #d97706':'1.5px solid var(--line)';
+    b.style.background=active?'#fef3c7':'var(--bg)';
+    b.style.color=active?'#92400e':'var(--sub)';
+  });
+  const ro=document.getElementById('astrRecurOptions');
+  const ciw=document.getElementById('astrCustomIntervalWrap');
+  if(ro) ro.style.display=mode==='none'?'none':'block';
+  if(ciw) ciw.style.display=mode==='custom'?'block':'none';
+  toggleAstrEndMode();
+  updateAstrPreview();
+}
+
+function toggleAstrEndMode(){
+  const mode=document.getElementById('astrEndMode')?.value||'count';
+  const ec=document.getElementById('astrEndCount');
+  const ed=document.getElementById('astrEndDate');
+  if(ec) ec.style.display=mode==='count'?'flex':'none';
+  if(ed) ed.style.display=mode==='date'?'flex':'none';
+}
+
+function _astrDates(){
+  const start=document.getElementById('astrStart').value;
+  const weeks=parseInt(document.getElementById('astrWeeks').value)||1;
+  if(!start) return [];
+  const slots=[];
+  // Ajuster au lundi
+  let cur=new Date(start);
+  const dow=cur.getDay();
+  if(dow===0) cur.setDate(cur.getDate()+1);
+  else if(dow>1) cur.setDate(cur.getDate()-(dow-1));
+
+  const addSlot=d=>{
+    const s=new Date(d);
+    const e=new Date(d); e.setDate(d.getDate()+weeks*7-1);
+    slots.push({start:dk(s),end:dk(e)});
+  };
+  addSlot(cur);
+
+  if(_astrRepeat==='none') return slots;
+
+  // Intervalle en semaines selon le mode
+  const intervalW=_astrRepeat==='weekly'?1:_astrRepeat==='biweekly'?2:_astrRepeat==='monthly'?4:
+    parseInt(document.getElementById('astrRepeatN')?.value)||4;
+
+  // Fin de récurrence
+  const endMode=document.getElementById('astrEndMode')?.value||'count';
+  let maxOccur=52, untilDate=null;
+  if(endMode==='count'){
+    maxOccur=parseInt(document.getElementById('astrRepeatCount')?.value)||12;
+  } else if(endMode==='date'){
+    const u=document.getElementById('astrRepeatUntil')?.value;
+    if(u) untilDate=new Date(u);
+    maxOccur=53;
+  } else { // endofyear
+    untilDate=new Date(cur.getFullYear(),11,31);
+    maxOccur=53;
+  }
+
+  for(let i=1;i<=maxOccur;i++){
+    const s=new Date(cur); s.setDate(cur.getDate()+intervalW*7*i);
+    if(untilDate&&s>untilDate) break;
+    addSlot(s);
+  }
+  return slots;
+}
+
+function updateAstrPreview(){
+  const prev=document.getElementById('astrPreview');
+  if(!prev) return;
+  const res=document.getElementById('astrRes')?.value||'?';
+  const slots=_astrDates();
+  if(!slots.length){prev.innerHTML='Sélectionnez une ressource et une date';return;}
+  const dfr=d=>d?d.split('-').reverse().join('/'):'?';
+  const modeLabel={none:'Unique',weekly:'Hebdomadaire',biweekly:'Bi-hebdo',monthly:'Mensuel',custom:'Personnalisé'};
+  prev.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+    <strong>⚡ ${slots.length} astreinte(s)</strong>
+    <span style="background:#fde68a;color:#92400e;padding:1px 8px;border-radius:8px;font-size:10px;font-weight:700">${modeLabel[_astrRepeat]||_astrRepeat}</span>
+  </div>
+  <div style="color:#92400e"><strong>${esc(res)}</strong></div>
+  <div style="margin-top:5px;font-size:10px;line-height:1.8">
+    ${slots.slice(0,6).map(s=>`📅 ${dfr(s.start)} → ${dfr(s.end)}`).join('<br>')}
+    ${slots.length>6?`<br><em style="opacity:.7">+${slots.length-6} autres…</em>`:''}
+  </div>`;
+}
+async function saveAstreinte(){
+  const res=document.getElementById('astrRes')?.value;
+  const note=document.getElementById('astrNote')?.value||'Astreinte';
+  if(!res){toast('Sélectionnez une ressource','warn');return;}
+  const slots=_astrDates();
+  if(!slots.length){toast('Définissez une date de début','warn');return;}
+  let created=0;
+  for(const s of slots){
+    const data={
+      title:note||'Astreinte',
+      type:'astreinte',types:['astreinte'],
+      date:s.start,dateEnd:s.end>s.start?s.end:'',
+      tech:res,techs:[res],
+      rdvState:'planifie',status:'planifie',
+      note:'Astreinte — '+res,
+      createdAt:new Date().toISOString(),
+      updatedAt:new Date().toISOString(),
+      by:_user?.login||'?'
+    };
+    try{await fsAdd('planning_events',data,'Astreinte: '+res);created++;}catch(e){console.warn(e);}
+  }
+  toast(`✅ ${created} astreinte(s) créée(s) pour ${res}`,'ok');
+  closeAstreinte();
+}
+
+// ── IMPORT PLANNING ASTREINTES EXCEL ────────────────────────────────────────
+let _iaData=null; // {year: [{person,week,start,end},...]}
+let _iaSelYears=new Set();
+
+function openImportAstreinte(){
+  _iaData=null; _iaSelYears=new Set();
+  document.getElementById('importAstrOverlay').style.display='flex';
+  document.getElementById('iaDropZone').style.display='block';
+  document.getElementById('iaYearFilter').style.display='none';
+  document.getElementById('iaOptions').style.display='none';
+  document.getElementById('iaPreview').style.display='none';
+  document.getElementById('iaProgress').style.display='none';
+  document.getElementById('iaImportBtn').style.display='none';
+  document.getElementById('iaFileInput').value='';
+}
+function closeImportAstreinte(){
+  document.getElementById('importAstrOverlay').style.display='none';
+}
+
+function _isoWeekMonday(year,week){
+  // Lundi de la semaine ISO
+  const d=new Date(year,0,4); // 4 jan toujours en S1
+  d.setDate(d.getDate()-(d.getDay()||7)+1); // lundi S1
+  d.setDate(d.getDate()+(week-1)*7);
+  return d;
+}
+
+async function handleImportAstrFile(file){
+  if(!file) return;
+  const buf=await file.arrayBuffer();
+  try{
+    const wb=XLSX.read(buf,{type:'array'});
+    const byYear={};
+    wb.SheetNames.forEach(sname=>{
+      const ym=sname.match(/\d{4}/);
+      if(!ym) return;
+      const year=parseInt(ym[0]);
+      const ws=wb.Sheets[sname];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});
+      if(!rows.length) return;
+      const headers=rows[0];
+      const events=[];
+      rows.slice(1).forEach(row=>{
+        const person=(row[0]||'').toString().trim();
+        if(!person) return;
+        row.slice(2).forEach((val,i)=>{
+          const v=(val||'').toString().trim();
+          if(!v) return;
+          const weekNum=i+1; // col2=S1, col3=S2...
+          try{
+            const mon=_isoWeekMonday(year,weekNum);
+            const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+            const fmt=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+            events.push({person,week:weekNum,start:fmt(mon),end:fmt(sun)});
+          }catch(_){}
+        });
+      });
+      if(events.length) byYear[year]=(byYear[year]||[]).concat(events);
+    });
+    _iaData=byYear;
+    const years=Object.keys(byYear).sort().reverse();
+    if(!years.length){alert('Aucune donnée trouvée');return;}
+    // Sélectionner l'année courante par défaut
+    const cy=new Date().getFullYear().toString();
+    _iaSelYears=new Set(years.includes(cy)?[cy]:[years[0]]);
+    // Afficher filtres année
+    const yf=document.getElementById('iaYearFilter');
+    const yb=document.getElementById('iaYearBtns');
+    yf.style.display='block';
+    yb.innerHTML=years.map(y=>`<button type="button" onclick="toggleIaYear('${y}')" data-y="${y}"
+      style="padding:5px 14px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;
+      border:1.5px solid ${_iaSelYears.has(y)?'#d97706':'var(--line)'};
+      background:${_iaSelYears.has(y)?'#fef3c7':'var(--bg)'};
+      color:${_iaSelYears.has(y)?'#92400e':'var(--sub)'}">${y} (${byYear[y].length})</button>`).join('');
+    document.getElementById('iaOptions').style.display='block';
+    updateIaPreview();
+  }catch(e){alert('❌ Erreur lecture : '+e.message);console.error(e);}
+}
+
+function toggleIaYear(y){
+  if(_iaSelYears.has(y)) _iaSelYears.delete(y); else _iaSelYears.add(y);
+  document.querySelectorAll('[data-y]').forEach(b=>{
+    const active=_iaSelYears.has(b.dataset.y);
+    b.style.border=active?'1.5px solid #d97706':'1.5px solid var(--line)';
+    b.style.background=active?'#fef3c7':'var(--bg)';
+    b.style.color=active?'#92400e':'var(--sub)';
+  });
+  updateIaPreview();
+}
+
+function updateIaPreview(){
+  const prev=document.getElementById('iaPreview');
+  if(!_iaData){prev.style.display='none';return;}
+  const entries=[];
+  _iaSelYears.forEach(y=>{if(_iaData[y]) entries.push(..._iaData[y]);});
+  if(!entries.length){prev.style.display='none';document.getElementById('iaImportBtn').style.display='none';return;}
+  const dfr=d=>d.split('-').reverse().join('/');
+  // Grouper par personne pour l'aperçu
+  const byPerson={};
+  entries.forEach(e=>{(byPerson[e.person]=byPerson[e.person]||[]).push(e);});
+  prev.style.display='block';
+  prev.innerHTML=`<div style="font-size:11px;font-weight:800;color:var(--navy);margin-bottom:8px">Aperçu — ${entries.length} astreintes (${Object.keys(byPerson).length} techniciens)</div>
+  <div style="background:#fff;border-radius:8px;border:1px solid var(--line);overflow:hidden;max-height:200px;overflow-y:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <tr style="background:#f1f5f9;position:sticky;top:0"><th style="padding:5px 10px;text-align:left">Technicien</th><th style="padding:5px 10px;text-align:left">Semaine</th><th style="padding:5px 10px;text-align:left">Période</th></tr>
+      ${entries.slice(0,20).map(e=>`<tr style="border-top:1px solid var(--line)">
+        <td style="padding:4px 10px;font-weight:700">${esc(e.person)}</td>
+        <td style="padding:4px 10px;color:var(--sub)">S${e.week}</td>
+        <td style="padding:4px 10px">${dfr(e.start)} → ${dfr(e.end)}</td>
+      </tr>`).join('')}
+      ${entries.length>20?`<tr><td colspan="3" style="padding:5px 10px;color:var(--sub);text-align:center">+${entries.length-20} autres…</td></tr>`:''}
+    </table>
+  </div>`;
+  document.getElementById('iaImportBtn').style.display='block';
+}
+
+async function doImportAstreinte(){
+  const entries=[];
+  _iaSelYears.forEach(y=>{if(_iaData[y]) entries.push(..._iaData[y]);});
+  if(!entries.length){toast('Aucune astreinte à importer','warn');return;}
+  const skipExist=document.getElementById('iaSkipExist').checked;
+  document.getElementById('iaImportBtn').style.display='none';
+  document.getElementById('iaProgress').style.display='block';
+  const bar=document.getElementById('iaProgressBar');
+  const lbl=document.getElementById('iaProgressLbl');
+  // Mapper noms fichier → ressource de l'app (insensible à la casse, prénom)
+  const matchRes=name=>{
+    const nl=name.toLowerCase();
+    return _resources.find(r=>r.name.toLowerCase().includes(nl)||nl.includes(r.name.toLowerCase().split(' ')[0]))||null;
+  };
+  let created=0,skipped=0,notFound=0;
+  for(let i=0;i<entries.length;i++){
+    const e=entries[i];
+    bar.style.width=Math.round((i+1)/entries.length*100)+'%';
+    lbl.textContent=`Import… ${i+1}/${entries.length} — ${e.person} S${e.week}`;
+    const res=matchRes(e.person);
+    const techName=res?.name||e.person;
+    if(!res){notFound++;continue;}
+    if(skipExist){
+      const exists=_events.some(ev=>ev.type==='astreinte'&&ev.date===e.start&&(ev.tech===techName||ev.techs?.includes(techName)));
+      if(exists){skipped++;continue;}
+    }
+    try{
+      await fsAdd('planning_events',{
+        title:'Astreinte',type:'astreinte',types:['astreinte'],
+        date:e.start,dateEnd:e.end,
+        tech:techName,techs:[techName],
+        rdvState:'planifie',status:'planifie',
+        note:'Import planning astreintes S'+e.week,
+        createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),
+        by:_user?.login||'?',source:'import_astreinte'
+      },'Import astreinte: '+techName+' S'+e.week);
+      created++;
+    }catch(ex){console.warn(ex);}
+    if(i%10===0) await new Promise(r=>setTimeout(r,20));
+  }
+  lbl.textContent=`✅ ${created} importée(s) · ${skipped} ignorée(s) · ${notFound} technicien(s) non trouvé(s)`;
+  bar.style.width='100%';
+  toast(`✅ ${created} astreintes importées`,'ok');
+}
+
+// ── MODIFIER / SUPPRIMER UNE ASTREINTE ──────────────────────────────────────
+let _editAstrId = null;
+
+function openEditAstreinte(fsId){
+  if(!fsId){toast('Astreinte introuvable','warn');return;}
+  _editAstrId = fsId;
+  const ev = _events.find(e=>e._fsId===fsId||e._id===fsId);
+  if(!ev){toast('Astreinte introuvable','warn');return;}
+  // Info
+  const dfr=d=>d?d.split('-').reverse().join('/'):'?';
+  document.getElementById('eaInfo').innerHTML=
+    `<strong>⚡ ${esc(ev.title||'Astreinte')}</strong><br>${dfr(ev.date)} → ${dfr(ev.dateEnd||ev.date)} · ${esc(ev.tech||'')}`;
+  // Ressource
+  const sel=document.getElementById('eaRes');
+  sel.innerHTML=_resources.filter(r=>r.active!==false).map(r=>`<option value="${esc(r.name)}" ${r.name===ev.tech?'selected':''}>${r.name}</option>`).join('');
+  // Dates
+  document.getElementById('eaStart').value=ev.date||'';
+  document.getElementById('eaEnd').value=ev.dateEnd||ev.date||'';
+  document.getElementById('eaNote').value=ev.note||ev.title||'';
+  document.getElementById('editAstrOverlay').style.display='flex';
+}
+
+function closeEditAstreinte(){
+  document.getElementById('editAstrOverlay').style.display='none';
+  _editAstrId=null;
+}
+
+async function saveEditAstreinte(){
+  if(!_editAstrId) return;
+  const ev=_events.find(e=>e._fsId===_editAstrId||e._id===_editAstrId);
+  if(!ev){toast('Introuvable','err');return;}
+  const res=document.getElementById('eaRes').value;
+  const start=document.getElementById('eaStart').value;
+  const end=document.getElementById('eaEnd').value;
+  const note=document.getElementById('eaNote').value;
+  try{
+    const upd={...ev,tech:res,techs:[res],date:start,dateEnd:end>start?end:'',
+      title:note||'Astreinte',note:note||'',updatedAt:new Date().toISOString()};
+    delete upd._fsId; delete upd._id;
+    const clean=Object.fromEntries(Object.entries(upd).filter(([,v])=>v!==undefined));
+    await fsSet('planning_events',_editAstrId,clean,'Modification astreinte');
+    toast('✅ Astreinte modifiée','ok');
+    closeEditAstreinte();
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+
+async function deleteAstreinte(){
+  if(!_editAstrId) return;
+  if(!confirm('Supprimer cette astreinte ?')) return;
+  try{
+    const {deleteDoc:dd,doc:dc}=_lib;
+    await dd(dc(_db,'planning_events',_editAstrId));
+    toast('🗑 Astreinte supprimée','ok');
+    closeEditAstreinte();
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+
+// Clic sur bandeau astreinte
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.astr-edit-band');
+  if(b){e.stopPropagation();openEditAstreinte(b.dataset.astrid||'');}
+});
+
 boot();
 </script>
+</html/* Astreinte */
+.gev-astreinte{background:repeating-linear-gradient(45deg,#fef3c7,#fef3c7 6px,#fde68a 6px,#fde68a 12px)!important;border-color:#f59e0b!important;color:#92400e!important;}
+.tl-ev-astreinte{background:repeating-linear-gradient(45deg,#fef3c7,#fef3c7 6px,#fde68a 6px,#fde68a 12px)!important;border-color:#f59e0b!important;color:#92400e!important;}
+
+  <!-- Modal Astreinte -->
+  <  <div id="astreinteOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9300;align-items:center;justify-content:center" onclick="if(event.target===this)closeAstreinte()">
+    <div style="background:#fff;border-radius:14px;width:min(96vw,560px);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.25);overflow:hidden">
+      <div style="background:#d97706;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div><div style="font-size:15px;font-weight:800">⚡ Astreinte</div>
+        <div style="font-size:11px;opacity:.8">Planifier une ou plusieurs astreintes</div></div>
+        <button onclick="closeAstreinte()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;width:28px;height:28px;font-size:16px;cursor:pointer">✕</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:20px">
+        <!-- Ressource -->
+        <div style="margin-bottom:14px">
+          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">RESSOURCE D'ASTREINTE</label>
+          <select id="astrRes" onchange="updateAstrPreview()" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:#fff"></select>
+        </div>
+        <!-- Période 1ère astreinte -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div>
+            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">DÉBUT (lundi de semaine)</label>
+            <input type="date" id="astrStart" oninput="updateAstrPreview()" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">DURÉE (semaines)</label>
+            <input type="number" id="astrWeeks" value="1" min="1" max="8" oninput="updateAstrPreview()" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+          </div>
+        </div>
+        <!-- Récurrence -->
+        <div style="margin-bottom:14px;background:#fef9ee;border-radius:10px;border:1px solid #fcd34d;padding:12px">
+          <label style="font-size:10px;font-weight:800;color:#92400e;display:block;margin-bottom:8px">🔁 RÉCURRENCE</label>
+          <!-- Mode -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+            <button type="button" onclick="setAstrRepeat('none')" data-r="none" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid #d97706;background:#fef3c7;color:#92400e">Aucune</button>
+            <button type="button" onclick="setAstrRepeat('weekly')" data-r="weekly" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">Hebdo.</button>
+            <button type="button" onclick="setAstrRepeat('biweekly')" data-r="biweekly" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">2 sem.</button>
+            <button type="button" onclick="setAstrRepeat('monthly')" data-r="monthly" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">Mensuel</button>
+            <button type="button" onclick="setAstrRepeat('custom')" data-r="custom" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">Perso.</button>
+          </div>
+          <!-- Options récurrence (cachées si none) -->
+          <div id="astrRecurOptions" style="display:none">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+              <div id="astrCustomIntervalWrap" style="display:none">
+                <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:3px">Toutes les N semaines</label>
+                <input type="number" id="astrRepeatN" value="4" min="1" max="52" oninput="updateAstrPreview()" style="width:100%;padding:6px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit;text-align:center">
+              </div>
+              <div>
+                <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:3px">Fin de récurrence</label>
+                <select id="astrEndMode" onchange="toggleAstrEndMode();updateAstrPreview()" style="width:100%;padding:6px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit;background:#fff">
+                  <option value="count">Après N occurrences</option>
+                  <option value="date">Jusqu'à une date</option>
+                  <option value="endofyear">Fin d'année</option>
+                </select>
+              </div>
+            </div>
+            <div id="astrEndCount" style="display:flex;align-items:center;gap:8px;font-size:12px">
+              <label style="color:var(--sub)">Nombre d'occurrences :</label>
+              <input type="number" id="astrRepeatCount" value="12" min="1" max="53" oninput="updateAstrPreview()" style="width:70px;padding:5px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;text-align:center">
+            </div>
+            <div id="astrEndDate" style="display:none;align-items:center;gap:8px;font-size:12px">
+              <label style="color:var(--sub)">Jusqu'au :</label>
+              <input type="date" id="astrRepeatUntil" oninput="updateAstrPreview()" style="padding:5px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit">
+            </div>
+          </div>
+        </div>
+        <!-- Note -->
+        <div style="margin-bottom:12px">
+          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">NOTE</label>
+          <input type="text" id="astrNote" placeholder="Ex: Astreinte 2026" oninput="updateAstrPreview()" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+        </div>
+        <!-- Aperçu -->
+        <div id="astrPreview" style="padding:10px;background:#fef9ee;border-radius:8px;border:1px solid #fcd34d;font-size:11px;color:#92400e"></div>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
+        <button onclick="closeAstreinte()" style="padding:8px 16px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Annuler</button>
+        <button onclick="saveAstreinte()" style="padding:8px 22px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⚡ Créer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Import Astreintes Excel -->
+  <div id="importAstrOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9310;align-items:center;justify-content:center" onclick="if(event.target===this)closeImportAstreinte()">
+    <div style="background:#fff;border-radius:14px;width:min(96vw,600px);max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.25);overflow:hidden">
+      <div style="background:#d97706;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div><div style="font-size:15px;font-weight:800">📥 Import planning d'astreintes</div>
+        <div style="font-size:11px;opacity:.8">Format : tableau Excel avec colonnes S1–S53 par technicien</div></div>
+        <button onclick="closeImportAstreinte()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;width:28px;height:28px;font-size:16px;cursor:pointer">✕</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:20px">
+        <div style="background:#fff8f3;border:1.5px solid #f0a080;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#7c3000">
+          <strong>Format attendu :</strong> Colonne A = Nom, Colonnes suivantes = S1 à S53.<br>
+          Si la cellule contient le nom du technicien → il est d'astreinte cette semaine.<br>
+          Plusieurs feuilles acceptées (une par année, ex: "ASTREINTES 2026").
+        </div>
+        <!-- Zone dépôt -->
+        <div id="iaDropZone" style="border:2px dashed #d97706;border-radius:12px;padding:28px;text-align:center;cursor:pointer;background:#fff8f3;transition:all .15s;margin-bottom:14px"
+          onclick="document.getElementById('iaFileInput').click()"
+          ondragover="event.preventDefault();this.style.background='#fde8d8'"
+          ondragleave="this.style.background='#fff8f3'"
+          ondrop="event.preventDefault();this.style.background='#fff8f3';handleImportAstrFile(event.dataTransfer.files[0])">
+          <div style="font-size:28px;margin-bottom:6px">📂</div>
+          <div style="font-size:13px;font-weight:700;color:#d97706">Glisser le fichier Excel ici</div>
+          <div style="font-size:11px;color:#999;margin-top:3px">ou cliquer pour choisir (.xlsx, .xls)</div>
+          <input type="file" id="iaFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleImportAstrFile(this.files[0])">
+        </div>
+        <!-- Filtre année -->
+        <div id="iaYearFilter" style="display:none;margin-bottom:12px">
+          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">ANNÉE À IMPORTER</label>
+          <div id="iaYearBtns" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        </div>
+        <!-- Options -->
+        <div id="iaOptions" style="display:none;margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer">
+            <input type="checkbox" id="iaSkipExist" checked style="accent-color:#d97706"> Ne pas dupliquer les astreintes existantes
+          </label>
+        </div>
+        <!-- Aperçu -->
+        <div id="iaPreview" style="display:none"></div>
+        <!-- Progression -->
+        <div id="iaProgress" style="display:none;margin-top:12px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px" id="iaProgressLbl">Import en cours…</div>
+          <div style="background:#f1f5f9;border-radius:6px;height:8px;overflow:hidden">
+            <div id="iaProgressBar" style="background:#d97706;height:100%;width:0%;transition:width .2s"></div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
+        <button onclick="closeImportAstreinte()" style="padding:8px 16px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Annuler</button>
+        <button id="iaImportBtn" onclick="doImportAstreinte()" style="display:none;padding:8px 22px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⚡ Importer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Modifier Astreinte -->
+  <div id="editAstrOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9320;align-items:center;justify-content:center" onclick="if(event.target===this)closeEditAstreinte()">
+    <div style="background:#fff;border-radius:14px;width:min(96vw,440px);box-shadow:0 16px 48px rgba(0,0,0,.25);overflow:hidden">
+      <div style="background:#d97706;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:15px;font-weight:800">⚡ Modifier l'astreinte</div>
+        <button onclick="closeEditAstreinte()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;width:28px;height:28px;font-size:16px;cursor:pointer">✕</button>
+      </div>
+      <div style="padding:20px">
+        <div id="eaInfo" style="background:#fef9ee;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:#92400e"></div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">RESSOURCE</label>
+          <select id="eaRes" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit;background:#fff"></select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">DÉBUT</label>
+            <input type="date" id="eaStart" style="width:100%;padding:7px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">FIN</label>
+            <input type="date" id="eaEnd" style="width:100%;padding:7px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+          </div>
+        </div>
+        <div style="margin-bottom:4px">
+          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">NOTE</label>
+          <input type="text" id="eaNote" style="width:100%;padding:7px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+        </div>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:space-between">
+        <button onclick="deleteAstreinte()" style="padding:8px 14px;background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🗑 Supprimer</button>
+        <div style="display:flex;gap:8px">
+          <button onclick="closeEditAstreinte()" style="padding:8px 14px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Annuler</button>
+          <button onclick="saveEditAstreinte()" style="padding:8px 18px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">💾 Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </html>
