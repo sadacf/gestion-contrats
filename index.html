@@ -2015,9 +2015,23 @@ function loadSheetJS(callback) {
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <button onclick="syncResiliesVersFirebase()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:700" title="Forcer la synchronisation vers Firebase">🔄 Sync</button>
+        <button onclick="openImportResiliesPanel()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:700" title="Importer des résiliés depuis un autre PC (coller le JSON)">📥 Importer</button>
+        <button onclick="exportResiliesJson()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:700" title="Exporter la liste locale en JSON (pour transférer vers un autre PC)">📤 Exporter</button>
         <button onclick="document.getElementById('resiliesModal').style.display='none'" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:16px">✕</button>
       </div>
     </div><!-- fin header resiliesModal -->
+    <div id="resiliesImportPanel" style="display:none;padding:16px 20px;background:#fffbeb;border-bottom:1px solid #fde68a">
+      <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:8px">📥 Importer des résiliés depuis un autre PC</div>
+      <div style="font-size:11.5px;color:#78350f;margin-bottom:10px">
+        Sur l'autre PC, ouvrez la liste des résiliés → bouton <strong>📤 Exporter</strong> → copiez le JSON → collez-le ici.
+      </div>
+      <textarea id="resiliesImportJson" rows="5" placeholder="Collez ici le JSON exporté depuis l'autre PC…"
+        style="width:100%;box-sizing:border-box;border:1px solid #fde68a;border-radius:6px;padding:8px;font-size:11px;font-family:monospace;resize:vertical;background:#fff"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button onclick="doImportResiliesJson()" style="background:#92400e;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer">✅ Fusionner et sauvegarder</button>
+        <button onclick="document.getElementById('resiliesImportPanel').style.display='none'" style="background:#f3f4f6;color:#374151;border:1px solid #e5e7eb;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer">Annuler</button>
+      </div>
+    </div>
     <div id="resiliesBody" style="max-height:70vh;overflow-y:auto;padding:0"></div>
   </div><!-- fin modal-box resiliesModal -->
 </div><!-- fin resiliesModal -->
@@ -2102,7 +2116,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/13-04-26-21:20';
+const APP_VERSION = 'V1/14-04-26-07:36';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5441,6 +5455,60 @@ function dupliquerContrat(id) {
   toast(`📋 "${r.Installation}" dupliquée`, 'success');
 }
 
+// ── Export résiliés en JSON (pour transférer vers un autre PC) ──────────────
+function exportResiliesJson() {
+  try {
+    const list = JSON.parse(localStorage.getItem('gestion_contrats_resilies') || '[]');
+    if (list.length === 0) { toast('Aucun résiliéà exporter sur ce PC', 'warning'); return; }
+    const json = JSON.stringify(list, null, 2);
+    // Copier dans le presse-papier
+    navigator.clipboard.writeText(json).then(() => {
+      toast(`📋 ${list.length} résiliés copiés dans le presse-papier`, 'success');
+    }).catch(() => {
+      // Fallback : ouvrir dans une nouvelle fenêtre
+      const w = window.open('', '_blank');
+      w.document.write('<pre style="font-size:11px;white-space:pre-wrap">' + json.replace(/</g,'&lt;') + '</pre>');
+      toast(`📋 ${list.length} résiliés — copiez depuis la fenêtre ouverte`, '');
+    });
+  } catch(e) { toast('Erreur export : ' + e.message, 'warning'); }
+}
+
+// ── Import résiliés depuis JSON (fusion) ─────────────────────────────────────
+function openImportResiliesPanel() {
+  const panel = document.getElementById('resiliesImportPanel');
+  if (panel) {
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    const ta = document.getElementById('resiliesImportJson');
+    if (ta) ta.value = '';
+  }
+}
+
+async function doImportResiliesJson() {
+  const ta = document.getElementById('resiliesImportJson');
+  const raw = (ta?.value || '').trim();
+  if (!raw) { toast('Aucun JSON collé', 'warning'); return; }
+  let imported;
+  try {
+    imported = JSON.parse(raw);
+    if (!Array.isArray(imported)) throw new Error('Format invalide — attendu un tableau JSON');
+  } catch(e) { toast('❌ JSON invalide : ' + e.message, 'warning'); return; }
+
+  // Fusionner avec la liste locale
+  const local = JSON.parse(localStorage.getItem('gestion_contrats_resilies') || '[]');
+  const map = {};
+  [...local, ...imported].forEach(r => {
+    const k = r._id || (r._resilieAt + '|' + r.Installation);
+    if (k) map[k] = r;
+  });
+  const merged = Object.values(map).sort((a,b) => new Date(b._resilieAt||0) - new Date(a._resilieAt||0));
+
+  // Sauvegarder et syncer Firebase
+  await saveResilies(merged);
+  document.getElementById('resiliesImportPanel').style.display = 'none';
+  toast(`✅ Fusion : ${merged.length} résiliés (${imported.length} importés, ${local.length} locaux)`, 'success');
+  openResiliesModal(); // refresh
+}
+
 async function syncResiliesVersFirebase() {
   toast('⏳ Synchronisation en cours...', '');
   const list = await getResilies();
@@ -5546,6 +5614,11 @@ async function openResiliesModal() {
   // Met à jour le sous-titre avec le nombre
   const subTitle = modal.querySelector('.resilies-subtitle');
   if (subTitle) subTitle.textContent = `${list.length} installation${list.length > 1 ? 's' : ''} résiliée${list.length > 1 ? 's' : ''}`;
+  // Afficher diagnostic source (localStorage vs Firebase) dans la console
+  const _localCount = (() => { try { return JSON.parse(localStorage.getItem(RESILIE_KEY)||'[]').length; } catch(e) { return 0; } })();
+  console.log(`[Résiliés] Affiché: ${list.length} | localStorage: ${_localCount}`);
+  // Mettre à jour le sous-titre avec la source
+  if (subTitle) subTitle.textContent = `${list.length} installation${list.length > 1 ? 's' : ''} résiliée${list.length > 1 ? 's' : ''} — localStorage: ${_localCount}`;
   if (list.length === 0) {
     body.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;font-size:13px">Aucune installation résiliée</div>';
   } else {
