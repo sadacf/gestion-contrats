@@ -1465,9 +1465,10 @@ function loadSheetJS(callback) {
           <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:3px 8px"><input type="checkbox" value="total"        checked onchange="renderEvolutionCharts()"> Total</label>
           <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:3px 8px"><input type="checkbox" value="detect"       checked onchange="renderEvolutionCharts()"> Détection</label>
           <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:3px 8px"><input type="checkbox" value="prot"         checked onchange="renderEvolutionCharts()"> Protection</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fff8f8;border:1px solid #fecdd3;border-radius:5px;padding:3px 8px"><input type="checkbox" value="retards"      checked onchange="renderEvolutionCharts()"> Retards VE</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fffbeb;border:1px solid #fde68a;border-radius:5px;padding:3px 8px"><input type="checkbox" value="q7"           checked onchange="renderEvolutionCharts()"> Q7 attente</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#f0fdf4;border:1px solid #86efac;border-radius:5px;padding:3px 8px"><input type="checkbox" value="rapport"      checked onchange="renderEvolutionCharts()"> Sans rapport</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fef3f2;border:1px solid #fca5a5;border-radius:5px;padding:3px 8px"><input type="checkbox" value="retards"      onchange="renderEvolutionCharts()"> Retards VE</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fffbeb;border:1px solid #fde68a;border-radius:5px;padding:3px 8px"><input type="checkbox" value="q7"           onchange="renderEvolutionCharts()"> Q7 attente</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#f0fdf4;border:1px solid #86efac;border-radius:5px;padding:3px 8px"><input type="checkbox" value="rapport"      onchange="renderEvolutionCharts()"> Sans rapport</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fef3f2;border:1px solid #fca5a5;border-radius:5px;padding:3px 8px;font-weight:700;border-width:2px"><input type="checkbox" value="suivi" checked onchange="renderEvolutionCharts()"> 🎯 Suivi terrain (combiné)</label>
           <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:5px;padding:3px 8px"><input type="checkbox" value="recond"       onchange="renderEvolutionCharts()"> Recond.</label>
           <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fef3f2;border:1px solid #fca5a5;border-radius:5px;padding:3px 8px"><input type="checkbox" value="v1"           onchange="renderEvolutionCharts()"> V1/M1</label>
           <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fef3f2;border:1px solid #fca5a5;border-radius:5px;padding:3px 8px"><input type="checkbox" value="v2"           onchange="renderEvolutionCharts()"> V2/M2</label>
@@ -1477,15 +1478,21 @@ function loadSheetJS(callback) {
         </div>
       </div>
 
-      <!-- Filtre technicien global -->
+      <!-- Filtre technicien + service global -->
       <div style="display:flex;flex-direction:column;gap:4px">
-        <label style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px">👤 Technicien (global)</label>
-        <div style="display:flex;align-items:center;gap:6px">
-          <select id="evolTechGlobal" onchange="renderEvolutionCharts()" style="border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px;min-width:160px">
-            <option value="">Tous les techniciens</option>
+        <label style="font-size:11px;font-weight:700;color:#e11d48;text-transform:uppercase;letter-spacing:.4px">🎯 Filtres globaux</label>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <select id="evolTechGlobal" onchange="renderEvolutionCharts()" style="border:2px solid #fca5a5;border-radius:6px;padding:4px 8px;font-size:12px;min-width:160px;font-weight:600">
+            <option value="">👤 Tous les techniciens</option>
           </select>
-          <button onclick="document.getElementById('evolTechGlobal').value='';renderEvolutionCharts()" title="Réinitialiser" style="border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;background:#f8fafc">↺</button>
+          <select id="evolServiceGlobal" onchange="renderEvolutionCharts()" style="border:2px solid #fca5a5;border-radius:6px;padding:4px 8px;font-size:12px;font-weight:600">
+            <option value="">📟🧯 Tous services</option>
+            <option value="DET">📟 Détection</option>
+            <option value="PROT">🧯 Protection</option>
+          </select>
+          <button onclick="document.getElementById('evolTechGlobal').value='';document.getElementById('evolServiceGlobal').value='';renderEvolutionCharts()" title="Réinitialiser les filtres" style="border:1px solid #fca5a5;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;background:#fff1f2;color:#e11d48">↺ Reset</button>
         </div>
+        <div style="font-size:10px;color:#94a3b8;font-style:italic">S'appliquent à tous les graphiques</div>
       </div>
 
       <!-- Bouton actualiser -->
@@ -1494,6 +1501,27 @@ function loadSheetJS(callback) {
 
     <!-- GRILLE GRAPHIQUES -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" id="evolutionCharts"></div>
+
+    <!-- SUIVI TERRAIN : Retards VE + Q7 + Sans rapport (pleine largeur, prominent) -->
+    <div id="suiviTerrainSection" style="margin-top:20px;display:none">
+      <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);border-top:3px solid #e11d48">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-size:13px;font-weight:800;color:var(--navy)">🎯 Suivi terrain</div>
+            <div style="font-size:11px;color:var(--sub);margin-top:2px">Installations en retard · Q7 non traités · Sans rapport — par mois planifié</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px">
+            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#e11d48;border-radius:2px"></span> VEs en retard</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#d97706;border-radius:2px"></span> Q7 non traités</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#16a34a;border-radius:2px"></span> Sans rapport</span>
+          </div>
+        </div>
+        <canvas id="evChart_suivi" height="130"></canvas>
+        <div style="margin-top:8px;font-size:10.5px;color:#94a3b8;font-style:italic">
+          Utilisez le filtre <strong>👤 Technicien</strong> ci-dessus pour visualiser un technicien en particulier. Cliquez sur la légende pour masquer une courbe.
+        </div>
+      </div>
+    </div>
 
     <!-- VOLUME CONTRATS : Total / Détection / Protection (pleine largeur) -->
     <div id="totalDetectProtSection" style="margin-top:20px;display:none">
@@ -2122,7 +2150,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/14-04-26-07:58';
+const APP_VERSION = 'V1/14-04-26-08:22';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -7523,7 +7551,7 @@ function getPeriodeLabels() {
 }
 
 // Calcule les stats pour un technicien donné ('' = tous)
-function computeMonthlyStatsPeriode(periodeLabels, techFilter) {
+function computeMonthlyStatsPeriode(periodeLabels, techFilter, serviceFilter) {
   return periodeLabels.map(({ month, year }) => {
     const endOfMonth = new Date(year, month, 0);
 
@@ -7538,6 +7566,10 @@ function computeMonthlyStatsPeriode(periodeLabels, techFilter) {
       if (isNaN(d)) return true;
       return d >= endOfMonth;
     });
+
+    // Filtre service (Détection / Protection)
+    if (serviceFilter === 'DET')  active = active.filter(r => r.Type_Contrat !== 'PROT');
+    if (serviceFilter === 'PROT') active = active.filter(r => r.Type_Contrat === 'PROT');
 
     // Filtre technicien pour indicateurs liés au tech
     const techActive = techFilter
@@ -7741,9 +7773,10 @@ function renderEvolutionCharts() {
 }
 
 function _drawEvolutionCharts() {
-  const periode     = getPeriodeLabels();
-  const labels      = periode.map(p => p.label);
-  const techGlobal  = document.getElementById('evolTechGlobal')?.value || '';
+  const periode       = getPeriodeLabels();
+  const labels        = periode.map(p => p.label);
+  const techGlobal    = document.getElementById('evolTechGlobal')?.value    || '';
+  const serviceGlobal = document.getElementById('evolServiceGlobal')?.value || '';
 
   // Récupère les indicateurs cochés
   const coches = {};
@@ -7763,7 +7796,7 @@ function _drawEvolutionCharts() {
 
   // Détruit les anciens graphiques de la grille non affichés
   // (les graphiques spéciaux pleine largeur sont gérés séparément)
-  const specialCharts = new Set(['evChart_totalDetectProt','evChart_archivage','evChart_connexions']);
+  const specialCharts = new Set(['evChart_suivi','evChart_totalDetectProt','evChart_archivage','evChart_connexions']);
   Object.keys(_evolutionCharts).forEach(id => {
     if (specialCharts.has(id)) return; // géré séparément
     if (!config.find(c => 'evChart_' + c.key === id)) {
@@ -7773,7 +7806,7 @@ function _drawEvolutionCharts() {
   });
 
   // Pré-calcule stats pour tech global
-  const statsGlobal = computeMonthlyStatsPeriode(periode, techGlobal);
+  const statsGlobal = computeMonthlyStatsPeriode(periode, techGlobal, serviceGlobal);
 
   // Liste des techs pour les selects par graphique
   const techList = [...new Set(db.flatMap(r =>
@@ -7811,9 +7844,37 @@ function _drawEvolutionCharts() {
   // Dessine chaque graphique mono-série
   config.forEach(c => {
     const techLocal = _evolTechPerChart[c.key] !== undefined ? _evolTechPerChart[c.key] : '';
-    const stats = techLocal !== '' ? computeMonthlyStatsPeriode(periode, techLocal) : statsGlobal;
+    const stats = techLocal !== '' ? computeMonthlyStatsPeriode(periode, techLocal, serviceGlobal) : statsGlobal;
     mkChartEvol('evChart_' + c.key, c.titre, stats.map(s => s[c.key]), labels, c.color);
   });
+
+  // ── Suivi terrain : Retards VE + Q7 + Sans rapport (combiné pleine largeur) ─
+  const showSuivi = coches['suivi'];
+  const suiviSection = document.getElementById('suiviTerrainSection');
+  if (suiviSection) suiviSection.style.display = showSuivi ? 'block' : 'none';
+  if (showSuivi) {
+    const mkSuivi = (label, key, color) => ({
+      label,
+      data:            statsGlobal.map(s => s[key]),
+      borderColor:     color,
+      backgroundColor: color + '18',
+      borderWidth:     2.5,
+      pointBackgroundColor: color,
+      pointRadius:     4,
+      fill:            true,
+      tension:         0.35
+    });
+    mkChartEvolMulti('evChart_suivi', [
+      mkSuivi('VEs en retard',    'retards', '#e11d48'),
+      mkSuivi('Q7 non traités',   'q7',      '#d97706'),
+      mkSuivi('Sans rapport',     'rapport', '#16a34a'),
+    ], labels);
+  } else {
+    if (_evolutionCharts['evChart_suivi']) {
+      _evolutionCharts['evChart_suivi'].destroy();
+      delete _evolutionCharts['evChart_suivi'];
+    }
+  }
 
   // ── Volume contrats : Total / Détection / Protection combinés ───────────
   const showTDP = coches['total'] || coches['detect'] || coches['prot'];
@@ -7892,12 +7953,13 @@ function _drawEvolutionCharts() {
 
 // Redessine un seul graphique après changement de son filtre tech
 function _redrawChart(key) {
-  const periode    = getPeriodeLabels();
-  const labels     = periode.map(p => p.label);
-  const techLocal  = _evolTechPerChart[key] !== undefined ? _evolTechPerChart[key] : '';
-  const techGlobal = document.getElementById('evolTechGlobal')?.value || '';
-  const tech       = techLocal !== '' ? techLocal : techGlobal;
-  const stats      = computeMonthlyStatsPeriode(periode, tech);
+  const periode       = getPeriodeLabels();
+  const labels        = periode.map(p => p.label);
+  const techLocal     = _evolTechPerChart[key] !== undefined ? _evolTechPerChart[key] : '';
+  const techGlobal    = document.getElementById('evolTechGlobal')?.value    || '';
+  const serviceGlobal = document.getElementById('evolServiceGlobal')?.value || '';
+  const tech          = techLocal !== '' ? techLocal : techGlobal;
+  const stats         = computeMonthlyStatsPeriode(periode, tech, serviceGlobal);
   const colorMap   = { total:'#1e40af', detect:'#3b82f6', prot:'#92400e', v1:'#f97316',
                         v2:'#ef4444', retards:'#e11d48', q7:'#d97706', rapport:'#16a34a',
                         recond:'#7c3aed', sansType:'#94a3b8',
