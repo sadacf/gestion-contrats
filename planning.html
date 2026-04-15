@@ -16,7 +16,7 @@
   --shadow-lg:0 8px 30px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
   --radius:10px;--radius-sm:7px;
   --c-ve1:#3b5bdb;--c-ve2:#0c8599;--c-dep:#e03131;
-  --c-mes:#2f9e44;--c-form:#7048e8;--c-autre:#f59f00;
+  --c-mes:#1a7bb8;--c-form:#7048e8;--c-autre:#f59f00;
   --accent-grd:linear-gradient(135deg,#3b5bdb,#7048e8);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -138,23 +138,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .gantt th.th-month-hdr{background:#e2e8f0;color:var(--navy);font-size:11px;font-weight:800;text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);}
 .gantt td.gd-sm{min-width:36px!important;padding:2px 1px;}
 .gev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
-.gev-sm{padding:1px 2px;border-radius:3px;margin-bottom:1px;font-size:7px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:2px;overflow:hidden;}
+.gev-sm{padding:1px 2px;border-radius:3px;margin-bottom:1px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:2px;overflow:hidden;}
 .gev-sm:hover{filter:brightness(.9);}
 .gantt th.th{color:var(--navy);}
 .gantt th.tod{background:var(--blue)!important;color:#fff!important;}
 .gantt th.weh{background:#f8fafc;color:#94a3b8;}
 .gantt th.ferh{background:repeating-linear-gradient(-45deg,rgba(253,230,138,.5) 0,rgba(253,230,138,.5) 5px,#f1f5f9 5px,#f1f5f9 10px)!important;}
 .gtc{padding:7px 10px;font-size:10px;font-weight:700;color:var(--navy);background:#f8fafc;border-right:2px solid #e2e8f0;border-bottom:1px solid var(--line);white-space:nowrap;width:120px;min-width:120px;max-width:120px;vertical-align:middle;overflow:hidden;}
-.gav{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:7px;font-weight:800;color:#fff;margin-right:5px;flex-shrink:0;vertical-align:middle;}
+.gav{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:800;color:#fff;margin-right:5px;flex-shrink:0;vertical-align:middle;}
 .gsvc{font-size:8px;color:var(--sub);display:block;margin-top:1px;margin-left:32px;}
 .ggrp td{background:#f1f5f9!important;font-size:10px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.3px;padding:4px 12px;cursor:default!important;border-top:2px solid #e2e8f0!important;border-bottom:1px solid var(--line)!important;}
-.gantt td.gd{padding:3px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:top;cursor:pointer;min-width:0;overflow:hidden;min-height:55px;}
+.gantt td.gd{padding:3px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:top;cursor:pointer;min-width:0;overflow:hidden;min-height:55px;position:relative;}
 .gantt td.gd:hover{background:#f8fafc;}
 .gantt td.gd.tod{background:#eff6ff;border-left:2px solid var(--blue)!important;}
 .gantt td.gd.tod:hover{background:#dbeafe!important;}
 .gantt td.gd.wec{background:#fafafa;cursor:default;}
 .gantt td.gd.ferc{background:repeating-linear-gradient(-45deg,rgba(253,230,138,.3) 0,rgba(253,230,138,.3) 5px,rgba(255,255,255,.8) 5px,rgba(255,255,255,.8) 10px)!important;cursor:default;}
-.gev{display:flex;flex-direction:column;justify-content:flex-start;gap:1px;padding:3px 5px 3px 22px;border-radius:3px;font-size:10px;font-weight:600;cursor:pointer;overflow:hidden;min-width:0;min-height:32px;flex:1;position:relative;}
+.gev{display:flex;flex-direction:column;justify-content:flex-start;gap:1px;padding:3px 4px 3px 4px;border-radius:3px;font-size:10px;font-weight:600;cursor:pointer;overflow:hidden;min-width:0;min-height:32px;flex:1;position:relative;}
 /* Multi-jours : bandeau continu sans séparation */
 .gev.multi-first{border-radius:4px 0 0 4px;margin-right:-3px;z-index:2;padding-right:3px;}
 .gev.multi-mid{border-radius:0;margin-right:-3px;margin-left:0;border-left:none!important;padding-left:4px;z-index:1;}
@@ -611,7 +611,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
 
 
 /* Numéro de semaine */
-.week-num{padding:1px 1px;text-align:center;font-size:7px;font-weight:800;color:#94a3b8;background:#f8fafc;border-right:2px solid var(--line);border-bottom:1px solid var(--line);vertical-align:top;cursor:default;user-select:none;}
+.week-num{padding:1px 1px;text-align:center;font-size:10px;font-weight:800;color:#94a3b8;background:#f8fafc;border-right:2px solid var(--line);border-bottom:1px solid var(--line);vertical-align:top;cursor:default;user-select:none;}
 .week-num-hdr{padding:5px 2px;text-align:center;font-size:8px;font-weight:800;color:#94a3b8;background:#f1f5f9;border-right:2px solid var(--line);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:11;}
 
 /* ── INFOBULLE ÉVÉNEMENT ─────────────────────────────────────── */
@@ -658,6 +658,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
 .gantt.month4-view .gev{
   margin-bottom:3px;
   border-radius:4px!important;
+  padding:2px 3px 2px 4px!important;
 }
 /* RDV multi-jours : rectangle plein */
 .gev-span{
@@ -1014,7 +1015,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
                 <button type="button" onclick="setApSuivi('')" data-suivi="" class="ap-suivi-btn on" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:12px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">— Aucun</button>
                 <button type="button" onclick="setApSuivi('en_cours')" data-suivi="en_cours" class="ap-suivi-btn" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:12px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">🔄 En cours</button>
                 <button type="button" onclick="setApSuivi('presentation')" data-suivi="presentation" class="ap-suivi-btn" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:12px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">📊 Présentation</button>
-                <button type="button" onclick="setApSuivi('planifie')" data-suivi="planifie" class="ap-suivi-btn" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:12px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">📅 Planifié</button>
+                <button type="button" onclick="setApSuivi('planifie')" data-suivi="planifie" class="ap-suivi-btn" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:12px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">🔴 Non confirmé</button>
                 <button type="button" onclick="setApSuivi('devis_faire')" data-suivi="devis_faire" class="ap-suivi-btn" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:12px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">💶 Devis à faire</button>
                 <button type="button" onclick="setApSuivi('devis_envoye')" data-suivi="devis_envoye" class="ap-suivi-btn" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:12px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">📤 Devis envoyé</button>
                 <button type="button" onclick="setApSuivi('attente_reponse')" data-suivi="attente_reponse" class="ap-suivi-btn" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:12px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">⏳ En attente</button>
@@ -1197,8 +1198,8 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
                   </div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;margin-left:38px;" id="mapPtoC">
-                  <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bbf7d0"><span style="color:#d97706">📅 Planifié</span> -> 🟡 Jaune</div>
-                  <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bbf7d0"><span style="color:#2563eb">✅ Confirmé</span> -> 🟠 Orange</div>
+                  <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bbf7d0"><span style="color:#d97706">🔴 Non confirmé</span> -> 🟡 Jaune</div>
+                  <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bbf7d0"><span style="color:#2563eb"> Confirmé</span> -> 🟠 Orange</div>
                   <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bbf7d0"><span style="color:#16a34a">🔵 Réalisé</span> -> 🟢 Vert</div>
                   <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bbf7d0"><span style="color:#dc2626">❌ Annulé</span> -> 🌸 Rose</div>
                   <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bbf7d0"><span style="color:#dc2626">🔴 Non confirmé</span> -> 💗 Rose clair</div>
@@ -1216,8 +1217,8 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
                   </div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;margin-left:38px;">
-                  <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bfdbfe">🟡 Jaune -> <span style="color:#d97706">📅 Planifié</span></div>
-                  <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bfdbfe">🟠 Orange -> <span style="color:#2563eb">✅ Confirmé</span></div>
+                  <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bfdbfe">🟡 Jaune -> <span style="color:#d97706">🔴 Non confirmé</span></div>
+                  <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bfdbfe">🟠 Orange -> <span style="color:#2563eb"> Confirmé</span></div>
                   <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bfdbfe">🟢 Vert -> <span style="color:#16a34a">🔵 Réalisé</span></div>
                   <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bfdbfe">🔵 Bleu (archivé) -> <span style="color:#16a34a">🔵 Réalisé</span></div>
                   <div style="padding:5px 8px;background:#fff;border-radius:6px;border:1px solid #bfdbfe">🌸 Rose -> <span style="color:#dc2626">❌ Annulé</span></div>
@@ -1250,7 +1251,14 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
             <div class="addrow">
               <input class="ri" id="tNewLabel" placeholder="Nom du type (ex: Réception)" style="flex:1;min-width:110px" maxlength="30">
               <input class="ri" id="tNewIcon" placeholder="🔖" style="width:52px;text-align:center;font-size:16px" maxlength="2">
-              <input type="color" id="tNewColor" value="#0891b2" style="width:32px;height:32px;border:2px solid var(--line);border-radius:5px;cursor:pointer;padding:2px;">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                <input type="color" id="tNewColor" value="#0891b2" title="Couleur texte/bord" style="width:32px;height:28px;border:1.5px solid var(--line);border-radius:4px;cursor:pointer;padding:1px;">
+                <span style="font-size:10px;color:var(--sub)">Texte</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                <input type="color" id="tNewBg" value="#ffffff" title="Couleur de fond" style="width:32px;height:28px;border:1.5px solid var(--line);border-radius:4px;cursor:pointer;padding:1px;">
+                <span style="font-size:10px;color:var(--sub)">Fond</span>
+              </div>
               <button class="rbtn" onclick="addType()">Ajouter</button>
             </div>
           </div>
@@ -1294,11 +1302,25 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
 
       <!-- 1. Installation -->
       <div class="evp-row">
-        <div class="evp-lbl">Installation</div>
+        <div class="evp-lbl" style="font-size:10px;line-height:1.3">Installation<br>sous contrat</div>
         <div>
-          <input class="evp-inp" type="text" id="evInst" placeholder="Installation ou titre libre…" list="dlInst" oninput="onInstInput()">
+          <input class="evp-inp" type="text" id="evInst" placeholder="Rechercher dans Gestion Contrats…" list="dlInst" oninput="onInstInput()">
           <datalist id="dlInst"></datalist>
           <div class="iinfo" id="iInfo"></div>
+        </div>
+      </div>
+
+      <!-- Installation hors contrat -->
+      <div class="evp-row" id="evHcRow">
+        <div class="evp-lbl" style="font-size:10px;line-height:1.3">Installation<br><span style="font-style:italic;color:var(--sub)">(Hors contrat)</span></div>
+        <div style="width:100%">
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="evHcSelect" onchange="onHcSelect()" style="flex:1;padding:6px 8px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit;background:#fff">
+              <option value="">-- Aucune --</option>
+            </select>
+            <button type="button" onclick="openHcEdit()" title="Ajouter / Modifier" style="padding:5px 10px;background:#f1f5f9;border:1.5px solid var(--line);border-radius:7px;font-size:13px;cursor:pointer">✏️</button>
+          </div>
+          <div id="evHcName" style="display:none;margin-top:4px;font-size:11px;color:var(--sub);font-style:italic"></div>
         </div>
       </div>
 
@@ -1322,7 +1344,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
         <div class="evp-lbl">État RDV</div>
         <select class="evp-select" id="evStat">
           <option value="non_confirme" selected>🔴 1 - Non confirmé</option>
-          <option value="planifie">📅 Planifié</option>
+          
           <option value="confirme">✅ 2 - Confirmé</option>
           <option value="attente">🟣 3 - Attente confirmation</option>
           <option value="realise">🔵 4 - Réalisé</option>
@@ -1611,32 +1633,32 @@ const SERVICES=['Détection','Protection','Admin','Direction'];
 const TC=['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#0891b2','#db2777','#0f766e','#92400e','#1e40af','#065f46','#831843'];
 // Types par défaut - peuvent être étendus par l'utilisateur
 const TM_DEFAULT={
-  ve1:   {label:'VE1',        icon:'🔥',color:'var(--c-ve1)',bg:'#dbeafe', locked:true},
-  ve2:   {label:'VE2',        icon:'🔥',color:'var(--c-ve2)',bg:'#e0f2fe', locked:true},
-  dep:   {label:'Dépannage',  icon:'🔧',color:'var(--c-dep)',bg:'#fee2e2', locked:true},
-  mes:   {label:'MES',        icon:'⚡',color:'var(--c-mes)',bg:'#dcfce7', locked:true},
-  annuelle:{label:'Annuelle', icon:'📅',color:'#7c3aed',   bg:'#ede9fe', locked:true},
-  prot:  {label:'Protection', icon:'🚿',color:'#0369a1',   bg:'#e0f2fe', locked:true},
-  form:  {label:'Formation',  icon:'🎓',color:'var(--c-form)',bg:'#f5f3ff',locked:true},
-  rec:   {label:'Réception',  icon:'📦',color:'#0891b2',   bg:'#e0f7fa', locked:true},
-  astreinte:{label:'Astreinte',icon:'🔔',color:'#d97706',bg:'#fef3c7',locked:true},
-  autre: {label:'Autre',      icon:'📌',color:'var(--c-autre)',bg:'#fef3c7',locked:true},
+  ve1:   {label:'VE1',        icon:'🔥',color:'var(--c-ve1)',bg:'#ffffff', locked:true},
+  ve2:   {label:'VE2',        icon:'🔥',color:'var(--c-ve2)',bg:'#ffffff', locked:true},
+  dep:   {label:'Dépannage',  icon:'🔧',color:'var(--c-dep)',bg:'#ffffff', locked:true},
+  mes:   {label:'MES',        icon:'⚡',color:'#1a7bb8',    bg:'#ffffff', locked:true},
+  annuelle:{label:'Annuelle', icon:'📅',color:'#7c3aed',    bg:'#ffffff', locked:true},
+  prot:  {label:'Protection', icon:'🚿',color:'#0369a1',    bg:'#ffffff', locked:true},
+  form:  {label:'Formation',  icon:'🎓',color:'var(--c-form)',bg:'#ffffff',locked:true},
+  rec:   {label:'Réception',  icon:'📦',color:'#0891b2',    bg:'#ffffff', locked:true},
+  astreinte:{label:'Astreinte',icon:'🔔',color:'#d97706',   bg:'#fef3c7', locked:true},
+  autre: {label:'Autre',      icon:'📌',color:'var(--c-autre)',bg:'#ffffff',locked:true},
 };
 let TM={...TM_DEFAULT};  // peut être enrichi depuis Firebase
 let _typeOrder=[];  // ordre des types custom (ids)
-const SIC={planifie:'📅',confirme:'✅',realise:'🔵',annule:'❌',non_confirme:'🔴',attente:'🟣',a_deplacer:'🟠'};
+const SIC={non_confirme:'🔴',confirme:'',realise:'🔵',annule:'❌',attente:'🟣',a_deplacer:'🟠'};
 // Couleurs de fond des événements selon leur état RDV
-const PLANNING_TO_VE={'planifie':'FFFF00','confirme':'FFC000','realise':'92D050','annule':'FF00FF','non_confirme':'FFCCFF','attente':'FFC000','a_deplacer':'FFFF00'};
-const VE_TO_PLANNING={'FFFF00':'planifie','FFC000':'confirme','92D050':'realise','00B0F0':'realise','FF00FF':'annule','FFCCFF':'non_confirme'};
+const PLANNING_TO_VE={'non_confirme':'FFFF00','confirme':'FFC000','realise':'92D050','annule':'FF00FF','non_confirme':'FFCCFF','attente':'FFC000','a_deplacer':'FFFF00'};
+const VE_TO_PLANNING={'FFFF00':'non_confirme','FFC000':'confirme','92D050':'realise','00B0F0':'realise','FF00FF':'annule','FFCCFF':'non_confirme'};
 
 let STATE_COLORS={
-  '':null, // pas d'override
-  non_confirme:{bg:'#fee2e2',border:'#dc2626',text:'#991b1b'},
-  confirme:    {bg:'#f1f5f9',border:'#111827',text:'#111827'},
-  attente:     {bg:'#faf5ff',border:'#a855f7',text:'#6b21a8'},
-  realise:     {bg:'#dcfce7',border:'#16a34a',text:'#14532d'},
-  annule:      {bg:'#fefce8',border:'#ca8a04',text:'#713f12'},
-  a_deplacer:  {bg:'#fff7ed',border:'#ea580c',text:'#7c2d12'},
+  '':null,
+  non_confirme:{bg:'#ffffff',border:'#dc2626',text:'#991b1b'},
+  confirme:    {bg:'#ffffff',border:'#16a34a',text:'#166534'},
+  attente:     {bg:'#ffffff',border:'#a855f7',text:'#6b21a8'},
+  realise:     {bg:'#ffffff',border:'#16a34a',text:'#14532d'},
+  annule:      {bg:'#ffffff',border:'#ca8a04',text:'#713f12'},
+  a_deplacer:  {bg:'#ffffff',border:'#ea580c',text:'#7c2d12'},
 };
 let _db=null,_lib=null;
 let _contrats=[],_fiches=[],_events=[];
@@ -1683,11 +1705,11 @@ function doSearch(q){
   matches.forEach(e=>{
     const tm=TM[e.type]||TM.autre;
     const sc=STATE_COLORS[e.rdvState||''];
-    const bg=sc?sc.bg:tm.bg, cl2=sc?sc.text:tm.color, bd2=sc?sc.border:(rColor(e.tech)||tm.color);
+    const bg=tm.bg, cl2='#000', bd2=sc?sc.border:(rColor(e.tech)||tm.color);
     const dur=e.duration?`${e.duration}h`:(e.startTime&&e.endTime?`${e.startTime.replace(':','h')}-${e.endTime.replace(':','h')}`:'');
     const dEnd=e.dateEnd&&e.dateEnd>e.date?` → ${dfr2(e.dateEnd)}`:'';
     tableRows+=`<tr class="sr-row" onclick="searchGo('${e.date}','${esc(e.tech||'')}','${esc(e._fsId||e._id||'')}');closeSearch()" style="cursor:pointer;border-bottom:1px solid var(--line)">
-      <td style="padding:7px 10px;white-space:nowrap"><div style="display:inline-flex;align-items:center;gap:4px;background:${bg};color:${cl2};border-left:3px solid ${bd2};padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700">${tm.icon} ${tm.label}</div></td>
+      <td style="padding:7px 10px;white-space:nowrap"><div style="display:inline-flex;align-items:center;gap:4px;background:${bg};color:#000;border-left:3px solid ${bd2};padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700">${tm.icon} ${tm.label}</div></td>
       <td style="padding:7px 10px;font-size:12px;font-weight:700;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.title)}</td>
       <td style="padding:7px 10px;font-size:11px;color:var(--sub);white-space:nowrap">${esc(e.tech||'')}</td>
       <td style="padding:7px 10px;font-size:11px;color:var(--navy);white-space:nowrap;font-weight:600">${dfr2(e.date)}${dEnd}</td>
@@ -1890,6 +1912,13 @@ function watchEv(){
           TM[t.id]={label:t.label,icon,color:t.color||'#64748b',bg:t.bg||'#f1f5f9'};
         });
         if(tc.typeOrder) _typeOrder=tc.typeOrder;
+      }
+      // Charger les couleurs personnalisées des types locked
+      const lc=cfg.find(x=>x._lockedColors);
+      if(lc&&lc.colors){
+        Object.entries(lc.colors).forEach(([k,c])=>{
+          if(TM[k]){TM[k].color=c.color||TM[k].color;TM[k].bg=c.bg||TM[k].bg;}
+        });
       }
     });
 
@@ -2446,7 +2475,7 @@ for(let i=0;i<dow;i++){
   if(wn!==lastWeekNum){h+=`<div class="week-num">${wn}</div>`;lastWeekNum=wn;}
   h+=`<div class="cday other"><div class="cdnum">${d.getDate()}</div></div>`;
 }let sp=0;for(let i=0;i<dow;i++){const d=new Date(y,mo,1-dow+i);if(_showWE||(d.getDay()!==0&&d.getDay()!==6))sp++;}let mc=0;for(let day=1;day<=dim;day++){const d=new Date(y,mo,day),key=dk(d),dow2=d.getDay();if(!_showWE&&(dow2===0||dow2===6))continue;mc++;
-    const wn2=isoWeek(d);if(wn2!==lastWeekNum){h+=`<div class="week-num">${wn2}</div>`;lastWeekNum=wn2;}const isT=d.getTime()===today.getTime(),isWE=dow2===0||dow2===6,isFr=isFer(key),isVS=isVacSco(key);let cls='cday'+(isT?' today':'')+(isWE?' we':'')+(isFr?' ferie':'')+(isVS?' vacsco':'');const de=bd[key]||[];const MAX=3;let ev=de.slice(0,MAX).map(e=>{const tm=TM[e.type]||TM.autre,tc=rColor(e.tech);const sc2=STATE_COLORS[e.rdvState||''];const bg2=sc2?sc2.bg:tm.bg,cl2=sc2?sc2.text:tm.color,bd2=sc2?sc2.border:tc;const eid2=esc(e._id);const tr2=fmtTimeRange(e.startTime,e.duration);const isVE2=e.isVE;const dragCls=isVE2?'':' draggable';return`<div class="cev${dragCls}" data-evid="${eid2}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg2};color:${cl2};border-left:3px solid ${bd2}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" ><span style="font-size:9px;margin-right:2px;opacity:.9">${tm.icon}</span><span style="font-size:9px;font-weight:800;margin-right:3px;opacity:.85">${tm.label}</span>${tr2?`<span style="font-size:9px;opacity:.7;margin-right:2px">${tr2}</span>`:''}<span class="evdot" style="background:${bd2}"></span>${esc(e.title)}</div>`;}).join('');if(de.length>MAX)ev+=`<div class="cmore" onclick="event.stopPropagation()">+${de.length-MAX}</div>`;const fl2=isFr?`<span class="fblbl">${esc(ferLbl(key).slice(0,8))}</span>`:(isVS?`<span class="vacsco-lbl">${esc(vacScoLbl(key).slice(0,10))}</span>`:'');h+=`<div class="${cls}" data-date="${key}" onclick="openNewEvent('${key}',null)" ondragover="calDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="calDrop(event,this)"><div style="display:flex;align-items:center;flex-wrap:wrap"><span class="cdnum">${day}</span>${fl2}</div>${ev}</div>`;}const total=sp+mc;const rem=total%cols===0?0:cols-(total%cols);let filled=0;for(let i=1;filled<rem;i++){const d=new Date(y,mo+1,i);if(!_showWE&&(d.getDay()===0||d.getDay()===6))continue;const wn3=isoWeek(d);if(wn3!==lastWeekNum){h+=`<div class="week-num">${wn3}</div>`;lastWeekNum=wn3;}h+=`<div class="cday other"><div class="cdnum">${d.getDate()}</div></div>`;filled++;}grid.innerHTML=h;
+    const wn2=isoWeek(d);if(wn2!==lastWeekNum){h+=`<div class="week-num">${wn2}</div>`;lastWeekNum=wn2;}const isT=d.getTime()===today.getTime(),isWE=dow2===0||dow2===6,isFr=isFer(key),isVS=isVacSco(key);let cls='cday'+(isT?' today':'')+(isWE?' we':'')+(isFr?' ferie':'')+(isVS?' vacsco':'');const de=bd[key]||[];const MAX=3;let ev=de.slice(0,MAX).map(e=>{const tm=TM[e.type]||TM.autre,tc=rColor(e.tech);const sc2=STATE_COLORS[e.rdvState||''];const bg2=tm.bg,cl2='#000',bd2=sc2?sc2.border:tc;const eid2=esc(e._id);const tr2=fmtTimeRange(e.startTime,e.duration);const isVE2=e.isVE;const dragCls=isVE2?'':' draggable';return`<div class="cev${dragCls}" data-evid="${eid2}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg2};color:#000;border-left:3px solid ${bd2}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" ><span style="font-size:9px;margin-right:2px;opacity:.9">${tm.icon}</span><span style="font-size:9px;font-weight:800;margin-right:3px;opacity:.85">${tm.label}</span>${tr2?`<span style="font-size:9px;opacity:.7;margin-right:2px">${tr2}</span>`:''}<span class="evdot" style="background:${bd2}"></span>${esc(e.title)}</div>`;}).join('');if(de.length>MAX)ev+=`<div class="cmore" onclick="event.stopPropagation()">+${de.length-MAX}</div>`;const fl2=isFr?`<span class="fblbl">${esc(ferLbl(key).slice(0,8))}</span>`:(isVS?`<span class="vacsco-lbl">${esc(vacScoLbl(key).slice(0,10))}</span>`:'');h+=`<div class="${cls}" data-date="${key}" onclick="openNewEvent('${key}',null)" ondragover="calDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="calDrop(event,this)"><div style="display:flex;align-items:center;flex-wrap:wrap"><span class="cdnum">${day}</span>${fl2}</div>${ev}</div>`;}const total=sp+mc;const rem=total%cols===0?0:cols-(total%cols);let filled=0;for(let i=1;filled<rem;i++){const d=new Date(y,mo+1,i);if(!_showWE&&(d.getDay()===0||d.getDay()===6))continue;const wn3=isoWeek(d);if(wn3!==lastWeekNum){h+=`<div class="week-num">${wn3}</div>`;lastWeekNum=wn3;}h+=`<div class="cday other"><div class="cdnum">${d.getDate()}</div></div>`;filled++;}grid.innerHTML=h;
   // Calculer le nombre de lignes et fixer grid-template-rows pour remplir l'écran
   const totalCells=startPad+mainCount+filled;
   const nRows=Math.ceil(totalCells/cols)+1; // +1 pour l'en-tête
@@ -2528,15 +2557,15 @@ function renderMonthGantt(){
         de.forEach(e=>{
           const tm=TM[e.type]||TM.autre;
           const sc=STATE_COLORS[e.rdvState||''];
-          const bg2=sc?sc.bg:tm.bg, cl2=sc?sc.text:tm.color, bd2=sc?sc.border:tc;
+          const bg2=tm.bg, cl2='#000', bd2=sc?sc.border:tc;
           const eid=esc(e._id);
           const tr2=e.startTime?e.startTime.replace(':','h')+(e.endTime?'-'+e.endTime.replace(':','h'):''):'';
           const typesLabel=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):(tm.label);
           h+=`<div data-evid="${eid}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`}
             onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)"
             oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)"
-            style="background:${bg2};color:${cl2};border-left:2px solid ${bd2};border-radius:2px;padding:1px 3px;font-size:9px;font-weight:600;margin-bottom:1px;overflow:hidden;cursor:pointer;white-space:nowrap;text-overflow:ellipsis;line-height:1.3">
-            <span style="font-size:8px;opacity:.85">${tm.icon} ${typesLabel}</span>${tr2?`<span style="opacity:.7;font-size:8px"> ${tr2}</span>`:''}<br>
+            style="background:${bg2};color:#000;border-left:2px solid ${bd2};border-radius:2px;padding:1px 3px;font-size:9px;font-weight:600;margin-bottom:1px;overflow:hidden;cursor:pointer;white-space:nowrap;text-overflow:ellipsis;line-height:1.3">
+            <span style="font-size:10px;opacity:.85">${tm.icon} ${typesLabel}</span>${tr2?`<span style="opacity:.7;font-size:8px"> ${tr2}</span>`:''}<br>
             <span style="font-weight:700">${esc(e.title||'')}</span>
           </div>`;
         });
@@ -2715,7 +2744,7 @@ days.forEach((d,di)=>{const key=dk(d),isT=d.getTime()===today.getTime(),isWE=d.g
   _daySpans.forEach(sp=>{
     const e=sp.ev;const tm=TM[e.type]||TM.autre;
     const sc3=STATE_COLORS[e.rdvState||''];
-    const bg3=sc3?sc3.bg:tm.bg,cl3=sc3?sc3.text:tm.color,bd3=sc3?sc3.border:tc;
+    const bg3=tm.bg,cl3='#000',bd3=sc3?sc3.border:tc;
     const tr3=e.startTime&&e.endTime?e.startTime.replace(':','h')+'-'+e.endTime.replace(':','h'):(e.startTime?e.startTime.replace(':','h'):'');
     const eid3=esc(e._id);
     const _isConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));
@@ -2727,18 +2756,18 @@ days.forEach((d,di)=>{const key=dk(d),isT=d.getTime()===today.getTime(),isWE=d.g
     if(_spanCompact){
       // Même format que les événements simples en vue compacte
       const _abbr2=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label[0]).join(''):tm.label.slice(0,3);
-      _spanHtml+=`<div class="gev gev-span${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-top:3px solid ${bd3};border-radius:2px;padding:1px 0;margin-bottom:1px;width:100%;display:block;overflow:hidden;cursor:pointer" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" data-tip="1"${e.note?' — '+esc(e.note):''}"><div style="font-size:7px;font-weight:800;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px;opacity:.9">${_abbr2}</div><div style="font-size:7px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px">${esc(e.title)}</div>${e.note?`<div style="width:6px;height:6px;border-radius:50%;background:#f59f00;margin:1px auto"></div>`:''}</div>`;
+      _spanHtml+=`<div class="gev gev-span${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:#000;border-top:3px solid ${bd3};border-radius:2px;padding:1px 0;margin-bottom:1px;width:100%;display:block;overflow:hidden;cursor:pointer" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" data-tip="1"${e.note?' — '+esc(e.note):''}"><div style="font-size:10px;font-weight:800;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px;opacity:.9">${_abbr2}</div><div style="font-size:10px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px">${esc(e.title)}</div>${e.note?`<div style="width:6px;height:6px;border-radius:50%;background:#f59f00;margin:1px auto"></div>`:''}</div>`;
     } else {
-      _spanHtml+=`<div class="gev gev-span${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:3px solid ${bd3};border-radius:4px;padding:2px 5px;margin-bottom:2px;display:block;width:100%;box-sizing:border-box" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)"><div style="font-size:8px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="font-style:italic;font-weight:800;opacity:.9">${_tls}</span> ${esc(e.title)}${tr3?` <span style="font-size:8px;opacity:.8">${tr3}</span>`:''}<span style="font-size:8px;background:rgba(0,0,0,.18);border-radius:8px;padding:0 4px;margin-left:3px;font-weight:800">${workDaysLabel(e._origDates||[])}</span>${e.note?`<div style="font-size:9px;background:rgba(253,230,138,.85);color:#92400e;border-radius:2px;padding:0 3px;margin-top:2px">📌 ${esc(e.note)}</div>`:''}</div></div>`;
+      _spanHtml+=`<div class="gev gev-span${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:#000;border-left:3px solid ${bd3};border-radius:4px;padding:2px 5px;margin-bottom:2px;display:block;width:100%;box-sizing:border-box" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)"><div style="font-size:11px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="font-style:italic;font-weight:800;opacity:.9">${_tls}</span> <strong>${esc(e.title)}</strong>${tr3?` <span style="font-size:10px;opacity:.8">${tr3}</span>`:''}<span style="font-size:8px;background:rgba(0,0,0,.18);border-radius:8px;padding:0 4px;margin-left:3px;font-weight:800">${workDaysLabel(e._origDates||[])}</span>${e.note?`<div style="font-size:9px;color:#000;padding:0 3px;margin-top:2px">📌 ${esc(e.note)}</div>`:''}</div></div>`;
     }
   });
-  const ev=_deSlice.map(e=>{const tm=TM[e.type]||TM.autre;const sc3=STATE_COLORS[e.rdvState||''];const bg3=sc3?sc3.bg:tm.bg,cl3=sc3?sc3.text:tm.color,bd3=sc3?sc3.border:tc;const tr3=e.startTime&&e.endTime?e.startTime.replace(':','h')+'-'+e.endTime.replace(':','h'):(e.startTime?e.startTime.replace(':','h'):'');const eid3=esc(e._id);const durH=e.duration||(e.startTime&&e.endTime?(()=>{const[hs2,ms3]=(e.startTime||'08:00').split(':').map(Number);const[he2,me2]=(e.endTime||'12:00').split(':').map(Number);return Math.round((he2*60+me2-hs2*60-ms3)/60*10)/10;})():null);const durLbl=durH!=null?(durH<1?Math.round(durH*60)+'m':(Number.isInteger(durH)?durH+'h':durH.toString().replace('.',',')+'h')):'';const multiCls=e.isMultiDay?(e.isFirstDay?'multi-first':e.isLastDay?'multi-last':'multi-mid'):'';const _isConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));
+  const ev=_deSlice.map(e=>{const tm=TM[e.type]||TM.autre;const sc3=STATE_COLORS[e.rdvState||''];const bg3=tm.bg,cl3='#000',bd3=sc3?sc3.border:tc;const tr3=e.startTime&&e.endTime?e.startTime.replace(':','h')+'-'+e.endTime.replace(':','h'):(e.startTime?e.startTime.replace(':','h'):'');const eid3=esc(e._id);const durH=e.duration||(e.startTime&&e.endTime?(()=>{const[hs2,ms3]=(e.startTime||'08:00').split(':').map(Number);const[he2,me2]=(e.endTime||'12:00').split(':').map(Number);return Math.round((he2*60+me2-hs2*60-ms3)/60*10)/10;})():null);const durLbl=durH!=null?(durH<1?Math.round(durH*60)+'m':(Number.isInteger(durH)?durH+'h':durH.toString().replace('.',',')+'h')):'';const multiCls=e.isMultiDay?(e.isFirstDay?'multi-first':e.isLastDay?'multi-last':'multi-mid'):'';const _isConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));
     const _isAstreinte=e.type==='astreinte'||e.types?.includes('astreinte');const borderL=e.isMultiDay&&!e.isFirstDay?'none':('3px solid '+bd3);let dayIndicator='';if(e.isMultiDay&&e._origDates){dayIndicator=`<span style="font-size:8px;background:rgba(0,0,0,.15);border-radius:8px;padding:0 4px;margin-left:3px;font-weight:700">${e._dayIdx+1}/${workDaysLabel(e._origDates)}</span>`;}else if(e.isMultiDay){const tag=e.isFirstDay?'1er':e.isLastDay?'fin':'';dayIndicator=tag?`<span style="font-size:8px;background:rgba(0,0,0,.15);border-radius:8px;padding:0 4px;margin-left:3px">${tag}</span>`:'';}if(_view==='bimonth'||_view==='quarter'){
     // Vue très compacte : bandeau coloré + abréviation type
     const _abbr=(e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label[0]).join(''):tm.label.slice(0,3));
     const _isConge2=_isConge;
-    return`<div class="gev${_isConge2?' gev-hatch':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-top:3px solid ${bd3};border-radius:2px;padding:1px 0;margin-bottom:1px;width:100%;display:block;overflow:hidden;cursor:pointer" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" data-evid="${eid3}" data-tip="1"${e.note?' — '+esc(e.note):''}"><div style="font-size:7px;font-weight:800;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px;opacity:.9">${_abbr}</div><div style="font-size:7px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px">${esc(e.title)}</div>${e.note?`<div style="width:6px;height:6px;border-radius:50%;background:#f59f00;margin:1px auto"></div>`:''}</div>`;}
-  if(_view==='month4'){const _tl4=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):tm.label;return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:${borderL};padding:2px 3px;margin-bottom:1px;border-radius:3px" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]"><div style="font-size:8px;font-weight:600;line-height:1.3;white-space:normal;overflow:hidden"><span style="font-style:italic;font-weight:800;opacity:.9">${_tl4}</span> ${esc(e.title)}${tr3?` <span style="font-size:8px;opacity:.8">${tr3}</span>`:''}${dayIndicator}${e.note?`<div style="font-size:9px;background:rgba(253,230,138,.85);color:#92400e;border-radius:2px;padding:0 3px;margin-top:2px">📌 ${esc(e.note)}</div>`:''}</div></div>`;}return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:${borderL}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]">${durLbl?`<div class="gev-dur">${durLbl}</div>`:''}<div style="font-size:8px;font-weight:800;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).icon).join('')+' '+(e.types.map(t=>(TM[t]||TM.autre).label).join('+')):tm.icon+' '+tm.label}${dayIndicator}</div><div style="font-size:9px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.title)}</div>${tr3?`<div style="font-size:8px;opacity:.75;white-space:nowrap">${tr3}</div>`:''} ${e.note?`<div style="font-size:9px;background:rgba(253,230,138,.8);color:#92400e;border-radius:2px;padding:0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`:''}</div>`;}).join('');const moreHtml=_moreCount>0?`<div class="cmore" style="width:100%;padding:1px 3px" onclick="event.stopPropagation()">+${_moreCount}</div>`:'';const evFinal=_spanHtml+ev+moreHtml;const multi=(de.length>0||_daySpans.length>0)?' gd-multi':'';const cl=(isWE||isFr)?'':` ondblclick="event.stopPropagation();if(!event.target.closest('[data-evid]')){openNewEvent('${key}','${esc(r.name)}')}" onmousedown="gdSelStart(event,this)"`; const dropAttrs=(isWE||isFr)?'':' data-date="'+key+'" data-tech="'+esc(r.name)+'" ondragover="ganttDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="ganttDrop(event,this)" oncontextmenu="event.preventDefault();ganttCellRClick(event,this);"';const spacer='';const _colspanAttr=_colspan>1?` colspan="${_colspan}"`:'';const _astrToday=_events.filter(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
+    return`<div class="gev${_isConge2?' gev-hatch':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:#000;border-top:3px solid ${bd3};border-radius:2px;padding:1px 0;margin-bottom:1px;width:100%;display:block;overflow:hidden;cursor:pointer" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" data-evid="${eid3}" data-tip="1"${e.note?' — '+esc(e.note):''}"><div style="font-size:10px;font-weight:800;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px;opacity:.9">${_abbr}</div><div style="font-size:10px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px">${esc(e.title)}</div>${e.note?`<div style="width:6px;height:6px;border-radius:50%;background:#f59f00;margin:1px auto"></div>`:''}</div>`;}
+  if(_view==='month4'){const _tl4=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):tm.label;return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:#000;border-left:${borderL};padding:2px 3px;margin-bottom:1px;border-radius:3px" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]"><div style="font-size:11px;font-weight:600;line-height:1.3;white-space:normal;overflow:hidden"><span style="font-style:italic;font-weight:800;opacity:.9">${_tl4}</span> <strong>${esc(e.title)}</strong>${tr3?` <span style="font-size:10px;opacity:.8">${tr3}</span>`:''}${dayIndicator}${e.note?`<div style="font-size:9px;color:#000;padding:0 3px;margin-top:2px">📌 ${esc(e.note)}</div>`:''}</div></div>`;}return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:#000;border-left:${borderL}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]">${durLbl?`<div class="gev-dur">${durLbl}</div>`:''}<div style="font-size:8px;font-weight:800;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).icon).join('')+' '+(e.types.map(t=>(TM[t]||TM.autre).label).join('+')):tm.icon+' '+tm.label}${dayIndicator}</div><div style="font-size:9px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700">${esc(e.title)}</div>${tr3?`<div style="font-size:10px;opacity:.75;white-space:nowrap">${tr3}</div>`:''} ${e.note?`<div style="font-size:9px;color:#92400e;padding:0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`:''}</div>`;}).join('');const moreHtml=_moreCount>0?`<div class="cmore" style="width:100%;padding:1px 3px" onclick="event.stopPropagation()">+${_moreCount}</div>`:'';const evFinal=_spanHtml+ev+moreHtml;const multi=(de.length>0||_daySpans.length>0)?' gd-multi':'';const cl=(isWE||isFr)?'':` ondblclick="event.stopPropagation();if(!event.target.closest('[data-evid]')){openNewEvent('${key}','${esc(r.name)}')}" onmousedown="gdSelStart(event,this)"`; const dropAttrs=(isWE||isFr)?'':' data-date="'+key+'" data-tech="'+esc(r.name)+'" ondragover="ganttDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="ganttDrop(event,this)" oncontextmenu="event.preventDefault();ganttCellRClick(event,this);"';const spacer='';const _colspanAttr=_colspan>1?` colspan="${_colspan}"`:'';const _astrToday=_events.filter(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
         const _hasAstr=(_astrToday||[]).length>0;
         const _astrEvId=(_astrToday[0]?._fsId||_astrToday[0]?._id||'');
         const _astrBand=_hasAstr?_mkAstrBand(_astrEvId,''):'';
@@ -2963,8 +2992,8 @@ function renderTimeline(){
         de.forEach((e,ei)=>{
           const tm=TM[e.type]||TM.autre;
           const sc3=STATE_COLORS[e.rdvState||''];
-          const bg3=sc3?sc3.bg:tm.bg;
-          const cl3=sc3?sc3.text:tm.color;
+          const bg3=tm.bg;
+          const cl3='#000';
           const bd3=sc3?sc3.border:tc;
           const st=e.startTime||'08:00';
           const et=e.endTime||'17:00';
@@ -2984,11 +3013,12 @@ function renderTimeline(){
           const isEclated=e.isMultiDay&&!spanIds.has(e._id.split('__')[0]);
           const extraStyle=isEclated?'border-style:dashed;opacity:.85;':'';
           const dayBadge=isEclated&&e._origDates?`<span style="background:rgba(0,0,0,.2);border-radius:8px;padding:0 3px;margin-left:2px;font-size:8px">${e._dayIdx+1}/${workDaysLabel(e._origDates)}</span>`:'';
-          h+=`<div class="tl-ev" data-evid="${eid3}" data-st="${esc(st)}" data-et="${esc(et)}" data-hourw="${HOUR_W}" data-hstart="${H_START}" data-hend="${H_END}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" ondblclick="event.stopPropagation();tlEvDblClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" style="position:absolute;left:${x}px;top:${top}px;width:${ew}px;height:${ROW_H-6}px;background:${bg3};color:${cl3};border-left:3px solid ${bd3};border-radius:3px;padding:2px 4px;overflow:hidden;cursor:grab;font-size:9px;box-shadow:0 1px 3px rgba(0,0,0,.1);z-index:2;${extraStyle}">${resizeHandle}`;
+          h+=`<div class="tl-ev" data-evid="${eid3}" data-st="${esc(st)}" data-et="${esc(et)}" data-hourw="${HOUR_W}" data-hstart="${H_START}" data-hend="${H_END}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" ondblclick="event.stopPropagation();tlEvDblClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" style="position:absolute;left:${x}px;top:${top}px;width:${ew}px;height:${ROW_H-6}px;background:${bg3};color:#000;border-left:3px solid ${bd3};border-radius:3px;padding:2px 4px;overflow:hidden;cursor:grab;font-size:9px;box-shadow:0 1px 3px rgba(0,0,0,.1);z-index:2;${extraStyle}">${resizeHandle}`;
           const tlTypesLabel=(e.types&&e.types.length>1)?e.types.map(t=>(TM[t]||TM.autre).icon+' '+(TM[t]||TM.autre).label).join(' · '):(tm.icon+' '+tm.label);
           h+=`<div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tlTypesLabel}${dayBadge} <span style="opacity:.7;font-weight:600">${st.replace(':','h')}–${et.replace(':','h')}</span></div>`;
-          h+=`<div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(e.title||'')}</div>`;
-          if(e.note) h+=`<div style="font-size:8px;background:rgba(253,230,138,.8);color:#92400e;padding:0 2px;border-radius:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`;
+          h+=`<div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700">${esc(e.title||'')}</div>`;
+          if(e.hcInst) h+=`<div style="font-size:10px;color:#555;padding:0 2px;font-style:italic;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">🏗️ ${esc(e.hcInst)}</div>`;
+          if(e.note) h+=`<div style="font-size:10px;color:#000;padding:0 2px;border-radius:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`;
           h+=`</div>`;
         });
 
@@ -3006,8 +3036,8 @@ function renderTimeline(){
           const e=info.e;
           const tm=TM[e.type]||TM.autre;
           const sc3=STATE_COLORS[e.rdvState||''];
-          const bg3=sc3?sc3.bg:tm.bg;
-          const cl3=sc3?sc3.text:tm.color;
+          const bg3=tm.bg;
+          const cl3='#000';
           const bd3=sc3?sc3.border:tc;
           // Jours visibles triés
           const visibleDays=info.days.filter(d=>dayXmap[d]!==undefined).sort();
@@ -3035,10 +3065,11 @@ function renderTimeline(){
           const _stSpan=e.startTime||'08:00', _etSpan=e.endTime||'17:00';
           const _trSpan=`${_stSpan.replace(':','h')}–${_etSpan.replace(':','h')}`;
           const _tlTypesSpan=(e.types&&e.types.length>1)?e.types.map(t=>(TM[t]||TM.autre).icon+' '+(TM[t]||TM.autre).label).join(' · '):(tm.icon+' '+tm.label);
-          h+=`<div data-evid="${eid3}" data-span-id="${bid}" data-span-days="${esc(JSON.stringify(info.days))}" data-day-w="${DAY_W}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" ondblclick="event.stopPropagation();tlEvDblClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" style="position:absolute;left:${xStart}px;top:${top}px;width:${spanW}px;height:${_spanH}px;background:${bg3};color:${cl3};border-top:3px solid ${bd3};${isFirstVis?'border-left:3px solid '+bd3+';':''}${isLastVis?'border-right:2px solid '+bd3+';':''}border-radius:${br};padding:3px 6px;overflow:hidden;cursor:grab;font-size:9px;z-index:3;box-shadow:0 1px 3px rgba(0,0,0,.1);">${arrowL}`;
+          h+=`<div data-evid="${eid3}" data-span-id="${bid}" data-span-days="${esc(JSON.stringify(info.days))}" data-day-w="${DAY_W}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" ondblclick="event.stopPropagation();tlEvDblClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" style="position:absolute;left:${xStart}px;top:${top}px;width:${spanW}px;height:${_spanH}px;background:${bg3};color:#000;border-top:3px solid ${bd3};${isFirstVis?'border-left:3px solid '+bd3+';':''}${isLastVis?'border-right:2px solid '+bd3+';':''}border-radius:${br};padding:3px 6px;overflow:hidden;cursor:grab;font-size:9px;z-index:3;box-shadow:0 1px 3px rgba(0,0,0,.1);">${arrowL}`;
           h+=`<div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_tlTypesSpan} <span style="opacity:.7;font-weight:600">${_trSpan}</span>${e._origDates?` <span style="background:rgba(0,0,0,.15);border-radius:8px;padding:0 4px;font-size:8px">${visibleDays.filter(d=>{const dt=new Date(d);return dt.getDay()!==0&&dt.getDay()!==6&&!isFer(d);}).length}/${workDaysLabel(e._origDates)}</span>`:''}</div>`;
-          h+=`<div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(e.title||'')}</div>`;
-          if(e.note) h+=`<div style="font-size:8px;background:rgba(253,230,138,.8);color:#92400e;padding:0 2px;border-radius:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`;
+          h+=`<div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700">${esc(e.title||'')}</div>`;
+          if(e.hcInst) h+=`<div style="font-size:10px;color:#555;padding:0 2px;font-style:italic;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">🏗️ ${esc(e.hcInst)}</div>`;
+          if(e.note) h+=`<div style="font-size:10px;color:#000;padding:0 2px;border-radius:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`;
           h+=arrowR+spanResizeHandle+'</div>';
         });
       }
@@ -3656,6 +3687,7 @@ function openNewEvent(ds,tech,dateEnd){
   document.getElementById('evDateEnd').value=dateEnd||ds||dk(new Date());
   document.getElementById('evInst').value='';
   document.getElementById('evNote').value='';
+  populateHcSelect(); setHcSelect(''); 
   document.getElementById('evTime').value='08:00';
   const sl=document.getElementById('evDurSlider');if(sl){sl.value=4;}
   const ll=document.getElementById('evDurLbl');if(ll){ll.textContent='4h00';}
@@ -3692,6 +3724,7 @@ function openEditEv(ev){
   document.getElementById('evDateEnd').value=src.dateEnd||ev.dateEnd||'';
   document.getElementById('evInst').value=src.title||ev.title||'';
   document.getElementById('evNote').value=src.note||ev.note||'';
+  populateHcSelect(); setHcSelect(src.hcInst||ev.hcInst||'');
   const st=src.startTime||ev.startTime||'08:00';
   const et=src.endTime||ev.endTime||(st?'12:00':'12:00');
   document.getElementById('evTime').value=st;
@@ -3726,6 +3759,7 @@ async function saveEv(){
   const tech=_evTechs[0]||'';
   const title=(document.getElementById('evInst').value||'').trim()||'';
   const note=document.getElementById('evNote').value.trim();
+  const hcInst=document.getElementById('evHcSelect')?.value||'';
   const allDay=document.getElementById('evAllDay').checked;
   const startTime=allDay?'08:00':(document.getElementById('evTime').value||'08:00');
   const endTime=allDay?'17:00':(document.getElementById('evTimeEnd').value||'12:00');
@@ -3733,7 +3767,7 @@ async function saveEv(){
   const [he,me]=endTime.split(':').map(Number);
   const dur=Math.max(0.5,(he*60+me-hs*60-ms2)/60)||4;
   const stat=document.getElementById('evStat').value;
-  const rdvState=['non_confirme','confirme','attente','realise','annule','a_deplacer','planifie'].includes(stat)?stat:'planifie';
+  const rdvState=['non_confirme','confirme','attente','realise','annule','a_deplacer','non_confirme'].includes(stat)?stat:'non_confirme';
   if(!types.length){
     document.getElementById('typeRow').style.outline='2px solid #dc2626';
     document.getElementById('typeRow').style.borderRadius='6px';
@@ -3744,7 +3778,7 @@ async function saveEv(){
   if(!_evTechs.length){toast('Ajoutez au moins une ressource','warn');return;}
   document.getElementById('typeRow').style.outline='';
   const techs=_evTechs;
-  const data={type,types,date,dateEnd,tech,techs,title,note,
+  const data={type,types,date,dateEnd,tech,techs,title,note,hcInst,
     duration:dur,startTime,endTime,allDay,
     status:rdvState,rdvState,
     updatedAt:new Date().toISOString(),by:_user?.login||'?'};
@@ -4213,10 +4247,19 @@ function renderTypes(){
   const locked = document.getElementById('typesLocked');
   if(locked){
     locked.innerHTML = Object.entries(TM).filter(([,m])=>m.locked).map(([k,m])=>
-      `<div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:${m.bg};border-radius:7px;border:1px solid rgba(0,0,0,.08)">
-        <span style="font-size:14px">${m.icon}</span>
-        <span style="font-size:12px;font-weight:700;color:${m.color}">${m.label}</span>
-        <span style="font-size:10px;color:var(--sub);margin-left:2px">🔒</span>
+      `<div style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:${m.bg};border-radius:7px;border:1px solid ${m.color}40;min-width:0">
+        <span style="font-size:13px">${m.icon}</span>
+        <span style="font-size:11px;font-weight:700;color:${m.color};flex:1;min-width:0">${m.label}</span>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px">
+          <input type="color" value="${m.color}" title="Couleur texte" onchange="setLockedTypeColor('${k}','color',this.value)"
+            style="width:22px;height:18px;border:1px solid var(--line);border-radius:3px;cursor:pointer;padding:1px">
+          <span style="font-size:6px;color:var(--sub)">txt</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px">
+          <input type="color" value="${m.bg||'#ffffff'}" title="Couleur fond" onchange="setLockedTypeColor('${k}','bg',this.value)"
+            style="width:22px;height:18px;border:1px solid var(--line);border-radius:3px;cursor:pointer;padding:1px">
+          <span style="font-size:6px;color:var(--sub)">fond</span>
+        </div>
       </div>`
     ).join('');
   }
@@ -4242,16 +4285,32 @@ function renderTypes(){
   ).join('');
 }
 
+async function setLockedTypeColor(id, field, val){
+  if(!TM[id]) return;
+  TM[id][field]=val;
+  renderTypes(); render();
+  // Sauvegarder dans Firebase
+  try{
+    const cfg=await getAll('planning_resources');
+    const doc=cfg.find(x=>x._lockedColors);
+    const colors={};
+    Object.entries(TM).filter(([,m])=>m.locked).forEach(([k,m])=>{colors[k]={color:m.color,bg:m.bg||'#ffffff'};});
+    const data={_lockedColors:true,colors,updatedAt:new Date().toISOString()};
+    if(doc?._fsId) await fsSet('planning_resources',doc._fsId,data);
+    else await fsAdd('planning_resources',data);
+    toast('Couleur sauvegardée','ok');
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+
 async function addType(){
   const label = (document.getElementById('tNewLabel')?.value||'').trim();
   const icon  = (document.getElementById('tNewIcon')?.value||'📌').trim()||'📌';
   const color = document.getElementById('tNewColor')?.value||'#0891b2';
+  const bg = document.getElementById('tNewBg')?.value||'#ffffff';
   if(!label){ toast('Entrez un nom de type','warn'); return; }
   // Générer un ID à partir du label
   const id = label.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'_').slice(0,12);
   if(TM[id]){ toast('Ce type existe déjà (id: '+id+')','warn'); return; }
-  // Couleur de fond = couleur + 20% opacité
-  const bg = color+'33';
   TM[id] = {label, icon, color, bg};
   document.getElementById('tNewLabel').value='';
   document.getElementById('tNewIcon').value='';
@@ -4467,7 +4526,7 @@ async function ctxSetState(state){
   if(ev?.isVE){
     // C'est une VE depuis les contrats -> écrire directement dans les contrats
     if(!state){ toast('Choisissez un état','info'); return; }
-    const planningStatus=state||'planifie';
+    const planningStatus=state||'non_confirme';
     const ok=await syncStateToContrat(evId, planningStatus);
     if(ok){
       const veField=evId.endsWith('_VE1')?'VE1':'VE2';
@@ -4807,9 +4866,9 @@ function renderGanttLong(){
         const evH=dayEvs.map(e=>{
           const tm2=TM[e.type]||TM.autre;
           const sc=STATE_COLORS[e.rdvState||''];
-          const bg=sc?sc.bg:tm2.bg, cl2=sc?sc.text:tm2.color, bd2=sc?sc.border:tc;
+          const bg=tm2.bg, cl2='#000', bd2=sc?sc.border:tc;
           const dateShort=e.date.slice(8,10)+'/'+e.date.slice(5,7);
-          return`<div class="gev-sm" data-evid="${esc(e._id)}" style="background:${bg};color:${cl2};border-left:2px solid ${bd2};font-size:${isYear?'7':'9'}px" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)"><span>${tm2.icon}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${isYear?'':dateShort+' '}${esc(e.title)}</span></div>`;
+          return`<div class="gev-sm" data-evid="${esc(e._id)}" style="background:${bg};color:#000;border-left:2px solid ${bd2};font-size:${isYear?'9':'11'}px" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)"><span>${tm2.icon}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${isYear?'':dateShort+' '}${esc(e.title)}</span></div>`;
         }).join('');
         h+=`<td class="${cls}">${evH}</td>`;
       });
@@ -5120,7 +5179,7 @@ function buildEvTip(evid){
   // État
   if(e.rdvState){
     const si=SIC[e.rdvState]||'';
-    const sl={'non_confirme':'Non confirmé','planifie':'Planifié','confirme':'Confirmé','attente':'En attente','realise':'Réalisé','annule':'Annulé','a_deplacer':'À déplacer'};
+    const sl={'non_confirme':'Non confirmé','confirme':'Confirmé','attente':'En attente','realise':'Réalisé','annule':'Annulé','a_deplacer':'À déplacer'};
     rows.push({icon:si,text:sl[e.rdvState]||e.rdvState});
   }
   // Note
@@ -5670,12 +5729,11 @@ async function saveVersion(){
 
 // ── COULEURS DES ÉTATS RDV ─────────────────────────────────────────────────
 const STATE_DEFAULTS={
-  non_confirme:{label:'Non confirmé',icon:'🔴',bg:'#fee2e2',border:'#dc2626',text:'#991b1b'},
-  planifie:    {label:'Planifié',    icon:'📅',bg:'#fefce8',border:'#ca8a04',text:'#713f12'},
-  confirme:    {label:'Confirmé',    icon:'✅',bg:'#f1f5f9',border:'#111827',text:'#111827'},
-  attente:     {label:'En attente',  icon:'🟣',bg:'#faf5ff',border:'#a855f7',text:'#6b21a8'},
-  realise:     {label:'Réalisé',     icon:'🔵',bg:'#dcfce7',border:'#16a34a',text:'#14532d'},
-  annule:      {label:'Annulé',      icon:'🟡',bg:'#fefce8',border:'#ca8a04',text:'#713f12'},
+  non_confirme:{label:'Non confirmé',icon:'🔴',bg:'#ffffff',border:'#dc2626',text:'#991b1b'},
+  confirme:    {label:'Confirmé',    icon:'',  bg:'#ffffff',border:'#16a34a',text:'#166534'},
+  attente:     {label:'En attente',  icon:'🟣',bg:'#ffffff',border:'#a855f7',text:'#6b21a8'},
+  realise:     {label:'Réalisé',     icon:'🔵',bg:'#ffffff',border:'#16a34a',text:'#14532d'},
+  annule:      {label:'Annulé',      icon:'🟡',bg:'#ffffff',border:'#ca8a04',text:'#713f12'},
   a_deplacer:  {label:'À déplacer',  icon:'🟠',bg:'#fff7ed',border:'#ea580c',text:'#7c2d12'},
 };
 
@@ -5691,22 +5749,14 @@ function renderStateColors(){
   if(!list) return;
   list.innerHTML=Object.entries(STATE_DEFAULTS).map(([k,def])=>{
     const cur=STATE_COLORS[k]||def;
-    return`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)">
-      <div style="width:120px;flex-shrink:0">
+    // Forcer fond blanc
+    if(cur.bg&&cur.bg!=='#ffffff') cur.bg='#ffffff';
+    return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">
+      <div style="width:130px;flex-shrink:0">
         <div style="font-size:12px;font-weight:700">${def.icon} ${def.label}</div>
-        <div style="margin-top:6px;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;background:${cur.bg};color:${cur.text};border-left:4px solid ${cur.border};display:inline-block">Aperçu</div>
+        <div style="margin-top:5px;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;background:#fff;color:#000;border-left:4px solid ${cur.border};display:inline-block" id="sp_${k}">Aperçu</div>
       </div>
       <div style="display:flex;gap:10px;flex:1;flex-wrap:wrap">
-        <div>
-          <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:3px">Fond</label>
-          <div style="display:flex;align-items:center;gap:6px">
-            <input type="color" value="${cur.bg}" data-key="${k}" data-prop="bg"
-              oninput="updateStatePreview(this)" onchange="updateStatePreview(this)"
-              style="width:36px;height:28px;border:1.5px solid var(--line);border-radius:5px;cursor:pointer;padding:1px">
-            <input type="text" value="${cur.bg}" data-key="${k}" data-prop="bg" data-hex="1"
-              oninput="syncStateHex(this)" style="width:72px;padding:4px 6px;border:1.5px solid var(--line);border-radius:6px;font-size:11px;font-family:monospace">
-          </div>
-        </div>
         <div>
           <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:3px">Bordure</label>
           <div style="display:flex;align-items:center;gap:6px">
@@ -5714,16 +5764,6 @@ function renderStateColors(){
               oninput="updateStatePreview(this)" onchange="updateStatePreview(this)"
               style="width:36px;height:28px;border:1.5px solid var(--line);border-radius:5px;cursor:pointer;padding:1px">
             <input type="text" value="${cur.border}" data-key="${k}" data-prop="border" data-hex="1"
-              oninput="syncStateHex(this)" style="width:72px;padding:4px 6px;border:1.5px solid var(--line);border-radius:6px;font-size:11px;font-family:monospace">
-          </div>
-        </div>
-        <div>
-          <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:3px">Texte</label>
-          <div style="display:flex;align-items:center;gap:6px">
-            <input type="color" value="${cur.text}" data-key="${k}" data-prop="text"
-              oninput="updateStatePreview(this)" onchange="updateStatePreview(this)"
-              style="width:36px;height:28px;border:1.5px solid var(--line);border-radius:5px;cursor:pointer;padding:1px">
-            <input type="text" value="${cur.text}" data-key="${k}" data-prop="text" data-hex="1"
               oninput="syncStateHex(this)" style="width:72px;padding:4px 6px;border:1.5px solid var(--line);border-radius:6px;font-size:11px;font-family:monospace">
           </div>
         </div>
@@ -5743,26 +5783,25 @@ function syncStateHex(inp){
 }
 
 function updateStatePreview(inp){
-  const key=inp.dataset.key, prop=inp.dataset.prop, val=inp.value;
-  if(!key||!prop) return;
-  // Mettre à jour l'autre champ (color ↔ text)
-  const parent=inp.closest('div[style*="display:flex;align-items:center"]');
-  if(parent){
-    parent.querySelectorAll('input').forEach(i=>{if(i!==inp)i.value=val;});
-  }
-  // Mettre à jour STATE_COLORS live
-  if(!STATE_COLORS[key]) STATE_COLORS[key]={...STATE_DEFAULTS[key]};
-  STATE_COLORS[key][prop]=val;
-  // Rafraîchir l'aperçu
-  renderStateColors();
+  const k=inp.dataset.key, prop=inp.dataset.prop, val=inp.value;
+  if(!STATE_COLORS[k]) STATE_COLORS[k]={...(STATE_DEFAULTS[k]||{bg:'#ffffff',border:'#000',text:'#000'})};
+  STATE_COLORS[k][prop]=val;
+  STATE_COLORS[k].bg='#ffffff'; // toujours blanc
+  // Mettre à jour l'aperçu
+  const sp=document.getElementById('sp_'+k);
+  if(sp) sp.style.borderLeftColor=STATE_COLORS[k].border||'#000';
+  // Sync hex
+  document.querySelectorAll(`[data-key="${k}"][data-prop="${prop}"][data-hex]`).forEach(el=>{if(el!==inp)el.value=val;});
+  render();
 }
-
 async function saveStateColors(){
   const custom={};
   Object.keys(STATE_DEFAULTS).forEach(k=>{
     if(STATE_COLORS[k]) custom[k]={bg:STATE_COLORS[k].bg,border:STATE_COLORS[k].border,text:STATE_COLORS[k].text};
   });
   try{
+    // Forcer fond blanc sur tous les états
+    Object.values(STATE_COLORS).forEach(c=>{if(c&&c.bg)c.bg='#ffffff';});
     const cfg=await getAll('planning_resources');
     const doc=cfg.find(x=>x._stateColors);
     const data={_stateColors:true,colors:custom,updatedAt:new Date().toISOString()};
@@ -5802,7 +5841,7 @@ const APPELS_SUIVI_CFG={
   '':         {label:'—',bg:'#f1f5f9',text:'#64748b'},
   en_cours:   {label:'🔄 En cours',     bg:'#dbeafe',text:'#1e40af'},
   presentation:{label:'📊 Présentation',bg:'#ede9fe',text:'#5b21b6'},
-  planifie:   {label:'📅 Planifié',     bg:'#d1fae5',text:'#065f46'},
+  planifie:   {label:'Non confirmé',     bg:'#d1fae5',text:'#065f46'},
   devis_faire:{label:'💶 Devis à faire',bg:'#fef9c3',text:'#854d0e'},
   devis_envoye:{label:'📤 Devis envoyé',bg:'#ffedd5',text:'#9a3412'},
   attente_reponse:{label:'⏳ En attente',bg:'#f0f9ff',text:'#0c4a6e'},
@@ -5841,7 +5880,7 @@ async function openAppels(instId){
       const tm=TM[e.type]||TM.autre;
       return`<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:11px">
         <div style="width:7px;height:7px;border-radius:50%;background:${tm.bg};border:1.5px solid ${tm.color};flex-shrink:0"></div>
-        <div style="min-width:0"><div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.title)}</div>
+        <div style="min-width:0"><div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700">${esc(e.title)}</div>
         <div style="color:var(--sub)">${tm2(e.date)} · ${esc(e.tech||'')}</div></div></div>`;
     }).join('');
   } else {
@@ -6143,7 +6182,7 @@ function selectAppelsInstGroup(allFsIds,instName,client,ville){
       const tm=TM[e.type]||TM.autre;
       return`<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:11px">
         <div style="width:7px;height:7px;border-radius:50%;background:${tm.bg};border:1.5px solid ${tm.color};flex-shrink:0"></div>
-        <div style="min-width:0"><div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.title)}</div>
+        <div style="min-width:0"><div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700">${esc(e.title)}</div>
         <div style="color:var(--sub)">${tm2(e.date)} · ${esc(e.tech||'')}</div></div></div>`;
     }).join('');
   } else {
@@ -6843,7 +6882,7 @@ function _ppmToEvents(){
     // État
     const etatRaw=_ppmVal(row,'Etat')||_ppmVal(row,'État')||'';
     const etatLow=etatRaw.toLowerCase();
-    let rdvState='planifie';
+    let rdvState='non_confirme';
     if(etatLow.includes('confirm')) rdvState='confirme';
     else if(etatLow.includes('réalis')||etatLow.includes('réalisé')) rdvState='realise';
     else if(etatLow.includes('annul')) rdvState='annule';
@@ -6911,7 +6950,7 @@ async function doPPMImport(){
     }
     try{
       const data={...e,
-        status:'planifie',rdvState:'planifie',
+        status:'non_confirme',rdvState:'non_confirme',
         createdAt:new Date().toISOString(),
         updatedAt:new Date().toISOString(),
         by:_user?.login||'?',
@@ -7057,7 +7096,7 @@ async function saveAstreinte(){
       type:'astreinte',types:['astreinte'],
       date:s.start,dateEnd:s.end>s.start?s.end:'',
       tech:res,techs:[res],
-      rdvState:'planifie',status:'planifie',
+      rdvState:'non_confirme',status:'non_confirme',
       note:'Astreinte — '+res,
       createdAt:new Date().toISOString(),
       updatedAt:new Date().toISOString(),
@@ -7216,7 +7255,7 @@ async function doImportAstreinte(){
         title:'Astreinte',type:'astreinte',types:['astreinte'],
         date:e.start,dateEnd:e.end,
         tech:techName,techs:[techName],
-        rdvState:'planifie',status:'planifie',
+        rdvState:'non_confirme',status:'non_confirme',
         note:'Import planning astreintes S'+e.week,
         createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),
         by:_user?.login||'?',source:'import_astreinte'
@@ -7292,6 +7331,109 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('.astr-edit-band');
   if(b){e.stopPropagation();openEditAstreinte(b.dataset.astrid||'');}
 });
+
+// ── INSTALLATION HORS CONTRAT ────────────────────────────────────────────────
+const HC_KEY='planning_hc_installations'; // clé localStorage
+
+function getHcList(){
+  try{ return JSON.parse(localStorage.getItem(HC_KEY)||'[]'); }catch{return[];}
+}
+function saveHcList(arr){
+  localStorage.setItem(HC_KEY, JSON.stringify(arr));
+}
+
+function populateHcSelect(){
+  const sel=document.getElementById('evHcSelect');
+  if(!sel) return;
+  const list=getHcList();
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- Aucune --</option>'+
+    list.map(n=>`<option value="${esc(n)}" ${n===cur?'selected':''}>${esc(n)}</option>`).join('');
+}
+
+function setHcSelect(val){
+  const sel=document.getElementById('evHcSelect');
+  if(sel) sel.value=val||'';
+}
+
+function onHcSelect(){
+  const sel=document.getElementById('evHcSelect');
+  const info=document.getElementById('evHcName');
+  if(info){ info.style.display=sel?.value?'block':'none'; info.textContent=sel?.value||''; }
+}
+
+function openHcEdit(){
+  const cur=document.getElementById('evHcSelect')?.value||'';
+  const list=getHcList();
+  // Créer un mini modal inline
+  const existing=document.getElementById('hcEditModal');
+  if(existing) existing.remove();
+  const modal=document.createElement('div');
+  modal.id='hcEditModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9500;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML=`<div style="background:#fff;border-radius:12px;width:min(96vw,420px);box-shadow:0 12px 40px rgba(0,0,0,.25);overflow:hidden">
+    <div style="background:#3b5bdb;color:#fff;padding:12px 16px;font-size:14px;font-weight:800">🏗️ Installations hors contrat</div>
+    <div style="padding:16px">
+      <div style="margin-bottom:12px;display:flex;gap:8px">
+        <input id="hcNewName" placeholder="Nom de l'installation…" style="flex:1;padding:7px 10px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit"
+          onkeydown="if(event.key==='Enter')addHcName()">
+        <button onclick="addHcName()" style="padding:7px 14px;background:#3b5bdb;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">+ Ajouter</button>
+      </div>
+      <div id="hcList" style="max-height:200px;overflow-y:auto;border:1px solid var(--line);border-radius:8px"></div>
+    </div>
+    <div style="padding:10px 16px;border-top:1px solid var(--line);display:flex;justify-content:flex-end">
+      <button onclick="closeHcEdit()" style="padding:7px 18px;background:#3b5bdb;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Fermer</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  renderHcList();
+  // Sélectionner le courant si existe
+  setTimeout(()=>document.getElementById('hcNewName')?.focus(),50);
+}
+
+function renderHcList(){
+  const el=document.getElementById('hcList');
+  if(!el) return;
+  const list=getHcList();
+  if(!list.length){ el.innerHTML='<div style="padding:12px;font-size:12px;color:var(--sub);text-align:center">Aucune installation</div>'; return; }
+  el.innerHTML=list.map((n,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--line)">
+    <span style="flex:1;font-size:12px">${esc(n)}</span>
+    <button onclick="selectHcName('${esc(n)}')" style="padding:3px 8px;background:#f0f4ff;color:#3b5bdb;border:1px solid #c5d0f0;border-radius:6px;font-size:11px;cursor:pointer">Choisir</button>
+    <button onclick="deleteHcName(${i})" style="padding:3px 8px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;font-size:11px;cursor:pointer">✕</button>
+  </div>`).join('');
+}
+
+function addHcName(){
+  const inp=document.getElementById('hcNewName');
+  const val=(inp?.value||'').trim();
+  if(!val){ toast('Entrez un nom','warn'); return; }
+  const list=getHcList();
+  if(!list.includes(val)) list.push(val);
+  saveHcList(list);
+  if(inp) inp.value='';
+  renderHcList();
+  populateHcSelect();
+  setHcSelect(val);
+}
+
+function deleteHcName(idx){
+  const list=getHcList();
+  list.splice(idx,1);
+  saveHcList(list);
+  renderHcList();
+  populateHcSelect();
+}
+
+function selectHcName(name){
+  setHcSelect(name);
+  populateHcSelect();
+  setHcSelect(name);
+  closeHcEdit();
+}
+
+function closeHcEdit(){
+  document.getElementById('hcEditModal')?.remove();
+}
 
 boot();
 </script>
