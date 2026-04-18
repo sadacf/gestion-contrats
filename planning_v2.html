@@ -1303,10 +1303,18 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
       <!-- 1. Installation -->
       <div class="evp-row">
         <div class="evp-lbl" style="font-size:10px;line-height:1.3">Installation<br>sous contrat</div>
-        <div>
-          <input class="evp-inp" type="text" id="evInst" placeholder="Rechercher dans Gestion Contrats…" list="dlInst" oninput="onInstInput()">
-          <datalist id="dlInst"></datalist>
-          <div class="iinfo" id="iInfo"></div>
+        <div style="display:flex;gap:6px;align-items:flex-start;width:100%">
+          <div style="flex:1;min-width:0">
+            <input class="evp-inp" type="text" id="evInst" placeholder="Rechercher dans Gestion Contrats…" list="dlInst" oninput="onInstInput()" style="width:100%">
+            <datalist id="dlInst"></datalist>
+            <div class="iinfo" id="iInfo"></div>
+          </div>
+          <button type="button" id="evInstContratBtn"
+            onclick="ctxOpenContrat(document.getElementById('evInst').value)"
+            title="Ouvrir le contrat dans Gestion Contrats"
+            style="display:none;padding:6px 10px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;color:#1d4ed8;white-space:nowrap;flex-shrink:0;margin-top:1px">
+            📋 Contrat
+          </button>
         </div>
       </div>
 
@@ -3628,6 +3636,7 @@ function setInstFilter(f){
 function onInstInput(){
   const v=document.getElementById('evInst').value, info=document.getElementById('iInfo');
   const c=_contrats.find(r=>r.Installation&&r.Installation.toLowerCase()===v.toLowerCase());
+  const btn=document.getElementById('evInstContratBtn');
   if(c){
     const p=[];
     if(c.Type_Contrat){const isP=(c.Type_Contrat||'').toUpperCase()==='PROT';p.push(isP?'🚿 Protection':'🔥 Détection');}
@@ -3639,7 +3648,11 @@ function onInstInput(){
     info.innerHTML=p.join(' &nbsp;·&nbsp; '); info.style.display='';
     const s=document.getElementById('evTech');
     if(s&&!s.value&&c.Technicien)s.value=c.Technicien;
-  }else info.style.display='none';
+    if(btn) btn.style.display='';
+  }else{
+    info.style.display='none';
+    if(btn) btn.style.display='none';
+  }
 }
 // Mise à jour affichage heure en temps réel
 function updEvTitle(){
@@ -3717,7 +3730,7 @@ document.getElementById('typeRow').addEventListener('click',e=>{
   const o=e.target.closest('.topt');if(!o)return;
   o.classList.toggle('on');  // multi-sélection
 });
-function openNewEvent(ds,tech,dateEnd,opts){\
+function openNewEvent(ds,tech,dateEnd,opts){
   opts=opts||{};
   closePopup();_editId=null;
   document.getElementById('evTitle2').textContent='Evénement';
@@ -3726,6 +3739,8 @@ function openNewEvent(ds,tech,dateEnd,opts){\
   document.getElementById('evDateEnd').value=dateEnd||ds||dk(new Date());
   document.getElementById('evInst').value=opts.prefillTitle||'';
   document.getElementById('evNote').value='';
+  const _instBtn=document.getElementById('evInstContratBtn');
+  if(_instBtn) _instBtn.style.display=opts.prefillTitle?'':'none';
   populateHcSelect(); setHcSelect(''); 
   document.getElementById('evTime').value='08:00';
   const sl=document.getElementById('evDurSlider');if(sl){sl.value=4;}
@@ -3770,6 +3785,12 @@ function openEditEv(ev){
   document.getElementById('evDateEnd').value=src.dateEnd||ev.dateEnd||'';
   document.getElementById('evInst').value=src.title||ev.title||'';
   document.getElementById('evNote').value=src.note||ev.note||'';
+  const _instBtnE=document.getElementById('evInstContratBtn');
+  if(_instBtnE){
+    const _instVal=src.title||ev.title||'';
+    const _matchC=_contrats.find(r=>r.Installation&&r.Installation.toLowerCase()===_instVal.toLowerCase());
+    _instBtnE.style.display=_matchC?'':'none';
+  }
   populateHcSelect(); setHcSelect(src.hcInst||ev.hcInst||'');
   const st=src.startTime||ev.startTime||'08:00';
   const et=src.endTime||ev.endTime||(st?'12:00':'12:00');

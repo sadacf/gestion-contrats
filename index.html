@@ -292,6 +292,8 @@ tr.validite-expiree td { opacity: .85; }
 
 #mainTable tbody tr { border-bottom: 1px solid #e8eef5; transition: background .12s; }
 #mainTable tbody tr:hover { background: #dbeafe !important; }
+#mainTable tbody tr:hover .btn-planifier-inline { opacity: 1 !important; }
+.btn-planifier-inline:focus { opacity: 1 !important; }
 #mainTable tbody tr:nth-child(odd)  { background: #ffffff; }
 #mainTable tbody tr:nth-child(even) { background: #f1f5fb; }
 #mainTable tbody tr:nth-child(even):hover { background: #dbeafe; }
@@ -2122,7 +2124,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/18-04-26-16:43';
+const APP_VERSION = 'V1/18-04-26-16:52';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4674,6 +4676,10 @@ function renderTable() {
             : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}</div>`
           }
           ${nouveauBadge}
+          <button onclick="planifierContrat(${i});event.stopPropagation()" title="Planifier dans le planning"
+            style="flex-shrink:0;padding:2px 8px;font-size:10px;font-weight:700;background:#eff6ff;color:#2563eb;border:1.5px solid #bfdbfe;border-radius:5px;cursor:pointer;opacity:0;transition:opacity .15s;white-space:nowrap"
+            onmouseenter="this.style.background='#dbeafe'" onmouseleave="this.style.background='#eff6ff'"
+            class="btn-planifier-inline">📅 Planifier</button>
         </div>
         ${r.Client ? `<div style="font-size:11px;color:#64748b;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:360px">${esc(r.Client)}</div>` : ''}
         ${r.Commentaire
@@ -4703,7 +4709,6 @@ function renderTable() {
       <td class="actions-col" onclick="event.stopPropagation()">
         <button class="act-btn" onclick="openEdit(${i})" title="Modifier">✏️</button>
         ${(canEdit() && hasPerm('dupliquer')) ? `<button class="act-btn" onclick="dupliquerContrat('${r._id}')" title="Dupliquer cette ligne" style="color:#7c3aed;border-color:#ddd6fe">📋</button>` : ''}
-        <button class="act-btn" onclick="planifierContrat(${i})" title="Planifier dans le planning" style="color:#2563eb;border-color:#bfdbfe">📅</button>
       </td>
     </tr>`;
   }).join('');
