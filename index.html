@@ -895,6 +895,7 @@ function loadSheetJS(callback) {
         style="display:none;align-items:center;font-size:10px;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:2px 10px;white-space:nowrap;cursor:pointer;gap:4px"
         onmouseover="this.style.background='#fde68a'" onmouseout="this.style.background='#fef3c7'"></span>
       <button class="hbtn hbtn-ghost" id="btnPresence" onclick="openPresencePanel()" title="Voir les utilisateurs connectés" style="display:none;gap:4px;align-items:center">👥 <span id="presenceCount" style="background:rgba(255,255,255,.25);border-radius:10px;padding:0 6px;font-size:11px;font-weight:700">…</span></button>
+      <button onclick="location.reload()" title="Recharger la page" class="hbtn hbtn-ghost" style="font-size:15px">🔄</button>
       <button class="hbtn hbtn-ghost" id="btnHistory" onclick="openHistoryPanel()" title="Consulter les données à une date précédente" style="display:none">🕐 Historique</button>
       <button id="undoBtn" onclick="undoLast()" title="Aucune action à annuler" disabled
         style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.5);border-radius:7px;padding:4px 10px;font-size:13px;font-weight:700;cursor:default;opacity:0.4;transition:all .15s"
@@ -1264,51 +1265,58 @@ function loadSheetJS(callback) {
     <div class="synth-section" style="margin-top:10px">Répartition Matériel</div>
     <div id="indicMatSection" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin-bottom:10px"></div>
 
-    <!-- ⚠️ Section retards — layout 2 colonnes -->
-    <div style="margin-top:12px;display:flex;gap:0;align-items:stretch;margin-bottom:10px">
+    <!-- ⚠️ Section retards — layout repensé -->
+    <div style="margin-top:12px;margin-bottom:10px;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:10px;overflow:hidden">
 
-      <!-- Colonne gauche : titre + indicateurs -->
-      <div style="flex:1;min-width:0">
-        <div class="synth-section" style="font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-bottom:1px solid #fde68a;border-right:none;padding:8px 12px;border-radius:6px 0 0 0;letter-spacing:.3px">⚠️ Installations, Q7, Rapports en retard</div>
-        <div id="indicRetardBar" style="display:none;background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #e11d48;border-top:none;border-bottom:none;border-radius:0;padding:10px 16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:22px;font-weight:800;color:#e11d48" id="in-retard-total">–</span>
-            <span style="font-size:12px;font-weight:700;color:#9f1239;line-height:1.3">site(s) en retard<br><span style="font-weight:400;color:#be123c">VE non archivée/réalisée après le mois prévu</span></span>
-          </div>
-          <div style="display:flex;gap:12px;align-items:center;border-left:1px solid #fecdd3;padding-left:16px">
-            <div style="display:flex;align-items:center;gap:6px;background:#eff6ff;border-radius:6px;padding:4px 10px;cursor:pointer" onclick="filterFromIndic('retard_det')" title="Voir retards Détection">
-              <span style="font-size:13px;font-weight:800;color:#1d4ed8" id="in-retard-det">–</span>
-              <span style="font-size:11px;color:#1d4ed8;font-weight:600">Détection ↗</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px;background:#fff7ed;border-radius:6px;padding:4px 10px;cursor:pointer" onclick="filterFromIndic('retard_prot')" title="Voir retards Protection">
-              <span style="font-size:13px;font-weight:800;color:#c2410c" id="in-retard-prot">–</span>
-              <span style="font-size:11px;color:#c2410c;font-weight:600">Protection ↗</span>
-            </div>
-          </div>
-          <button class="tbtn" style="background:#e11d48;color:#fff;border-color:#e11d48;font-size:11px;padding:4px 12px;cursor:pointer" onclick="filterFromIndic('retard')">↗ Voir tous les retards</button>
+      <!-- Titre + boutons mails sur la même ligne, boutons alignés à droite de même largeur que "Voir liste" -->
+      <div style="background:#fffbeb;padding:8px 14px;display:flex;align-items:center;gap:10px">
+        <div style="font-size:12px;font-weight:700;color:#b45309;letter-spacing:.3px;flex:1">⚠️ Installations, Q7, Rapports en retard</div>
+        <div id="btnMailGlobalWrap" style="display:none;flex-direction:row;align-items:center;gap:5px;background:#dc2626;border:1.5px solid #b91c1c;border-radius:7px;padding:4px 12px;cursor:pointer;box-shadow:0 1px 6px rgba(220,38,38,.3);transition:background .2s;white-space:nowrap;justify-content:center;flex-shrink:0" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
+          <span style="font-size:12px">📧</span>
+          <span style="font-size:9px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.3px">Mails des retards</span>
+          <span id="btnMailGlobalPastille" style="display:none;width:6px;height:6px;border-radius:50%;background:#fecaca;flex-shrink:0"></span>
         </div>
-        <div id="indicMailEnvoye" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #16a34a;border-radius:0;padding:8px 16px;gap:8px;align-items:center;border-bottom:none"></div>
-
-        <!-- Manque rapport + Q7 en attente -->
-        <div id="indicRapportQ7Row" style="display:none;gap:0;margin-bottom:0;flex-direction:column">
-          <div id="indicManqueRapportBar" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #16a34a;border-radius:0;padding:10px 16px;align-items:center;gap:12px;flex-wrap:wrap;border-top:none;border-bottom:none">
-            <span style="font-size:22px;font-weight:800;color:#16a34a" id="in-manque-rapport-total">–</span>
-            <span style="font-size:12px;font-weight:700;color:#166534;line-height:1.3;flex:1">Manque rapport <span style="font-weight:400;color:#15803d;font-size:11px">— VE réalisée, rapport non remis</span></span>
-            <button class="tbtn" style="background:#16a34a;color:#fff;border-color:#15803d;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="filterSansRapportForTech(null)">↗ Voir la liste</button>
-          </div>
-          <div id="indicQ7RetardBar" style="display:none;background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #d97706;border-top:none;border-radius:0 0 0 6px;padding:10px 16px;align-items:center;gap:12px;flex-wrap:wrap">
-            <span style="font-size:22px;font-weight:800;color:#d97706" id="in-q7-retard-total">–</span>
-            <span style="font-size:12px;font-weight:700;color:#92400e;line-height:1.3;flex:1">Q7 en attente <span style="font-weight:400;color:#b45309;font-size:11px">— VE archivée, rapport Q7 non délivré</span></span>
-            <button class="tbtn" style="background:#d97706;color:#fff;border-color:#d97706;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="filterFromIndic('q7_retard')">↗ Voir la liste</button>
-          </div>
+        <div id="btnMailMoisWrap" style="display:flex;flex-direction:row;align-items:center;gap:5px;background:#2563eb;border:1.5px solid #1d4ed8;border-radius:7px;padding:4px 12px;cursor:pointer;box-shadow:0 1px 6px rgba(37,99,235,.3);transition:background .2s;white-space:nowrap;justify-content:center;flex-shrink:0" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'" onclick="envoyerMailsMoisCourantEtSuivant()" title="Envoyer a chaque technicien ses sites du mois en cours et du mois suivant">
+          <span style="font-size:12px">📅</span>
+          <span id="btnMailMoisLabel" style="font-size:9px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.3px">Mails mois en cours &amp; mois suivant</span>
+          <span id="btnMailMoisPastille" style="width:6px;height:6px;border-radius:50%;background:#fca5a5;display:block;flex-shrink:0"></span>
         </div>
       </div>
 
-      <!-- Colonne droite : bouton mail global -->
-      <div id="btnMailGlobalWrap" style="display:none;flex-direction:column;justify-content:center;align-items:center;background:#38bdf8;border:2px solid #0ea5e9;border-radius:16px;padding:6px 8px;min-width:72px;max-width:80px;cursor:pointer;gap:3px;text-align:center;align-self:stretch;box-shadow:0 4px 12px rgba(56,189,248,.35);transition:background .2s,box-shadow .2s" onmouseover="this.style.background='#0ea5e9';this.style.boxShadow='0 6px 16px rgba(14,165,233,.5)'" onmouseout="this.style.background='#38bdf8';this.style.boxShadow='0 4px 12px rgba(56,189,248,.35)'" onclick="envoyerMailsGlobaux()" title="Envoyer un mail à chaque technicien pour ses retards, Q7 et rapports manquants">
-        <span style="font-size:13px">📧</span>
-        <span style="font-size:8px;font-weight:800;color:#0c4a6e;line-height:1.4;text-transform:uppercase;letter-spacing:.5px">Envoyer<br>tous les<br>mails</span>
-        <span id="btnMailGlobalPastille" style="display:none;width:8px;height:8px;border-radius:50%;flex-shrink:0"></span>
+      <!-- Ligne 1 : Retards -->
+      <div id="indicRetardBar" style="display:none;background:#fff1f2;border-top:1px solid #fecdd3;padding:10px 14px;flex-wrap:wrap;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px;min-width:220px">
+          <span style="font-size:22px;font-weight:800;color:#e11d48" id="in-retard-total">–</span>
+          <span style="font-size:12px;font-weight:700;color:#9f1239;line-height:1.3">site(s) en retard<br><span style="font-weight:400;color:#be123c;font-size:11px">VE non archivée/réalisée après le mois prévu</span></span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="display:flex;align-items:center;gap:5px;background:#eff6ff;border-radius:6px;padding:4px 10px;cursor:pointer" onclick="filterFromIndic('retard_det')" title="Voir retards Détection">
+            <span style="font-size:13px;font-weight:800;color:#1d4ed8" id="in-retard-det">–</span>
+            <span style="font-size:11px;color:#1d4ed8;font-weight:600">Détection ↗</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;background:#fff7ed;border-radius:6px;padding:4px 10px;cursor:pointer" onclick="filterFromIndic('retard_prot')" title="Voir retards Protection">
+            <span style="font-size:13px;font-weight:800;color:#c2410c" id="in-retard-prot">–</span>
+            <span style="font-size:11px;color:#c2410c;font-weight:600">Protection ↗</span>
+          </div>
+        </div>
+        <button class="tbtn" style="background:#e11d48;color:#fff;border-color:#e11d48;font-size:11px;padding:4px 12px;cursor:pointer;margin-left:auto" onclick="filterFromIndic('retard')">↗ Voir tous les retards</button>
+      </div>
+
+      <div id="indicMailEnvoye" style="display:none;background:#f0fdf4;border-top:1px solid #bbf7d0;padding:8px 14px;gap:8px;align-items:center"></div>
+
+      <!-- Ligne 2 : Manque rapport -->
+      <div id="indicRapportQ7Row" style="display:none;flex-direction:column">
+        <div id="indicManqueRapportBar" style="display:none;background:#f0fdf4;border-top:1px solid #bbf7d0;padding:10px 14px;align-items:center;gap:12px;flex-wrap:wrap">
+          <span style="font-size:22px;font-weight:800;color:#16a34a" id="in-manque-rapport-total">–</span>
+          <span style="font-size:12px;font-weight:700;color:#166534;line-height:1.3;flex:1">Manque rapport <span style="font-weight:400;color:#15803d;font-size:11px">— VE réalisée, rapport non remis</span></span>
+          <button class="tbtn" style="background:#16a34a;color:#fff;border-color:#15803d;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="filterSansRapportForTech(null)">↗ Voir la liste</button>
+        </div>
+        <!-- Ligne 3 : Q7 en attente -->
+        <div id="indicQ7RetardBar" style="display:none;background:#fef3c7;border-top:1px solid #fde68a;padding:10px 14px;align-items:center;gap:12px;flex-wrap:wrap">
+          <span style="font-size:22px;font-weight:800;color:#d97706" id="in-q7-retard-total">–</span>
+          <span style="font-size:12px;font-weight:700;color:#92400e;line-height:1.3;flex:1">Q7 en attente <span style="font-weight:400;color:#b45309;font-size:11px">— VE archivée, rapport Q7 non délivré</span></span>
+          <button class="tbtn" style="background:#d97706;color:#fff;border-color:#d97706;font-size:11px;padding:4px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="filterFromIndic('q7_retard')">↗ Voir la liste</button>
+        </div>
       </div>
 
     </div>
@@ -1414,162 +1422,115 @@ function loadSheetJS(callback) {
 
 <!-- PAGE ÉVOLUTION MENSUELLE -->
 <div id="evolutionPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;padding:24px 28px">
-  <div style="max-width:1300px;margin:0 auto">
+  <div style="max-width:1400px;margin:0 auto">
 
     <!-- HEADER -->
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
-      <button onclick="switchTab('indic')" style="background:var(--navy);color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px">← Retour accueil</button>
-      <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin:0">📈 Évolution mensuelle des indicateurs</h2>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+      <button onclick="switchTab('indic')" style="background:var(--navy);color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px">← Retour</button>
+      <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin:0">📈 Évolution annuelle</h2>
     </div>
 
     <!-- BARRE CONTROLES -->
-    <div style="background:#fff;border-radius:10px;padding:14px 18px;box-shadow:var(--shadow);margin-bottom:20px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end">
+    <div style="background:#fff;border-radius:12px;padding:16px 20px;box-shadow:var(--shadow);margin-bottom:24px">
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">
 
-      <!-- Période -->
-      <div style="display:flex;flex-direction:column;gap:4px">
-        <label style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px">Période</label>
-        <div style="display:flex;align-items:center;gap:6px">
-          <select id="evolMoisDeb" style="border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px">
-            <option value="1">Janvier</option><option value="2">Février</option><option value="3">Mars</option>
-            <option value="4">Avril</option><option value="5">Mai</option><option value="6">Juin</option>
-            <option value="7">Juillet</option><option value="8">Août</option><option value="9">Septembre</option>
-            <option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
+        <!-- Année -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px">📅 Année</label>
+          <select id="evolAnnee" onchange="renderEvolutionCharts()" style="border:2px solid #bfdbfe;border-radius:7px;padding:5px 10px;font-size:13px;font-weight:700;color:#1e40af;min-width:90px">
           </select>
-          <select id="evolAnneeDeb" style="border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px"></select>
-          <span style="font-size:12px;color:var(--sub)">→</span>
-          <select id="evolMoisFin" style="border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px">
-            <option value="1">Janvier</option><option value="2">Février</option><option value="3">Mars</option>
-            <option value="4">Avril</option><option value="5">Mai</option><option value="6">Juin</option>
-            <option value="7">Juillet</option><option value="8">Août</option><option value="9">Septembre</option>
-            <option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
+        </div>
+
+        <!-- Filtre Agence -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px">🏢 Agence</label>
+          <select id="evolAgence" onchange="renderEvolutionCharts()" style="border:1px solid var(--line);border-radius:7px;padding:5px 10px;font-size:12px;min-width:120px">
+            <option value="">Toutes agences</option>
           </select>
-          <select id="evolAnneeFin" style="border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px"></select>
         </div>
-      </div>
 
-      <!-- Raccourcis période -->
-      <div style="display:flex;flex-direction:column;gap:4px">
-        <label style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px">Raccourcis</label>
-        <div style="display:flex;gap:6px">
-          <button onclick="setPeriode(6)"  style="border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;background:#f8fafc">6 mois</button>
-          <button onclick="setPeriode(12)" style="border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;background:#e0f2fe;border-color:#7dd3fc;color:#0369a1;font-weight:700">12 mois</button>
-          <button onclick="setPeriode(24)" style="border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;background:#f8fafc">24 mois</button>
-          <button onclick="setPeriodeAnnee()" style="border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;background:#f8fafc">Année en cours</button>
-        </div>
-      </div>
-
-      <!-- Indicateurs à afficher -->
-      <div style="display:flex;flex-direction:column;gap:4px">
-        <label style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px">Indicateurs</label>
-        <div style="display:flex;flex-wrap:wrap;gap:5px" id="evolIndicateurs">
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:3px 8px"><input type="checkbox" value="total"        checked onchange="renderEvolutionCharts()"> Total</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:3px 8px"><input type="checkbox" value="detect"       checked onchange="renderEvolutionCharts()"> Détection</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:3px 8px"><input type="checkbox" value="prot"         checked onchange="renderEvolutionCharts()"> Protection</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fef3f2;border:1px solid #fca5a5;border-radius:5px;padding:3px 8px"><input type="checkbox" value="retards"      onchange="renderEvolutionCharts()"> Retards VE</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fffbeb;border:1px solid #fde68a;border-radius:5px;padding:3px 8px"><input type="checkbox" value="q7"           onchange="renderEvolutionCharts()"> Q7 attente</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#f0fdf4;border:1px solid #86efac;border-radius:5px;padding:3px 8px"><input type="checkbox" value="rapport"      onchange="renderEvolutionCharts()"> Sans rapport</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fef3f2;border:1px solid #fca5a5;border-radius:5px;padding:3px 8px;font-weight:700;border-width:2px"><input type="checkbox" value="suivi" checked onchange="renderEvolutionCharts()"> 🎯 Suivi terrain (combiné)</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:5px;padding:3px 8px"><input type="checkbox" value="recond"       onchange="renderEvolutionCharts()"> Recond.</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fef3f2;border:1px solid #fca5a5;border-radius:5px;padding:3px 8px"><input type="checkbox" value="v1"           onchange="renderEvolutionCharts()"> V1/M1</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fef3f2;border:1px solid #fca5a5;border-radius:5px;padding:3px 8px"><input type="checkbox" value="v2"           onchange="renderEvolutionCharts()"> V2/M2</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#f0fdf4;border:1px solid #86efac;border-radius:5px;padding:3px 8px"><input type="checkbox" value="sansType"     onchange="renderEvolutionCharts()"> Sans type</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#e0f2fe;border:1px solid #7dd3fc;border-radius:5px;padding:3px 8px;font-weight:700"><input type="checkbox" value="archivage"   checked onchange="renderEvolutionCharts()"> 📁 Archivage VE</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;background:#fdf4ff;border:1px solid #e9d5ff;border-radius:5px;padding:3px 8px"><input type="checkbox" value="connexions" checked onchange="renderEvolutionCharts()"> 👤 Connexions</label>
-        </div>
-      </div>
-
-      <!-- Filtre technicien + service global -->
-      <div style="display:flex;flex-direction:column;gap:4px">
-        <label style="font-size:11px;font-weight:700;color:#e11d48;text-transform:uppercase;letter-spacing:.4px">🎯 Filtres globaux</label>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <select id="evolTechGlobal" onchange="renderEvolutionCharts()" style="border:2px solid #fca5a5;border-radius:6px;padding:4px 8px;font-size:12px;min-width:160px;font-weight:600">
-            <option value="">👤 Tous les techniciens</option>
-          </select>
-          <select id="evolServiceGlobal" onchange="renderEvolutionCharts()" style="border:2px solid #fca5a5;border-radius:6px;padding:4px 8px;font-size:12px;font-weight:600">
-            <option value="">📟🧯 Tous services</option>
+        <!-- Filtre Service -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px">🔧 Service</label>
+          <select id="evolServiceGlobal" onchange="renderEvolutionCharts()" style="border:1px solid var(--line);border-radius:7px;padding:5px 10px;font-size:12px">
+            <option value="">Tous services</option>
             <option value="DET">📟 Détection</option>
             <option value="PROT">🧯 Protection</option>
           </select>
-          <button onclick="document.getElementById('evolTechGlobal').value='';document.getElementById('evolServiceGlobal').value='';renderEvolutionCharts()" title="Réinitialiser les filtres" style="border:1px solid #fca5a5;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;background:#fff1f2;color:#e11d48">↺ Reset</button>
         </div>
-        <div style="font-size:10px;color:#94a3b8;font-style:italic">S'appliquent à tous les graphiques</div>
+
+        <!-- Filtre Personne -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px">👤 Technicien</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="evolTechGlobal" onchange="renderEvolutionCharts()" style="border:1px solid var(--line);border-radius:7px;padding:5px 10px;font-size:12px;min-width:160px">
+              <option value="">Tous les techniciens</option>
+            </select>
+            <button onclick="document.getElementById('evolTechGlobal').value='';document.getElementById('evolAgence').value='';document.getElementById('evolServiceGlobal').value='';renderEvolutionCharts()" title="Réinitialiser tous les filtres" style="border:1px solid #e2e8f0;border-radius:7px;padding:5px 9px;font-size:12px;cursor:pointer;background:#f8fafc;color:#64748b">↺</button>
+          </div>
+        </div>
+
+        <button onclick="renderEvolutionCharts()" style="background:var(--navy);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;margin-left:auto">🔄 Actualiser</button>
       </div>
 
-      <!-- Bouton actualiser -->
-      <button onclick="renderEvolutionCharts()" style="background:var(--navy);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">🔄 Actualiser</button>
+      <!-- Mois -->
+      <div style="margin-top:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--sub);font-weight:600">Afficher :</span>
+        <div id="evolMoisBtns" style="display:flex;gap:4px;flex-wrap:wrap"></div>
+        <button onclick="evolToggleAllMois(true)" style="border:1px solid var(--line);border-radius:5px;padding:2px 8px;font-size:10px;cursor:pointer;background:#f8fafc;color:#64748b">Tout</button>
+        <button onclick="evolToggleAllMois(false)" style="border:1px solid var(--line);border-radius:5px;padding:2px 8px;font-size:10px;cursor:pointer;background:#f8fafc;color:#64748b">Aucun</button>
+      </div>
     </div>
 
-    <!-- GRILLE GRAPHIQUES -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" id="evolutionCharts"></div>
+    <!-- GRAPHIQUES EN GRILLE 2 COLONNES -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" id="evolGrid">
 
-    <!-- SUIVI TERRAIN : Retards VE + Q7 + Sans rapport (pleine largeur, prominent) -->
-    <div id="suiviTerrainSection" style="margin-top:20px;display:none">
+      <!-- Portefeuille contrats -->
+      <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);border-top:3px solid #1e40af">
+        <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:4px">📊 Portefeuille contrats</div>
+        <div style="font-size:11px;color:var(--sub);margin-bottom:10px">Nombre de contrats actifs par mois</div>
+        <canvas id="evChart_portefeuille" height="160"></canvas>
+      </div>
+
+      <!-- Mouvements (résiliations + nouveaux) -->
+      <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);border-top:3px solid #7c3aed">
+        <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:4px">📋 Mouvements contrats</div>
+        <div style="font-size:11px;color:var(--sub);margin-bottom:10px">Résiliations et nouveaux contrats par mois</div>
+        <canvas id="evChart_mouvements" height="160"></canvas>
+      </div>
+
+      <!-- Aléas : retards + Q7 + sans rapport -->
       <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);border-top:3px solid #e11d48">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:10px">
-          <div>
-            <div style="font-size:13px;font-weight:800;color:var(--navy)">🎯 Suivi terrain</div>
-            <div style="font-size:11px;color:var(--sub);margin-top:2px">Installations en retard · Q7 non traités · Sans rapport — par mois planifié</div>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px">
-            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#e11d48;border-radius:2px"></span> VEs en retard</span>
-            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#d97706;border-radius:2px"></span> Q7 non traités</span>
-            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#16a34a;border-radius:2px"></span> Sans rapport</span>
-          </div>
-        </div>
-        <canvas id="evChart_suivi" height="130"></canvas>
-        <div style="margin-top:8px;font-size:10.5px;color:#94a3b8;font-style:italic">
-          Utilisez le filtre <strong>👤 Technicien</strong> ci-dessus pour visualiser un technicien en particulier. Cliquez sur la légende pour masquer une courbe.
-        </div>
+        <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:4px">⚠️ Aléas</div>
+        <div style="font-size:11px;color:var(--sub);margin-bottom:10px">VEs en retard · Q7 non traités · Sans rapport</div>
+        <canvas id="evChart_aleas" height="160"></canvas>
       </div>
+
+      <!-- Archivage VE -->
+      <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);border-top:3px solid #0ea5e9">
+        <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:4px">📁 Archivage des rapports VE</div>
+        <div style="font-size:11px;color:var(--sub);margin-bottom:10px">VEs archivées (bleu) vs en attente — par mois planifié</div>
+        <canvas id="evChart_archivage" height="160"></canvas>
+      </div>
+
     </div>
 
-    <!-- VOLUME CONTRATS : Total / Détection / Protection (pleine largeur) -->
-    <div id="totalDetectProtSection" style="margin-top:20px;display:none">
-      <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-          <div style="font-size:13px;font-weight:800;color:var(--navy)">📊 Volume de contrats <span style="font-size:11px;font-weight:400;color:var(--sub)">(contrats actifs par mois)</span></div>
-          <div style="display:flex;gap:12px;font-size:11px">
-            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#1e40af;border-radius:2px"></span> Total</span>
-            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#3b82f6;border-radius:2px"></span> Détection</span>
-            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#92400e;border-radius:2px"></span> Protection</span>
-          </div>
+    <!-- Connexions pleine largeur -->
+    <div style="margin-top:20px;background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);border-top:3px solid #7c3aed">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--navy)">👤 Connexions par utilisateur</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:2px">Historique local de ce PC</div>
         </div>
-        <canvas id="evChart_totalDetectProt" height="120"></canvas>
+        <button onclick="if(confirm('Effacer tout l\'historique des connexions ?')){localStorage.removeItem('gestion_contrats_login_log');renderEvolutionCharts();toast('Historique effacé','success')}" style="border:1px solid #fca5a5;background:#fef2f2;color:#ef4444;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer">🗑 Effacer</button>
       </div>
-    </div>
-
-    <!-- ARCHIVAGE VE (pleine largeur) -->
-    <div id="archivageChartSection" style="margin-top:20px;display:none">
-      <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-          <div style="font-size:13px;font-weight:800;color:var(--navy)">📁 Archivage des rapports VE — par mois planifié <span style="font-size:11px;font-weight:400;color:var(--sub)">(VEs archivées = bleues)</span></div>
-          <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px">
-            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#0ea5e9;border-radius:2px"></span> Détection archivé</span>
-            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#f97316;border-radius:2px"></span> PROT archivé</span>
-            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#0ea5e9;border-radius:2px;opacity:.45"></span> Détection en attente</span>
-            <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:28px;height:3px;background:#f97316;border-radius:2px;opacity:.45"></span> PROT en attente</span>
-          </div>
-        </div>
-        <canvas id="evChart_archivage" height="120"></canvas>
-        <div style="margin-top:8px;font-size:10.5px;color:#94a3b8;font-style:italic">Pour chaque mois, comptage des VE1 et VE2 planifiées ce mois et dont le rapport est archivé (bleu). Reflète l'état actuel de la base.</div>
-      </div>
-    </div>
-
-    <!-- CONNEXIONS PAR UTILISATEUR (pleine largeur) -->
-    <div id="connexionsChartSection" style="margin-top:20px;display:none">
-      <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-          <div style="font-size:13px;font-weight:800;color:var(--navy)">👤 Connexions par utilisateur <span style="font-size:11px;font-weight:400;color:var(--sub)">(enregistrées localement)</span></div>
-          <button onclick="if(confirm('Effacer tout l\'historique des connexions ?')){localStorage.removeItem('gestion_contrats_login_log');renderEvolutionCharts();toast('Historique effacé','success')}" style="border:1px solid #fca5a5;background:#fef2f2;color:#ef4444;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer">🗑 Effacer historique</button>
-        </div>
-        <canvas id="evChart_connexions" height="120"></canvas>
-        <div id="connexionsEmpty" style="display:none;text-align:center;padding:30px;color:#94a3b8;font-size:13px">Aucune connexion enregistrée sur ce poste.<br><span style="font-size:11px">L'historique se constitue dès la prochaine connexion.</span></div>
-        <div style="margin-top:8px;font-size:10.5px;color:#94a3b8;font-style:italic">Historique stocké dans le navigateur de ce PC (localStorage). Limité aux 2 000 dernières connexions.</div>
-      </div>
+      <canvas id="evChart_connexions" height="100"></canvas>
+      <div id="connexionsEmpty" style="display:none;text-align:center;padding:20px;color:#94a3b8;font-size:13px">Aucune connexion enregistrée sur ce poste.</div>
     </div>
 
   </div>
 </div>
+
 
 <!-- MODAL FICHES TECHNICIENS -->
 <div class="overlay" id="techFichesModal">
@@ -2004,6 +1965,15 @@ function loadSheetJS(callback) {
 
           <!-- ── RENSEIGNEMENTS DIVERS ── -->
           <div class="form-section" style="background:#6b21a8;color:#fff;border-bottom:2px solid #581c87;padding:8px 14px;border-radius:6px;margin-bottom:6px;margin-top:10px;font-size:12px;letter-spacing:1px">📝 RENSEIGNEMENTS DIVERS</div>
+          <div class="fg">
+            <label style="display:flex;align-items:center;gap:6px">
+              📅 Date d'enregistrement
+              <span style="font-size:10px;font-weight:400;color:var(--sub)">(modifiable)</span>
+            </label>
+            <input type="date" id="f_createdAt"
+              style="border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:12px;background:var(--bg);width:100%;box-sizing:border-box"
+              title="Date d'enregistrement du contrat — automatique à la création, modifiable">
+          </div>
           <div class="fg" style="grid-column:1/-1">
             <label>Remarques</label>
             <textarea id="f_Remarques" placeholder="Notes, accès particuliers, équipements spéciaux…" style="resize:vertical;min-height:60px;font-family:inherit;font-size:13px;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);width:100%;box-sizing:border-box"></textarea>
@@ -2150,7 +2120,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/14-04-26-08:53';
+const APP_VERSION = 'V1/18-04-26-10:22';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5209,6 +5179,10 @@ function openAdd() {
   refreshFamilleSelect();
   refreshFamilleSelect();
   updateInstallCount();
+  // Date d'enregistrement : aujourd'hui par défaut pour un nouveau contrat
+  const today = new Date().toISOString().slice(0,10);
+  const dateEl = document.getElementById('f_createdAt');
+  if (dateEl) dateEl.value = today;
   document.getElementById('formModal').classList.add('open');
 }
 
@@ -5285,6 +5259,15 @@ function openEditById(id) {
   syncDept();
   renderOptionsCheckboxes(r);
   updateInstallCount();
+  // Date d'enregistrement
+  const _createdAtEl = document.getElementById('f_createdAt');
+  if (_createdAtEl) {
+    if (r._createdAt) {
+      try { _createdAtEl.value = new Date(r._createdAt).toISOString().slice(0,10); } catch(e) { _createdAtEl.value = ''; }
+    } else {
+      _createdAtEl.value = ''; // ancien contrat sans date
+    }
+  }
   document.getElementById('formModal').classList.add('open');
 }
 
@@ -5367,6 +5350,15 @@ function saveContract() {
     record.Detect_Tech2 = null;
   }
 
+  // Date d'enregistrement : lire depuis le champ, sinon conserver l'existant ou today
+  const _caEl = document.getElementById('f_createdAt');
+  if (_caEl && _caEl.value) {
+    try { record._createdAt = new Date(_caEl.value).toISOString(); } catch(e) {}
+  } else if (editingId) {
+    const _existing = db.find(x => x._id === editingId);
+    record._createdAt = _existing?._createdAt || null;
+  }
+
   if (editingId) {
     pushUndo(`Modif. "${record.Installation||'?'}"`);
     const idx = db.findIndex(x => x._id === editingId);
@@ -5374,7 +5366,7 @@ function saveContract() {
       // Préserver les champs gérés hors formulaire (commentaire, couleurs VE, Q7, etc.)
       const PRESERVE = ['Commentaire','VE1_statut','VE2_statut','VE1_color','VE2_color',
                         'Q7_VE1_tech','Q7_VE2_tech','Debit_color','Reconditionnement_color',
-                        'Formation_SSI_color','_createdAt','_suspension'];
+                        'Formation_SSI_color','_suspension'];
       const existing = db[idx];
       PRESERVE.forEach(k => { if (existing[k] !== undefined && record[k] === undefined) record[k] = existing[k]; });
       db[idx] = record;
@@ -5382,7 +5374,7 @@ function saveContract() {
     toast('✅ Contrat modifié', 'success');
   } else {
     pushUndo(`Ajout "${record.Installation||'?'}"`);
-    record._createdAt = new Date().toISOString();
+    if (!record._createdAt) record._createdAt = new Date().toISOString(); // fallback si champ vide
     db.push(record);
     toast('✅ Contrat ajouté', 'success');
   }
@@ -6442,6 +6434,160 @@ async function envoyerMailsGlobaux() {
 }
 
 /* ═══════════════════════════════════════════════
+   MAILS MOIS EN COURS + MOIS SUIVANT
+═══════════════════════════════════════════════ */
+const MAIL_MOIS_KEY = 'gestion_contrats_mail_mois_envoye';
+
+function getMailMoisKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+}
+
+function isMailMoisDejaEnvoye() {
+  return !!localStorage.getItem(MAIL_MOIS_KEY + '_' + getMailMoisKey());
+}
+
+function marquerMailMoisEnvoye(nb) {
+  localStorage.setItem(MAIL_MOIS_KEY + '_' + getMailMoisKey(),
+    JSON.stringify({ sentAt: new Date().toISOString(), nb }));
+  updateBtnMailMois();
+}
+
+function updateBtnMailMois() {
+  const wrap     = document.getElementById('btnMailMoisWrap');
+  const pastille = document.getElementById('btnMailMoisPastille');
+  if (!wrap) return;
+  const dejaEnvoye = isMailMoisDejaEnvoye();
+  if (dejaEnvoye) {
+    // Vert
+    wrap.style.background    = '#16a34a';
+    wrap.style.borderColor   = '#15803d';
+    wrap.style.boxShadow     = '0 3px 10px rgba(22,163,74,.3)';
+    if (pastille) { pastille.style.background = '#bbf7d0'; }
+    const info = JSON.parse(localStorage.getItem(MAIL_MOIS_KEY + '_' + getMailMoisKey()) || '{}');
+    const date = info.sentAt ? new Date(info.sentAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'long'}) : '';
+    wrap.title = `✅ Envoyé le ${date} (${info.nb||0} technicien(s)) — cliquer pour renvoyer`;
+  } else {
+    // Rouge
+    wrap.style.background    = '#dc2626';
+    wrap.style.borderColor   = '#b91c1c';
+    wrap.style.boxShadow     = '0 3px 10px rgba(220,38,38,.3)';
+    if (pastille) { pastille.style.background = '#fca5a5'; }
+    wrap.title = '⚠ Mails mois en cours + mois suivant non envoyés — cliquer pour envoyer';
+  }
+}
+
+async function envoyerMailsMoisCourantEtSuivant() {
+  if (isMailMoisDejaEnvoye()) {
+    if (!confirm('Les mails du mois ont déjà été envoyés ce mois-ci. Envoyer à nouveau ?')) return;
+  }
+
+  const now = new Date();
+  const moisCourantIdx  = now.getMonth();
+  const moisSuivantIdx  = (moisCourantIdx + 1) % 12;
+  const anneeSuivante   = moisCourantIdx === 11 ? now.getFullYear() + 1 : now.getFullYear();
+  const nomMoisCourant  = now.toLocaleDateString('fr-FR', { month: 'long' });
+  const nomMoisSuivant  = new Date(anneeSuivante, moisSuivantIdx, 1).toLocaleDateString('fr-FR', { month: 'long' });
+
+  // Regrouper par technicien : mois courant + mois suivant (VE1 et VE2)
+  const planningByTech = {};
+  const addSite = (techName, r, mois, field) => {
+    if (!techName) return;
+    if (!planningByTech[techName]) planningByTech[techName] = { courant: [], suivant: [] };
+    planningByTech[techName][mois].push({ r, field });
+  };
+
+  getFilteredDb().forEach(r => {
+    const tech = r.Technicien ? resolveTechName(r.Technicien) : null;
+    const binome = r.Binome ? resolveTechName(r.Binome) : null;
+    ['ve1','ve2'].forEach(field => {
+      const mIdx = getVeMonthIndex(field === 've1' ? r.VE1 : r.VE2);
+      if (mIdx === moisCourantIdx) {
+        addSite(tech,   r, 'courant', field);
+        if (binome && binome !== tech) addSite(binome, r, 'courant', field);
+      }
+      if (mIdx === moisSuivantIdx) {
+        addSite(tech,   r, 'suivant', field);
+        if (binome && binome !== tech) addSite(binome, r, 'suivant', field);
+      }
+    });
+  });
+
+  const techs = Object.entries(planningByTech).filter(([,v]) => v.courant.length > 0 || v.suivant.length > 0);
+  if (techs.length === 0) { toast('Aucun site planifié pour ces deux mois', ''); return; }
+
+  const recap = techs.map(([name, v]) =>
+    `• ${name} : ${v.courant.length} site(s) en cours + ${v.suivant.length} site(s) mois suivant`
+  ).join('\n');
+  if (!confirm(`Envoyer les plannings à ${techs.length} technicien(s) ?
+
+${recap}`)) return;
+
+  let nbEnvoyes = 0, nbSansMail = 0;
+
+  for (const [name, v] of techs) {
+    const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === name.toLowerCase());
+    const mail  = fiche?.mail || '';
+    if (!mail) { nbSansMail++; continue; }
+
+    let body = `Bonjour ${name},
+
+`;
+
+    if (v.courant.length > 0) {
+      body += `📅 SITES DU MOIS EN COURS — ${nomMoisCourant.toUpperCase()} (${v.courant.length} site(s)) :\n`;
+      // Dédupliquer par installation
+      const seen = new Set();
+      v.courant.forEach(({ r, field }) => {
+        const key = r.Installation + '|' + field;
+        if (seen.has(key)) return; seen.add(key);
+        const veLabel = field === 've1' ? 'VE1' : 'VE2';
+        body += `  • ${r.Installation}${r.Ville ? ' (' + r.Ville + ')' : ''} — ${veLabel}\n`;
+      });
+      body += '\n';
+    }
+
+    if (v.suivant.length > 0) {
+      body += `📅 SITES DU MOIS SUIVANT — ${nomMoisSuivant.toUpperCase()} (${v.suivant.length} site(s)) :\n`;
+      const seen = new Set();
+      v.suivant.forEach(({ r, field }) => {
+        const key = r.Installation + '|' + field;
+        if (seen.has(key)) return; seen.add(key);
+        const veLabel = field === 've1' ? 'VE1' : 'VE2';
+        body += `  • ${r.Installation}${r.Ville ? ' (' + r.Ville + ')' : ''} — ${veLabel}\n`;
+      });
+      body += '\n';
+    }
+
+    body += `Bonne organisation !
+
+Cordialement`;
+
+    const myMail = _currentUser ? (techFiches.find(f => getTechFullName(f).toLowerCase() === (_currentUser.ficheLinked||'').toLowerCase())?.mail || '') : '';
+    const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(',');
+    const subject = encodeURIComponent(`📅 Planning ${nomMoisCourant} + ${nomMoisSuivant} — ${name}`);
+    window.open(`mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
+    nbEnvoyes++;
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  marquerMailMoisEnvoye(nbEnvoyes);
+  let msg = `📅 ${nbEnvoyes} mail(s) ouverts`;
+  if (nbSansMail > 0) msg += ` — ${nbSansMail} sans adresse mail`;
+  toast(msg, 'success');
+}
+
+// Rafraîchir les indicateurs manuellement
+function refreshIndic() {
+  buildFilters();
+  applyFilters();
+  updateStats();
+  updateSynthese();
+  updateBtnMailMois();
+  toast('🔄 Indicateurs rafraîchis', 'success');
+}
+
+/* ═══════════════════════════════════════════════
    PLANNING MOIS SUIVANT — envoi dernière semaine
 ═══════════════════════════════════════════════ */
 const MAIL_PLANNING_KEY = 'gestion_contrats_planning_mail_sent';
@@ -7433,555 +7579,336 @@ function updateSynthese() {
       card.addEventListener('click', () => { if (dragSrc) { dragSrc = null; } });
     });
   }); // fin forEach grids
+  updateBtnMailMois();
 } // fin updateSynthese
 
 /* ═══════════════════════════════════════════════
-   PAGE ÉVOLUTION MENSUELLE
+   PAGE ÉVOLUTION MENSUELLE — REFONTE COMPLÈTE
 ═══════════════════════════════════════════════ */
-let _evolutionCharts = {}; // instances Chart.js stockées
-let _evolTechPerChart = {}; // filtre tech par graphique { key: techName|'' }
+let _evolutionCharts = {};  // instances Chart.js
 
-function openChangelogSidebarInner(panel, overlay, body) {
-
-  const icons  = { new: '✨', fix: '🔧', improve: '⚡' };
-  const labels = { new: 'Nouveau', fix: 'Correction', improve: 'Amélioration' };
-  const colors = { new: '#1565c0', fix: '#b45309', improve: '#047857' };
-  const bgs    = { new: '#eff6ff', fix: '#fefce8', improve: '#f0fdf4' };
-
-  let html = '';
-  CHANGELOG.forEach((ver, idx) => {
-    const isLatest = idx === 0;
-    html += `
-      <div style="margin-bottom:20px;border:1px solid ${isLatest ? '#bfdbfe' : '#e2e8f0'};border-radius:10px;overflow:hidden">
-        <div style="background:${isLatest ? '#1e40af' : '#f8fafc'};padding:10px 14px;display:flex;align-items:center;gap:8px">
-          <span style="background:${isLatest ? '#fff' : '#e2e8f0'};color:${isLatest ? '#1e40af' : '#64748b'};
-            font-size:11px;font-weight:800;padding:2px 10px;border-radius:20px">v${ver.version}</span>
-          <span style="font-size:11px;color:${isLatest ? 'rgba(255,255,255,.7)' : '#94a3b8'}">${ver.date}</span>
-          ${isLatest ? '<span style="margin-left:auto;background:#dcfce7;color:#16a34a;font-size:10px;font-weight:700;padding:1px 8px;border-radius:20px">Actuelle</span>' : ''}
-        </div>
-        <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px">
-          ${ver.items.map(it => `
-            <div style="display:flex;align-items:flex-start;gap:8px;padding:5px 8px;background:${bgs[it.type]||'#f8fafc'};border-radius:6px">
-              <span style="font-size:13px;flex-shrink:0">${icons[it.type]||'•'}</span>
-              <div style="font-size:12px;color:#374151;line-height:1.4">
-                <span style="font-weight:700;color:${colors[it.type]||'#374151'};margin-right:4px">${labels[it.type]||''}</span>${it.text}
-              </div>
-            </div>`).join('')}
-        </div>
-      </div>`;
-  });
-
-  body.innerHTML = html || '<div style="text-align:center;padding:40px;color:#94a3b8">Aucune mise à jour enregistrée</div>';
-  panel.style.display = 'flex';
-  if (overlay) overlay.style.display = 'block';
-}
-
+/* ── Initialisation de la page ────────────────────────────── */
 function openEvolutionPage() {
-  // Peupler les sélecteurs d'années
-  const currentYear = new Date().getFullYear();
-  ['evolAnneeDeb','evolAnneeFin'].forEach(id => {
-    const sel = document.getElementById(id);
-    if (sel && sel.options.length === 0) {
-      for (let y = currentYear + 1; y >= currentYear - 4; y--) {
-        const opt = document.createElement('option');
-        opt.value = y; opt.textContent = y;
-        if (y === currentYear) opt.selected = true;
-        sel.appendChild(opt);
-      }
+  // Année : de 2026 à année courante + 1
+  const sel = document.getElementById('evolAnnee');
+  if (sel && sel.options.length === 0) {
+    const curY = new Date().getFullYear();
+    for (let y = curY + 1; y >= 2026; y--) {
+      const o = document.createElement('option');
+      o.value = y; o.textContent = y;
+      if (y === curY) o.selected = true;
+      sel.appendChild(o);
     }
-  });
-
-  // Peupler le filtre technicien global
-  const techSel = document.getElementById('evolTechGlobal');
-  if (techSel && techSel.options.length <= 1) {
-    const techs = [...new Set(db.flatMap(r => [r.Technicien, r.Binome, r.Q7_VE1_tech, r.Q7_VE2_tech].filter(Boolean).map(t => t.trim())))].sort();
+  }
+  // Agences
+  const selAg = document.getElementById('evolAgence');
+  if (selAg && selAg.options.length <= 1) {
+    const ags = [...new Set(agencesList.filter(Boolean))].sort();
+    ags.forEach(a => {
+      const o = document.createElement('option');
+      o.value = a; o.textContent = a;
+      selAg.appendChild(o);
+    });
+  }
+  // Techniciens
+  const selT = document.getElementById('evolTechGlobal');
+  if (selT && selT.options.length <= 1) {
+    const techs = [...new Set(db.flatMap(r =>
+      [r.Technicien, r.Binome].filter(Boolean).map(t => t.trim())
+    ))].sort();
     techs.forEach(t => {
-      const opt = document.createElement('option');
-      opt.value = t; opt.textContent = t;
-      techSel.appendChild(opt);
+      const o = document.createElement('option');
+      o.value = t; o.textContent = t;
+      selT.appendChild(o);
     });
   }
-
-  // Par défaut : 12 derniers mois
-  if (!document.getElementById('evolAnneeDeb')._init) {
-    setPeriode(12);
-    document.getElementById('evolAnneeDeb')._init = true;
-  }
+  // Boutons mois
+  _buildMoisBtns();
   renderEvolutionCharts();
 }
 
-// Positionne la période sur les N derniers mois
-function setPeriode(nbMois) {
-  const now = new Date();
-  const fin = { m: now.getMonth() + 1, y: now.getFullYear() };
-  let deb = new Date(now.getFullYear(), now.getMonth() - nbMois + 1, 1);
-  const debut = { m: deb.getMonth() + 1, y: deb.getFullYear() };
-  document.getElementById('evolMoisDeb').value  = debut.m;
-  document.getElementById('evolAnneeDeb').value = debut.y;
-  document.getElementById('evolMoisFin').value  = fin.m;
-  document.getElementById('evolAnneeFin').value = fin.y;
+/* ── Boutons mois ─────────────────────────────────────────── */
+const _MOIS_LABELS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+let _evolMoisActifs = new Set([0,1,2,3,4,5,6,7,8,9,10,11]);
+
+function _buildMoisBtns() {
+  const wrap = document.getElementById('evolMoisBtns');
+  if (!wrap || wrap.children.length === 12) return;
+  wrap.innerHTML = '';
+  _MOIS_LABELS.forEach((label, i) => {
+    const btn = document.createElement('button');
+    btn.dataset.mois = i;
+    btn.textContent = label;
+    btn.style.cssText = 'border-radius:5px;padding:2px 8px;font-size:10px;cursor:pointer;transition:all .15s;border:1px solid var(--line)';
+    _styleMoisBtn(btn, _evolMoisActifs.has(i));
+    btn.onclick = () => {
+      if (_evolMoisActifs.has(i)) _evolMoisActifs.delete(i);
+      else _evolMoisActifs.add(i);
+      _styleMoisBtn(btn, _evolMoisActifs.has(i));
+      renderEvolutionCharts();
+    };
+    wrap.appendChild(btn);
+  });
+}
+
+function _styleMoisBtn(btn, active) {
+  btn.style.background   = active ? 'var(--navy)' : '#f8fafc';
+  btn.style.color        = active ? '#fff' : '#64748b';
+  btn.style.borderColor  = active ? 'var(--navy)' : 'var(--line)';
+  btn.style.fontWeight   = active ? '700' : '400';
+}
+
+function evolToggleAllMois(on) {
+  _evolMoisActifs = on ? new Set([0,1,2,3,4,5,6,7,8,9,10,11]) : new Set();
+  document.querySelectorAll('#evolMoisBtns button').forEach(btn => {
+    _styleMoisBtn(btn, on);
+  });
   renderEvolutionCharts();
 }
 
-// Positionne sur l'année en cours (Jan → Dec)
-function setPeriodeAnnee() {
-  const y = new Date().getFullYear();
-  document.getElementById('evolMoisDeb').value  = 1;
-  document.getElementById('evolAnneeDeb').value = y;
-  document.getElementById('evolMoisFin').value  = 12;
-  document.getElementById('evolAnneeFin').value = y;
-  renderEvolutionCharts();
+/* ── Filtrage de la source ────────────────────────────────── */
+function _evolFilteredDb() {
+  const tech    = document.getElementById('evolTechGlobal')?.value    || '';
+  const service = document.getElementById('evolServiceGlobal')?.value || '';
+  const agence  = document.getElementById('evolAgence')?.value        || '';
+
+  return db.filter(r => {
+    if (service === 'DET'  && r.Type_Contrat === 'PROT') return false;
+    if (service === 'PROT' && r.Type_Contrat !== 'PROT') return false;
+    if (tech) {
+      const isTech = [r.Technicien, r.Binome].map(t => (t||'').trim()).includes(tech);
+      if (!isTech) return false;
+    }
+    if (agence) {
+      const techName = (r.Technicien||'').trim();
+      const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === techName.toLowerCase());
+      if (!fiche || fiche.agence !== agence) return false;
+    }
+    return true;
+  });
 }
 
-// Génère la liste des mois entre début et fin
-function getPeriodeLabels() {
-  const mDeb  = parseInt(document.getElementById('evolMoisDeb')?.value)  || 1;
-  const aDeb  = parseInt(document.getElementById('evolAnneeDeb')?.value) || new Date().getFullYear();
-  const mFin  = parseInt(document.getElementById('evolMoisFin')?.value)  || 12;
-  const aFin  = parseInt(document.getElementById('evolAnneeFin')?.value) || new Date().getFullYear();
-  const noms  = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-  const result = [];
-  let y = aDeb, m = mDeb;
-  while (y < aFin || (y === aFin && m <= mFin)) {
-    result.push({ label: noms[m-1] + (aDeb !== aFin ? ' ' + String(y).slice(2) : ''), month: m, year: y });
-    m++; if (m > 12) { m = 1; y++; }
-    if (result.length > 60) break;
-  }
-  return result;
-}
+/* ── Calcul des stats par mois pour une année ──────────────── */
+function _computeEvolStats(annee) {
+  const src  = _evolFilteredDb();
+  const mois = [..._evolMoisActifs].sort((a, b) => a - b);
+  const labels = mois.map(m => _MOIS_LABELS[m]);
 
-// Calcule les stats pour un technicien donné ('' = tous)
-function computeMonthlyStatsPeriode(periodeLabels, techFilter, serviceFilter) {
-  return periodeLabels.map(({ month, year }) => {
-    const endOfMonth = new Date(year, month, 0);
+  const endOfMonth = m => new Date(annee, m + 1, 0);
 
-    // Base : contrats actifs à la fin du mois
-    let active = db.filter(r => {
-      if (!r.Fin_Validite) return true;
-      const parts = r.Fin_Validite.split(/[\/\-\.]/);
-      if (parts.length < 3) return true;
-      let d;
-      if (parts[0].length <= 2) d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
-      else d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
-      if (isNaN(d)) return true;
-      return d >= endOfMonth;
-    });
+  const isActif = (r, eom) => {
+    if (!r.Fin_Validite) return true;
+    const parts = r.Fin_Validite.split(/[\/\-\.]/);
+    if (parts.length < 3) return true;
+    let d;
+    if (parts[0].length <= 2) d = new Date(+parts[2], +parts[1]-1, +parts[0]);
+    else d = new Date(+parts[0], +parts[1]-1, +parts[2]);
+    return isNaN(d) || d >= eom;
+  };
 
-    // Filtre service (Détection / Protection)
-    if (serviceFilter === 'DET')  active = active.filter(r => r.Type_Contrat !== 'PROT');
-    if (serviceFilter === 'PROT') active = active.filter(r => r.Type_Contrat === 'PROT');
+  const rows = mois.map(m => {
+    const eom    = endOfMonth(m);
+    const active = src.filter(r => isActif(r, eom));
 
-    // Filtre technicien pour indicateurs liés au tech
-    const techActive = techFilter
-      ? active.filter(r => [r.Technicien, r.Binome].map(t => (t||'').trim()).includes(techFilter))
-      : active;
+    // Portefeuille
+    const total  = active.length;
+    const detect = active.filter(r => r.Type_Contrat !== 'PROT').length;
+    const prot   = active.filter(r => r.Type_Contrat === 'PROT').length;
 
-    // Archivage VE par mois planifié : VEs dont le mois planifié = ce mois ET statut bleu (00B0F0)
-    const curMonthIdx = month - 1; // 0-indexed
-    let ve_arch_detect = 0, ve_arch_prot = 0;
-    (techFilter ? techActive : active).forEach(r => {
-      const isProt = r.Type_Contrat === 'PROT';
-      ['ve1','ve2'].forEach(field => {
-        const mIdx = getVeMonthIndex(field === 've1' ? r.VE1 : r.VE2);
-        if (mIdx !== curMonthIdx) return;
-        if (getVeColorForRecord(r, field) !== '00B0F0') return;
-        if (isProt) ve_arch_prot++; else ve_arch_detect++;
-      });
-    });
-
-    // Q7 par mois planifié : VEs planifiées CE mois avec Q7 assigné mais non traité
-    // (métrique par mois planifié → courbe non plate, montre la charge Q7 par mois)
-    let q7 = 0;
-    (techFilter ? techActive : active).forEach(r => {
+    // Aléas par mois planifié
+    let retards = 0, q7 = 0, rapport = 0;
+    active.forEach(r => {
       if (r._suspension) return;
       ['ve1','ve2'].forEach(field => {
         const mIdx = getVeMonthIndex(field === 've1' ? r.VE1 : r.VE2);
-        if (mIdx !== curMonthIdx) return;
+        if (mIdx !== m) return;
+        const color = getVeColorForRecord(r, field);
+        if (color !== '00B0F0' && color !== '92D050' && color !== 'FF00FF' && color !== 'SO') retards++;
+        if (color === '92D050') rapport++;
         const q7Tech = field === 've1' ? r.Q7_VE1_tech : r.Q7_VE2_tech;
-        if (!q7Tech || !q7Tech.trim()) return;
-        if (techFilter && q7Tech.trim() !== techFilter) return;
-        const q7Done = r.Q7 && r.Q7.toString().trim();
-        if (!q7Done) q7++;
+        if (q7Tech && q7Tech.trim() && (!r.Q7 || !r.Q7.toString().trim())) q7++;
       });
     });
 
-    // Sans rapport : VE réalisées (vertes) sans rapport pour ce tech
-    const rapport = active.filter(r => {
-      const ve1Green = (r.VE1_statut === '92D050') || (!r.VE1_statut && VE_COLORS[r.Installation]?.ve1 === '92D050');
-      const ve2Green = (r.VE2_statut === '92D050') || (!r.VE2_statut && VE_COLORS[r.Installation]?.ve2 === '92D050');
-      if (!techFilter) return ve1Green || ve2Green;
-      const isTech = [r.Technicien, r.Binome].map(t=>(t||'').trim()).includes(techFilter);
-      return isTech && (ve1Green || ve2Green);
-    }).length;
-
-    // VEs en attente par mois planifié : planifiées CE mois non encore archivées ni réalisées
-    // (remplace l'ancien "retards" global → courbe non plate)
-    let retards = 0;
-    (techFilter ? techActive : active).forEach(r => {
-      if (r._suspension) return;
-      ['ve1','ve2'].forEach(field => {
-        const mIdx = getVeMonthIndex(field === 've1' ? r.VE1 : r.VE2);
-        if (mIdx !== curMonthIdx) return;
-        const color = getVeColorForRecord(r, field);
-        // Non archivée (bleu), non réalisée (vert), non N+1 (rose)
-        if (color === '00B0F0' || color === '92D050' || color === 'FF00FF' || color === 'SO') return;
-        retards++;
-      });
-    });
-
-    // VEs en attente par type pour le graphique archivage (4 séries)
-    let ve_attente_detect = 0, ve_attente_prot = 0;
-    (techFilter ? techActive : active).forEach(r => {
-      if (r._suspension) return;
+    // Archivage VE
+    let archDet = 0, archProt = 0, attDet = 0, attProt = 0;
+    active.forEach(r => {
       const isProt = r.Type_Contrat === 'PROT';
       ['ve1','ve2'].forEach(field => {
-        const mIdx = getVeMonthIndex(field === 've1' ? r.VE1 : r.VE2);
-        if (mIdx !== curMonthIdx) return;
+        if (getVeMonthIndex(field === 've1' ? r.VE1 : r.VE2) !== m) return;
         const color = getVeColorForRecord(r, field);
-        if (color === '00B0F0' || color === '92D050' || color === 'FF00FF' || color === 'SO') return;
-        if (isProt) ve_attente_prot++; else ve_attente_detect++;
+        if (color === '00B0F0') isProt ? archProt++ : archDet++;
+        else if (color !== 'SO' && color !== 'FF00FF') isProt ? attProt++ : attDet++;
       });
     });
 
-    // Indicateurs globaux (non liés à un tech spécifique — utilisent techActive)
-    return {
-      total:    techActive.length,
-      detect:   techActive.filter(r => r.Type_Contrat !== 'PROT').length,
-      prot:     techActive.filter(r => r.Type_Contrat === 'PROT').length,
-      v1:       techActive.filter(r => ['V1','M1'].includes((r.Type_Contrat||'').toUpperCase())).length,
-      v2:       techActive.filter(r => ['V2','M2'].includes((r.Type_Contrat||'').toUpperCase())).length,
-      retards,
-      q7,
-      rapport,
-      recond:   techActive.filter(r => r.Reconditionnement && r.Reconditionnement.toString().trim() !== '').length,
-      sansType: techActive.filter(r => !r.Type_Contrat || !r.Type_Contrat.toString().trim()).length,
-      ve_arch_detect,
-      ve_arch_prot,
-      ve_attente_detect,
-      ve_attente_prot,
-    };
+    return { total, detect, prot, retards, q7, rapport, archDet, archProt, attDet, attProt };
   });
+
+  return { labels, mois, rows };
 }
 
-// ── Graphique multi-séries (archivage, connexions) ──────────────────────────
-function mkChartEvolMulti(canvasId, datasets, labels, legendPos) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  if (_evolutionCharts[canvasId]) { _evolutionCharts[canvasId].destroy(); }
-  // Appliquer borderDash si défini dans chaque dataset
-  const finalDatasets = datasets.map(ds => ({
-    ...ds,
-    borderDash: ds.borderDash || []
-  }));
-  _evolutionCharts[canvasId] = new Chart(canvas, {
-    type: 'line',
-    data: { labels, datasets: finalDatasets },
-    options: {
-      responsive: true,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: true, position: legendPos || 'top',
-          labels: { boxWidth: 20, padding: 14, font: { size: 11 } }
-        }
-      },
-      scales: {
-        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#f0f4f8' } },
-        x: { grid: { display: false } }
+/* ── Résiliations et nouveaux contrats ────────────────────── */
+function _computeMouvements(annee, mois) {
+  // Résiliations
+  let resilies = [];
+  try { resilies = JSON.parse(localStorage.getItem('gestion_contrats_resilies') || '[]'); } catch(e) {}
+
+  const service = document.getElementById('evolServiceGlobal')?.value || '';
+  const agence  = document.getElementById('evolAgence')?.value        || '';
+  const tech    = document.getElementById('evolTechGlobal')?.value    || '';
+
+  const resilParMois = mois.map(m => {
+    return resilies.filter(r => {
+      if (!r._resilieAt) return false;
+      const d = new Date(r._resilieAt);
+      if (d.getFullYear() !== annee || d.getMonth() !== m) return false;
+      if (service === 'DET'  && r.Type_Contrat === 'PROT') return false;
+      if (service === 'PROT' && r.Type_Contrat !== 'PROT') return false;
+      if (tech && (r.Technicien || '').trim() !== tech) return false;
+      if (agence) {
+        const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === (r.Technicien||'').toLowerCase());
+        if (!fiche || fiche.agence !== agence) return false;
       }
-    }
+      return true;
+    }).length;
   });
+
+  // Nouveaux contrats via _createdAt (date d'enregistrement)
+  const src = _evolFilteredDb();
+  const nouveauxParMois = mois.map(m => {
+    return src.filter(r => {
+      if (!r._createdAt) return false;
+      const d = new Date(r._createdAt);
+      return d.getFullYear() === annee && d.getMonth() === m;
+    }).length;
+  });
+
+  return { resilParMois, nouveauxParMois };
 }
 
-// ── Calcul stats connexions depuis localStorage ───────────────────────────
-function computeLoginStats(periodeLabels) {
-  const LOG_KEY = 'gestion_contrats_login_log';
-  let log = [];
-  try { log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); } catch(e) {}
-
-  // Construire liste des utilisateurs uniques, avec label lisible
-  const userMap = {}; // login -> "Prénom Nom" ou login
-  log.forEach(e => {
-    if (!e.login) return;
-    if (!userMap[e.login]) {
-      userMap[e.login] = [e.prenom, e.nom].filter(Boolean).join(' ').trim() || e.login;
-    }
-  });
-  const logins = Object.keys(userMap).sort();
-
-  // Palette couleurs
-  const palette = ['#7c3aed','#0ea5e9','#16a34a','#f97316','#e11d48','#d97706','#0891b2','#9333ea','#15803d','#c2410c'];
-
-  // Pour chaque mois de la période, compter par utilisateur
-  const datasets = logins.map((login, i) => {
-    const data = periodeLabels.map(({ month, year }) =>
-      log.filter(e => {
-        if (e.login !== login || !e.ts) return false;
-        const d = new Date(e.ts);
-        return d.getMonth() + 1 === month && d.getFullYear() === year;
-      }).length
-    );
-    const color = palette[i % palette.length];
-    return {
-      label:           userMap[login],
-      data,
-      borderColor:     color,
-      backgroundColor: color + '22',
-      borderWidth:     2,
-      pointBackgroundColor: color,
-      pointRadius:     4,
-      fill:            false,
-      tension:         0.3
-    };
-  });
-
-  return { datasets, hasData: log.length > 0 };
-}
-
-function mkChartEvol(canvasId, titre, data, labels, color) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  if (_evolutionCharts[canvasId]) { _evolutionCharts[canvasId].destroy(); }
-  const trend = data.length >= 2 ? data[data.length-1] - data[0] : 0;
-  const trendColor = trend > 0 ? '#16a34a' : trend < 0 ? '#dc2626' : '#94a3b8';
-  const trendIcon  = trend > 0 ? '▲' : trend < 0 ? '▼' : '→';
-  const titleEl = canvas.parentElement.querySelector('.evol-title');
-  if (titleEl) titleEl.innerHTML = `${titre} <span style="font-size:11px;color:${trendColor};font-weight:700">${trendIcon} ${Math.abs(trend)}</span>`;
-  _evolutionCharts[canvasId] = new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{ label: titre, data, borderColor: color, backgroundColor: color+'22',
-        borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 4, fill: true, tension: 0.3 }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } }
-    }
-  });
-}
-
+/* ── Rendu principal ──────────────────────────────────────── */
 function renderEvolutionCharts() {
   if (!window.Chart) {
     const s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
-    s.onload = () => _drawEvolutionCharts();
+    s.onload = () => _drawEvolCharts();
     document.head.appendChild(s);
   } else {
-    _drawEvolutionCharts();
+    _drawEvolCharts();
   }
 }
 
-function _drawEvolutionCharts() {
-  const periode       = getPeriodeLabels();
-  const labels        = periode.map(p => p.label);
-  const techGlobal    = document.getElementById('evolTechGlobal')?.value    || '';
-  const serviceGlobal = document.getElementById('evolServiceGlobal')?.value || '';
+function _destroyChart(id) {
+  if (_evolutionCharts[id]) { _evolutionCharts[id].destroy(); delete _evolutionCharts[id]; }
+}
 
-  // Récupère les indicateurs cochés
-  const coches = {};
-  document.querySelectorAll('#evolIndicateurs input[type=checkbox]').forEach(cb => {
-    coches[cb.value] = cb.checked;
+function _makeChart(id, cfg) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  _destroyChart(id);
+  // Defer un frame pour que canvas ait ses dimensions
+  requestAnimationFrame(() => {
+    _evolutionCharts[id] = new Chart(canvas, cfg);
+  });
+}
+
+function _lineDs(label, data, color, fill) {
+  return {
+    label, data,
+    borderColor: color, backgroundColor: color + (fill ? '22' : '11'),
+    borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 4,
+    fill: !!fill, tension: 0.35
+  };
+}
+
+function _drawEvolCharts() {
+  const annee = parseInt(document.getElementById('evolAnnee')?.value) || new Date().getFullYear();
+  const { labels, mois, rows } = _computeEvolStats(annee);
+  const { resilParMois, nouveauxParMois } = _computeMouvements(annee, mois);
+
+  const baseOpts = {
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 16, padding: 12, font: { size: 11 } } } },
+    scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#f0f4f8' } }, x: { grid: { display: false } } }
+  };
+
+  // 1. Portefeuille
+  _makeChart('evChart_portefeuille', {
+    type: 'line', data: { labels, datasets: [
+      _lineDs('Total',      rows.map(r => r.total),  '#1e40af', true),
+      _lineDs('Détection',  rows.map(r => r.detect), '#3b82f6', false),
+      _lineDs('Protection', rows.map(r => r.prot),   '#92400e', false),
+    ]}, options: baseOpts
   });
 
-  const config = [
-    { key: 'v1',       titre: 'V1/M1',                 color: '#f97316' },
-    { key: 'v2',       titre: 'V2/M2',                 color: '#ef4444' },
-    { key: 'retards',  titre: 'VEs en attente / mois',   color: '#e11d48' },
-    { key: 'q7',       titre: 'Q7 non traités / mois',   color: '#d97706' },
-    { key: 'rapport',  titre: 'Sans rapport',            color: '#16a34a' },
-    { key: 'recond',   titre: 'Reconditionnements',      color: '#7c3aed' },
-    { key: 'sansType', titre: 'Sans type contrat',       color: '#94a3b8' },
-  ].filter(c => coches[c.key]);
-
-  // Détruit les anciens graphiques de la grille non affichés
-  // (les graphiques spéciaux pleine largeur sont gérés séparément)
-  const specialCharts = new Set(['evChart_suivi','evChart_totalDetectProt','evChart_archivage','evChart_connexions']);
-  Object.keys(_evolutionCharts).forEach(id => {
-    if (specialCharts.has(id)) return; // géré séparément
-    if (!config.find(c => 'evChart_' + c.key === id)) {
-      _evolutionCharts[id]?.destroy();
-      delete _evolutionCharts[id];
-    }
+  // 2. Mouvements
+  _makeChart('evChart_mouvements', {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Résiliations', data: resilParMois,    backgroundColor: '#ef444499', borderColor: '#ef4444', borderWidth: 1.5, borderRadius: 4 },
+      { label: 'Nouveaux contrats', data: nouveauxParMois, backgroundColor: '#16a34a99', borderColor: '#16a34a', borderWidth: 1.5, borderRadius: 4 },
+    ]},
+    options: { ...baseOpts, scales: { ...baseOpts.scales, x: { stacked: false, grid: { display: false } } } }
   });
 
-  // Pré-calcule stats pour tech global
-  const statsGlobal = computeMonthlyStatsPeriode(periode, techGlobal, serviceGlobal);
-
-  // Liste des techs pour les selects par graphique
-  const techList = [...new Set(db.flatMap(r =>
-    [r.Technicien, r.Binome, r.Q7_VE1_tech, r.Q7_VE2_tech].filter(Boolean).map(t => t.trim())
-  ))].sort();
-
-  // Reconstruit la grille
-  const grid = document.getElementById('evolutionCharts');
-  grid.innerHTML = config.map(c => {
-    const techLocal = _evolTechPerChart[c.key] !== undefined ? _evolTechPerChart[c.key] : '';
-    const isOverride = techLocal !== '';
-    const techOptions = techList.map(t =>
-      `<option value="${t}" ${techLocal === t ? 'selected' : ''}>${t}</option>`
-    ).join('');
-    return `
-    <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow)">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap">
-        <div class="evol-title" style="font-size:13px;font-weight:700;color:var(--navy)">${c.titre}</div>
-        <div style="display:flex;align-items:center;gap:5px">
-          <span style="font-size:10px;color:var(--sub)">👤</span>
-          <select onchange="_evolTechPerChart['${c.key}']=this.value;_redrawChart('${c.key}')"
-            style="border:1px solid ${isOverride ? '#7dd3fc' : 'var(--line)'};border-radius:5px;padding:2px 6px;font-size:11px;
-                   background:${isOverride ? '#e0f2fe' : '#f8fafc'};color:${isOverride ? '#0369a1' : 'inherit'};font-weight:${isOverride ? '700' : 'normal'}">
-            <option value="">— Global (${techGlobal || 'tous'})</option>
-            ${techOptions}
-          </select>
-          ${isOverride ? `<button onclick="_evolTechPerChart['${c.key}']='';_redrawChart('${c.key}')"
-            title="Revenir au filtre global" style="border:1px solid #fca5a5;border-radius:5px;padding:2px 6px;font-size:10px;cursor:pointer;background:#fef2f2;color:#ef4444">↺</button>` : ''}
-        </div>
-      </div>
-      <canvas id="evChart_${c.key}" height="180"></canvas>
-    </div>`;
-  }).join('');
-
-  // Dessine chaque graphique mono-série
-  config.forEach(c => {
-    const techLocal = _evolTechPerChart[c.key] !== undefined ? _evolTechPerChart[c.key] : '';
-    const stats = techLocal !== '' ? computeMonthlyStatsPeriode(periode, techLocal, serviceGlobal) : statsGlobal;
-    mkChartEvol('evChart_' + c.key, c.titre, stats.map(s => s[c.key]), labels, c.color);
+  // 3. Aléas
+  _makeChart('evChart_aleas', {
+    type: 'line', data: { labels, datasets: [
+      _lineDs('VEs en retard',   rows.map(r => r.retards), '#e11d48', true),
+      _lineDs('Q7 non traités',  rows.map(r => r.q7),      '#d97706', false),
+      _lineDs('Sans rapport',    rows.map(r => r.rapport),  '#16a34a', false),
+    ]}, options: baseOpts
   });
 
-  // ── Suivi terrain : Retards VE + Q7 + Sans rapport (combiné pleine largeur) ─
-  const showSuivi = coches['suivi'];
-  const suiviSection = document.getElementById('suiviTerrainSection');
-  if (suiviSection) suiviSection.style.display = showSuivi ? 'block' : 'none';
-  if (showSuivi) {
-    const mkSuivi = (label, key, color) => ({
-      label,
-      data:            statsGlobal.map(s => s[key]),
-      borderColor:     color,
-      backgroundColor: color + '18',
-      borderWidth:     2.5,
-      pointBackgroundColor: color,
-      pointRadius:     4,
-      fill:            true,
-      tension:         0.35
-    });
-    mkChartEvolMulti('evChart_suivi', [
-      mkSuivi('VEs en retard',    'retards', '#e11d48'),
-      mkSuivi('Q7 non traités',   'q7',      '#d97706'),
-      mkSuivi('Sans rapport',     'rapport', '#16a34a'),
-    ], labels);
-  } else {
-    if (_evolutionCharts['evChart_suivi']) {
-      _evolutionCharts['evChart_suivi'].destroy();
-      delete _evolutionCharts['evChart_suivi'];
-    }
-  }
+  // 4. Archivage VE
+  _makeChart('evChart_archivage', {
+    type: 'line', data: { labels, datasets: [
+      { ..._lineDs('Déte. archivé',    rows.map(r => r.archDet), '#0ea5e9', true), borderDash: [] },
+      { ..._lineDs('PROT archivé',     rows.map(r => r.archProt),'#f97316', false), borderDash: [] },
+      { ..._lineDs('Déte. en attente', rows.map(r => r.attDet),  '#0ea5e9', false), borderDash: [5,4], borderWidth: 1.5 },
+      { ..._lineDs('PROT en attente',  rows.map(r => r.attProt), '#f97316', false), borderDash: [5,4], borderWidth: 1.5 },
+    ]}, options: baseOpts
+  });
 
-  // ── Volume contrats : Total / Détection / Protection combinés ───────────
-  const showTDP = coches['total'] || coches['detect'] || coches['prot'];
-  const tdpSection = document.getElementById('totalDetectProtSection');
-  if (tdpSection) tdpSection.style.display = showTDP ? 'block' : 'none';
-  if (showTDP) {
-    const mkDs = (label, key, color) => ({
-      label, data: statsGlobal.map(s => s[key]),
-      borderColor: color, backgroundColor: color + '22',
-      borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 4, fill: true, tension: 0.3
-    });
-    const tdpDatasets = [];
-    if (coches['total'])  tdpDatasets.push(mkDs('Total',      'total',  '#1e40af'));
-    if (coches['detect']) tdpDatasets.push(mkDs('Détection',  'detect', '#3b82f6'));
-    if (coches['prot'])   tdpDatasets.push(mkDs('Protection', 'prot',   '#92400e'));
-    mkChartEvolMulti('evChart_totalDetectProt', tdpDatasets, labels);
-  } else {
-    if (_evolutionCharts['evChart_totalDetectProt']) {
-      _evolutionCharts['evChart_totalDetectProt'].destroy();
-      delete _evolutionCharts['evChart_totalDetectProt'];
-    }
-  }
+  // 5. Connexions
+  const LOG_KEY = 'gestion_contrats_login_log';
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); } catch(e) {}
+  log = log.filter(e => e.ts && new Date(e.ts).getFullYear() === annee);
 
-  // ── Archivage VE (4 séries : archivé/en attente × Detect/PROT) ──────────
-  const showArchivage = coches['archivage'];
-  const archSection = document.getElementById('archivageChartSection');
-  if (archSection) archSection.style.display = showArchivage ? 'block' : 'none';
-  if (showArchivage) {
-    const mkDs4 = (label, key, color, dash) => ({
-      label, data: statsGlobal.map(s => s[key]),
-      borderColor: color, backgroundColor: color + (dash ? '11' : '22'),
-      borderWidth: dash ? 2 : 2.5,
-      borderDash: dash ? [5, 4] : [],
-      pointBackgroundColor: color, pointRadius: 4, fill: true, tension: 0.3
-    });
-    mkChartEvolMulti('evChart_archivage', [
-      mkDs4('Détection archivé',    've_arch_detect',    '#0ea5e9', false),
-      mkDs4('PROT archivé',         've_arch_prot',      '#f97316', false),
-      mkDs4('Détection en attente', 've_attente_detect', '#0ea5e9', true),
-      mkDs4('PROT en attente',      've_attente_prot',   '#f97316', true),
-    ], labels);
-  } else {
-    if (_evolutionCharts['evChart_archivage']) {
-      _evolutionCharts['evChart_archivage'].destroy();
-      delete _evolutionCharts['evChart_archivage'];
-    }
-  }
+  const emptyDiv = document.getElementById('connexionsEmpty');
+  const connCanvas = document.getElementById('evChart_connexions');
 
-  // ── Connexions par utilisateur (graphique multi-courbes pleine largeur) ─
-  const showConnexions = coches['connexions'];
-  const connSection = document.getElementById('connexionsChartSection');
-  if (connSection) connSection.style.display = showConnexions ? 'block' : 'none';
-  if (showConnexions) {
-    const { datasets: connDatasets, hasData } = computeLoginStats(periode);
-    const emptyDiv = document.getElementById('connexionsEmpty');
-    const canvas   = document.getElementById('evChart_connexions');
-    if (!hasData || connDatasets.length === 0) {
-      if (emptyDiv)  emptyDiv.style.display  = 'block';
-      if (canvas)    canvas.style.display    = 'none';
-      if (_evolutionCharts['evChart_connexions']) {
-        _evolutionCharts['evChart_connexions'].destroy();
-        delete _evolutionCharts['evChart_connexions'];
-      }
-    } else {
-      if (emptyDiv) emptyDiv.style.display = 'none';
-      if (canvas)   canvas.style.display   = 'block';
-      mkChartEvolMulti('evChart_connexions', connDatasets, labels, 'right');
-    }
+  if (log.length === 0) {
+    if (emptyDiv)    emptyDiv.style.display = 'block';
+    if (connCanvas)  connCanvas.style.display = 'none';
+    _destroyChart('evChart_connexions');
   } else {
-    if (_evolutionCharts['evChart_connexions']) {
-      _evolutionCharts['evChart_connexions'].destroy();
-      delete _evolutionCharts['evChart_connexions'];
-    }
+    if (emptyDiv)    emptyDiv.style.display = 'none';
+    if (connCanvas)  connCanvas.style.display = 'block';
+    const palette = ['#7c3aed','#0ea5e9','#16a34a','#f97316','#e11d48','#d97706','#0891b2'];
+    const userMap = {};
+    log.forEach(e => { if (e.login && !userMap[e.login]) userMap[e.login] = [e.prenom, e.nom].filter(Boolean).join(' ').trim() || e.login; });
+    const connDatasets = Object.keys(userMap).map((login, i) => {
+      const data = mois.map(m => log.filter(e => e.login === login && new Date(e.ts).getMonth() === m).length);
+      const color = palette[i % palette.length];
+      return { ..._lineDs(userMap[login], data, color, false), fill: false };
+    });
+    _makeChart('evChart_connexions', {
+      type: 'line', data: { labels, datasets: connDatasets },
+      options: { ...baseOpts, plugins: { ...baseOpts.plugins, legend: { display: true, position: 'right', labels: { boxWidth: 14, padding: 10, font: { size: 11 } } } } }
+    });
   }
 }
 
-// Redessine un seul graphique après changement de son filtre tech
-function _redrawChart(key) {
-  const periode       = getPeriodeLabels();
-  const labels        = periode.map(p => p.label);
-  const techLocal     = _evolTechPerChart[key] !== undefined ? _evolTechPerChart[key] : '';
-  const techGlobal    = document.getElementById('evolTechGlobal')?.value    || '';
-  const serviceGlobal = document.getElementById('evolServiceGlobal')?.value || '';
-  const tech          = techLocal !== '' ? techLocal : techGlobal;
-  const stats         = computeMonthlyStatsPeriode(periode, tech, serviceGlobal);
-  const colorMap   = { total:'#1e40af', detect:'#3b82f6', prot:'#92400e', v1:'#f97316',
-                        v2:'#ef4444', retards:'#e11d48', q7:'#d97706', rapport:'#16a34a',
-                        recond:'#7c3aed', sansType:'#94a3b8',
-                        ve_arch_detect:'#0ea5e9', ve_arch_prot:'#f97316' };
-  const titreMap   = { total:'Total contrats', detect:'Détection', prot:'Protection', v1:'V1/M1',
-                        v2:'V2/M2', retards:'VEs en attente / mois', q7:'Q7 non traités / mois', rapport:'Sans rapport',
-                        recond:'Reconditionnements', sansType:'Sans type contrat',
-                        ve_arch_detect:'Archivage Détection', ve_arch_prot:'Archivage Protection' };
-  mkChartEvol('evChart_' + key, titreMap[key] || key, stats.map(s => s[key]), labels, colorMap[key] || '#64748b');
-  // Met à jour l'apparence du select
-  _drawEvolutionCharts();
-}
-
-// Set today's date in header
-(function() {
-  const days = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-  const months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  const now = new Date();
-  const str = days[now.getDay()] + ' ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
-  const el = document.getElementById('headerDate');
-  if (el) el.textContent = str;
-})();
+/* Stubs conservés pour compatibilité */
+function getPeriodeLabels() { return []; }
+function setPeriode() { renderEvolutionCharts(); }
+function setPeriodeAnnee() { renderEvolutionCharts(); }
+function computeMonthlyStatsPeriode() { return []; }
+function _redrawChart() { _drawEvolCharts(); }
 
 /* ═══════════════════════════════════════════════
    FICHES TECHNICIENS
@@ -10295,6 +10222,93 @@ function openPresencePanel() {
     }, 30 * 1000);
   }
 }
+function switchPresenceTab(tab) {
+  document.getElementById('presPanel-now').style.display      = tab === 'now'     ? 'block' : 'none';
+  document.getElementById('presPanel-history').style.display  = tab === 'history' ? 'block' : 'none';
+  document.getElementById('presTab-now').style.fontWeight     = tab === 'now'     ? '700' : '600';
+  document.getElementById('presTab-now').style.color          = tab === 'now'     ? '#1e40af' : '#64748b';
+  document.getElementById('presTab-now').style.borderBottom   = tab === 'now'     ? '2px solid #1e40af' : '2px solid transparent';
+  document.getElementById('presTab-now').style.background     = tab === 'now'     ? '#fff' : '#f8fafc';
+  document.getElementById('presTab-history').style.fontWeight = tab === 'history' ? '700' : '600';
+  document.getElementById('presTab-history').style.color      = tab === 'history' ? '#1e40af' : '#64748b';
+  document.getElementById('presTab-history').style.borderBottom = tab === 'history' ? '2px solid #1e40af' : '2px solid transparent';
+  document.getElementById('presTab-history').style.background = tab === 'history' ? '#fff' : '#f8fafc';
+  if (tab === 'history') renderPresenceHistory();
+}
+
+function renderPresenceHistory() {
+  const LOG_KEY = 'gestion_contrats_login_log';
+  const list = document.getElementById('presHistList');
+  if (!list) return;
+
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); } catch(e) {}
+
+  // Filtre période
+  const days = parseInt(document.getElementById('presHistPeriod')?.value || '30');
+  const since = days > 0 ? Date.now() - days * 86400000 : 0;
+  log = log.filter(e => e.ts >= since);
+
+  // Peupler le filtre utilisateurs
+  const filterSel = document.getElementById('presHistFilter');
+  if (filterSel) {
+    const users = [...new Set(log.map(e => e.login).filter(Boolean))].sort();
+    const currentFilter = filterSel.value;
+    while (filterSel.options.length > 1) filterSel.remove(1);
+    users.forEach(u => {
+      const o = document.createElement('option');
+      o.value = u;
+      const entry = log.find(e => e.login === u);
+      o.textContent = entry ? ([entry.prenom, entry.nom].filter(Boolean).join(' ').trim() || u) + ` (${u})` : u;
+      filterSel.appendChild(o);
+    });
+    if (users.includes(currentFilter)) filterSel.value = currentFilter;
+  }
+
+  // Filtre utilisateur
+  const filterUser = filterSel?.value || '';
+  if (filterUser) log = log.filter(e => e.login === filterUser);
+
+  if (log.length === 0) {
+    list.innerHTML = `<div style="text-align:center;color:#94a3b8;padding:30px;font-size:13px">Aucune connexion enregistr&#233;e sur ce PC.<br><span style="font-size:11px">Les connexions sont enregistr&#233;es depuis la derni&#232;re mise &#224; jour de l'application.</span></div>`;
+    return;
+  }
+
+  // Trier du plus récent au plus ancien
+  log = [...log].sort((a, b) => b.ts - a.ts);
+
+  // Grouper par jour
+  const groups = {};
+  log.forEach(e => {
+    const d = new Date(e.ts);
+    const dayKey = d.toLocaleDateString('fr-FR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+    if (!groups[dayKey]) groups[dayKey] = [];
+    groups[dayKey].push(e);
+  });
+
+  const noms = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  let html = '';
+  Object.entries(groups).forEach(([day, entries]) => {
+    html += `<div style="padding:8px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:700;color:#64748b;text-transform:capitalize;letter-spacing:.3px">${day}</div>`;
+    entries.forEach(e => {
+      const d = new Date(e.ts);
+      const hhmm = d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+      const fullName = [e.prenom, e.nom].filter(Boolean).join(' ').trim() || e.login;
+      const initials = fullName.split(' ').map(w => w[0]||'').join('').toUpperCase().slice(0,2) || '?';
+      html += `
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid #f1f5f9">
+          <div style="width:32px;height:32px;border-radius:50%;background:#1e40af;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">${initials}</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:700;color:#1e293b">${fullName}</div>
+            <div style="font-size:10.5px;color:#94a3b8">${e.login}</div>
+          </div>
+          <div style="font-size:11px;color:#64748b;font-weight:600">${hhmm}</div>
+        </div>`;
+    });
+  });
+  list.innerHTML = html;
+}
+
 function closePresencePanel() {
   const modal = document.getElementById('presenceModal');
   if (modal) modal.style.display = 'none';
@@ -11458,18 +11472,53 @@ function applyDashLogo(dataUrl) {
 </div>
 
 <!-- ═══════════ MODALE PRÉSENCE ═══════════ -->
-<div id="presenceModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:8000;align-items:flex-start;justify-content:center;padding-top:80px" onclick="if(event.target===this)closePresencePanel()">
-  <div style="background:#fff;border-radius:14px;width:400px;max-width:90vw;box-shadow:0 16px 50px rgba(0,0,0,.35);overflow:hidden">
-    <div style="background:linear-gradient(135deg,#0f2340,#1e4080);padding:18px 20px;display:flex;align-items:center;justify-content:space-between">
-      <div style="color:#fff;font-weight:700;font-size:15px">👥 Utilisateurs connectés</div>
+<div id="presenceModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:8000;align-items:flex-start;justify-content:center;padding-top:60px" onclick="if(event.target===this)closePresencePanel()">
+  <div style="background:#fff;border-radius:14px;width:520px;max-width:94vw;box-shadow:0 16px 50px rgba(0,0,0,.35);overflow:hidden">
+    <div style="background:linear-gradient(135deg,#0f2340,#1e4080);padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
+      <div style="color:#fff;font-weight:700;font-size:15px">👥 Utilisateurs</div>
       <button onclick="closePresencePanel()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:16px">✕</button>
     </div>
-    <div id="presenceList" style="padding:16px;min-height:80px;max-height:400px;overflow-y:auto">
-      <div style="text-align:center;color:#94a3b8;padding:20px;font-size:13px">⏳ Chargement…</div>
+    <!-- Onglets -->
+    <div style="display:flex;border-bottom:2px solid #e2e8f0">
+      <button id="presTab-now" onclick="switchPresenceTab('now')"
+        style="flex:1;padding:10px;font-size:12px;font-weight:700;border:none;background:#fff;color:#1e40af;border-bottom:2px solid #1e40af;cursor:pointer">
+        🟢 En ce moment
+      </button>
+      <button id="presTab-history" onclick="switchPresenceTab('history')"
+        style="flex:1;padding:10px;font-size:12px;font-weight:600;border:none;background:#f8fafc;color:#64748b;border-bottom:2px solid transparent;cursor:pointer">
+        📋 Historique des connexions
+      </button>
     </div>
-    <div style="padding:10px 16px 14px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:11px;color:#94a3b8" id="presenceNote">Mise à jour automatique toutes les 5 min · Inactif après 30 min</span>
-      <button onclick="refreshPresencePanel()" style="background:#e2e8f0;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;color:#475569">🔄 Actualiser</button>
+    <!-- Panel En ce moment -->
+    <div id="presPanel-now">
+      <div id="presenceList" style="padding:16px;min-height:80px;max-height:380px;overflow-y:auto">
+        <div style="text-align:center;color:#94a3b8;padding:20px;font-size:13px">⏳ Chargement…</div>
+      </div>
+      <div style="padding:10px 16px 14px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:#94a3b8" id="presenceNote">Mise à jour automatique · Inactif après 30 min</span>
+        <button onclick="refreshPresencePanel()" style="background:#e2e8f0;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;color:#475569">🔄 Actualiser</button>
+      </div>
+    </div>
+    <!-- Panel Historique -->
+    <div id="presPanel-history" style="display:none">
+      <div style="padding:12px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <select id="presHistFilter" onchange="renderPresenceHistory()" style="border:1px solid #e2e8f0;border-radius:6px;padding:4px 8px;font-size:11px;min-width:140px">
+          <option value="">Tous les utilisateurs</option>
+        </select>
+        <select id="presHistPeriod" onchange="renderPresenceHistory()" style="border:1px solid #e2e8f0;border-radius:6px;padding:4px 8px;font-size:11px">
+          <option value="7">7 derniers jours</option>
+          <option value="30" selected>30 derniers jours</option>
+          <option value="90">3 derniers mois</option>
+          <option value="0">Tout l'historique</option>
+        </select>
+        <button onclick="if(confirm('Effacer tout l\'historique ?')){localStorage.removeItem('gestion_contrats_login_log');renderPresenceHistory();toast('Historique effacé','success')}" style="border:1px solid #fca5a5;background:#fef2f2;color:#ef4444;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;margin-left:auto">🗑</button>
+      </div>
+      <div id="presHistList" style="padding:0;max-height:380px;overflow-y:auto">
+        <div style="text-align:center;color:#94a3b8;padding:20px;font-size:13px">⏳ Chargement…</div>
+      </div>
+      <div style="padding:8px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:10.5px;color:#94a3b8;font-style:italic">
+        Historique stocké sur ce PC (localStorage). Les connexions sont enregistrées depuis la dernière mise à jour.
+      </div>
     </div>
   </div>
 </div>
