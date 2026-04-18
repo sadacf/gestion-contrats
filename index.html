@@ -1802,6 +1802,8 @@ function loadSheetJS(callback) {
     <div class="modal-body" id="detailBody"></div>
     <div class="modal-footer">
       <button class="hbtn hbtn-ghost" style="background:#f1f5f9;color:var(--text);border:1px solid var(--line)" onclick="closeModal('detailModal')">Fermer</button>
+      <button class="hbtn" id="detailPlanVE1Btn" style="background:#eff6ff;color:#2563eb;border:1.5px solid #bfdbfe;font-weight:700" title="Ouvrir le planning et pré-remplir VE1">📅 Planifier VE1</button>
+      <button class="hbtn" id="detailPlanVE2Btn" style="background:#eff6ff;color:#2563eb;border:1.5px solid #bfdbfe;font-weight:700" title="Ouvrir le planning et pré-remplir VE2">📅 Planifier VE2</button>
       <button class="hbtn hbtn-primary" id="detailEditBtn">✏️ Modifier</button>
     </div>
   </div>
@@ -2120,7 +2122,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/18-04-26-10:22';
+const APP_VERSION = 'V1/18-04-26-16:43';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -3023,6 +3025,21 @@ function init() {
     // Rappel sauvegarde mensuelle
     setTimeout(() => checkRappelSauvegarde(), 5000);
   }
+  // ── Lien retour depuis Planning : filtrer sur l'installation demandée ──
+  setTimeout(() => {
+    const p = new URLSearchParams(window.location.search);
+    const inst = p.get('installation');
+    if (inst) {
+      switchTab('contrats');
+      const sb = document.getElementById('searchBox');
+      if (sb) { sb.value = inst; applyFilters(); }
+      // Ouvrir le détail si un seul résultat
+      setTimeout(() => {
+        if (filtered.length === 1) showDetail(0);
+      }, 200);
+      history.replaceState({}, '', window.location.pathname);
+    }
+  }, 400);
 }
 
 /* ═══════════════════════════════════════════════
@@ -4686,6 +4703,7 @@ function renderTable() {
       <td class="actions-col" onclick="event.stopPropagation()">
         <button class="act-btn" onclick="openEdit(${i})" title="Modifier">✏️</button>
         ${(canEdit() && hasPerm('dupliquer')) ? `<button class="act-btn" onclick="dupliquerContrat('${r._id}')" title="Dupliquer cette ligne" style="color:#7c3aed;border-color:#ddd6fe">📋</button>` : ''}
+        <button class="act-btn" onclick="planifierContrat(${i})" title="Planifier dans le planning" style="color:#2563eb;border-color:#bfdbfe">📅</button>
       </td>
     </tr>`;
   }).join('');
@@ -4709,6 +4727,8 @@ function showDetail(idx) {
   const r = filtered[idx];
   document.getElementById('detailTitle').textContent = r.Installation || 'Contrat';
   document.getElementById('detailEditBtn').onclick = () => { closeModal('detailModal'); openEditById(r._id); };
+  document.getElementById('detailPlanVE1Btn').onclick = () => { closeModal('detailModal'); planifierContratRecord(r, 'VE1'); };
+  document.getElementById('detailPlanVE2Btn').onclick = () => { closeModal('detailModal'); planifierContratRecord(r, 'VE2'); };
 
   const svcs = [
     ['Astreinte',r.Astreinte],['MO Inclus',r.MO_Inclus],['Formation SSI',r.Formation_SSI],
@@ -5494,6 +5514,47 @@ async function saveResilies(list) {
     console.warn('Sync résiliés Firebase échouée:', e);
     toast('⚠ Résiliés sauvegardés localement — sync Firebase échouée', 'warning');
   }
+}
+
+/* ═══════════════════════════════════════════════
+   LIEN BIDIRECTIONNEL → PLANNING
+═══════════════════════════════════════════════ */
+function planifierContrat(idx) {
+  // Bouton 📅 sur la ligne : choisir VE1 ou VE2 selon ce qui n'est pas encore archivé
+  const r = filtered[idx];
+  const ve1done = r.VE1_statut === '00B0F0' || r.VE1_statut === '92D050';
+  const ve = ve1done ? 'VE2' : 'VE1';
+  planifierContratRecord(r, ve);
+}
+
+function planifierContratRecord(r, ve) {
+  // Calcul de la date suggérée depuis le mois VE (format "mois AAAA" ou date)
+  let dateSugg = '';
+  try {
+    const rawVe = r[ve];
+    if (rawVe) {
+      const moisMap = {
+        'janvier':0,'février':1,'fevrier':1,'mars':2,'avril':3,'mai':4,'juin':5,
+        'juillet':6,'août':7,'aout':7,'septembre':8,'octobre':9,'novembre':10,'décembre':11,'decembre':11
+      };
+      const m = String(rawVe).trim().toLowerCase().match(/^([a-zàâäéèêëîïôùûü]+)\s+(\d{4})$/);
+      if (m && moisMap[m[1]] !== undefined) {
+        const d = new Date(parseInt(m[2]), moisMap[m[1]], 1);
+        dateSugg = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-01';
+      }
+    }
+  } catch(e) {}
+
+  const tech = ve === 'VE1' ? (r.Technicien || '') : (r.Binome || r.Technicien || '');
+  const params = new URLSearchParams({
+    action: 'new',
+    contratId: r.Installation || '',
+    title:    r.Installation || '',
+    tech:     tech,
+    ve:       ve,
+    ...(dateSugg ? { date: dateSugg } : {})
+  });
+  window.open('planning_v2.html?' + params.toString(), '_blank');
 }
 
 function dupliquerContrat(id) {
