@@ -148,7 +148,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .gav{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:800;color:#fff;margin-right:5px;flex-shrink:0;vertical-align:middle;}
 .gsvc{font-size:8px;color:var(--sub);display:block;margin-top:1px;margin-left:32px;}
 .ggrp td{background:#f1f5f9!important;font-size:10px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.3px;padding:4px 12px;cursor:default!important;border-top:2px solid #e2e8f0!important;border-bottom:1px solid var(--line)!important;}
-.gantt td.gd{padding:3px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:top;cursor:pointer;min-width:0;overflow:hidden;min-height:55px;position:relative;}
+.gantt td.gd{padding:3px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:top;cursor:default;min-width:0;overflow:hidden;min-height:55px;position:relative;}
 .gantt td.gd:hover{background:#f8fafc;}
 .gantt td.gd.tod{background:#eff6ff;border-left:2px solid var(--blue)!important;}
 .gantt td.gd.tod:hover{background:#dbeafe!important;}
@@ -226,8 +226,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .flbl{font-size:10px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.3px;display:block;margin-bottom:4px;}
 .finp{width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit;outline:none;background:var(--bg);}
 .finp:focus{border-color:var(--blue);background:#fff;}
-.trow{display:flex;gap:5px;flex-wrap:wrap;}
-.topt{padding:5px 9px;border-radius:18px;font-size:11px;font-weight:700;cursor:pointer;border:2px solid transparent;opacity:.45;transition:all .12s;}
+.trow{display:flex;flex-direction:column;gap:3px;}
+.topt{padding:4px 9px;border-radius:18px;font-size:11px;font-weight:700;cursor:pointer;border:2px solid transparent;opacity:.45;transition:all .12s;}
 .topt.on{opacity:1;border-color:rgba(0,0,0,.15);box-shadow:0 0 0 2px currentColor;}
 .iinfo{margin-top:5px;padding:6px 10px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;font-size:11px;color:#15803d;display:none;}
 .mfoot{display:flex;gap:7px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);}
@@ -313,6 +313,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .ppr b{color:var(--text);}
 .ppbtns{display:flex;gap:6px;margin-top:10px;}
 .ppb{flex:1;padding:5px 7px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:inherit;text-align:center;}
+/* ── FICHE INSTALLATION ──────────────────────────── */
+#ficheInstOverlay{position:fixed;inset:0;background:rgba(10,26,74,.45);z-index:9400;display:none;align-items:flex-end;justify-content:flex-end;}
+#ficheInstPanel{background:#fff;width:min(520px,100vw);height:100vh;display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.2);overflow:hidden;}
+.fi-header{background:var(--navy);color:#fff;padding:14px 18px;flex-shrink:0;}
+.fi-title{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fi-meta{font-size:11px;opacity:.7;margin-top:2px;}
+.fi-tabs{display:flex;border-bottom:2px solid var(--line);background:#f8fafc;flex-shrink:0;}
+.fi-tab{flex:1;padding:10px 4px;font-size:11px;font-weight:700;border:none;background:none;cursor:pointer;color:var(--sub);font-family:inherit;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .12s;}
+.fi-tab.on{color:var(--blue);border-bottom-color:var(--blue);background:#fff;}
+.fi-body{flex:1;overflow-y:auto;}
+.fi-section{padding:14px 18px 6px;font-size:10px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;}
+.fi-ev{display:flex;align-items:flex-start;gap:10px;padding:8px 18px;border-bottom:1px solid #f1f5f9;cursor:pointer;}
+.fi-ev:hover{background:#f8fafc;}
+.fi-ev-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.fi-ev-past{opacity:.5;}
+.fi-bl{display:flex;align-items:center;gap:10px;padding:9px 18px;border-bottom:1px solid #f1f5f9;}
+.fi-bl:hover{background:#f8fafc;}
+.fi-foot{padding:12px 18px;border-top:2px solid var(--line);display:flex;gap:8px;flex-shrink:0;background:#fff;}
 #toasts{position:fixed;bottom:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:7px;}
 .toast{padding:9px 14px;border-radius:9px;font-size:12px;font-weight:700;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.18);animation:fu .2s ease;max-width:300px;}
 .toast.ok{background:#15803d;}.toast.warn{background:#d97706;}.toast.err{background:#dc2626;}.toast.info{background:var(--navy);}
@@ -634,14 +652,17 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
 #evTip .tip-badge{display:inline-block;background:rgba(255,255,255,.15);border-radius:10px;padding:0 6px;font-size:10px;font-weight:700;margin-left:4px;}
 /* ── HACHURES CONGÉS ────────────────────────────────────────── */
 .gev-hatch{
+  background-color:#dcfce7!important;
   background-image:repeating-linear-gradient(
     -45deg,
-    rgba(255,255,255,.45) 0px,
-    rgba(255,255,255,.45) 5px,
-    transparent 5px,
-    transparent 10px
+    rgba(134,239,172,.5) 0px,
+    rgba(134,239,172,.5) 5px,
+    rgba(220,252,231,.3) 5px,
+    rgba(220,252,231,.3) 10px
   )!important;
   background-size:auto!important;
+  border-left-color:#16a34a!important;
+  color:#14532d!important;
 }
 
 /* Astreinte : fond de cellule discret, pas un event */
@@ -891,8 +912,6 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
       🔔 En cours & À planifier
       <span id="backlogBadge" style="background:#e03131;color:#fff;border-radius:10px;padding:0 5px;font-size:9px;font-weight:800;display:none"></span>
     </button>
-    <button class="tbtn" onclick="openAstreinteModal()" style="display:flex;align-items:center;gap:5px;color:#d97706;border-color:#d97706">⚡ Astreinte</button>
-    <button class="tbtn" onclick="openImportAstreinte()" style="display:flex;align-items:center;gap:5px;color:#d97706;border-color:#d97706;font-size:10px">📥 Import astreintes</button>
     <button class="tbtn" onclick="openAppelsList()" style="display:flex;align-items:center;gap:5px">📞 Appels clients</button>
     <button class="tbtn" onclick="openPlanningPMEImport()" style="display:flex;align-items:center;gap:5px;color:#e05a1e;border-color:#e05a1e">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="#e05a1e"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
@@ -901,6 +920,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
     </div>
     <div class="tabs-end">
       <button class="hbtn accent" id="btnNew" onclick="openNewEvent(null,null)">＋ Nouvel événement</button>
+      <button onclick="clearAllEvents()" style="padding:5px 10px;font-size:11px;background:#fee2e2;color:#991b1b;border:1.5px solid #fca5a5;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit" title="Phase de test — effacer tous les RDV">🗑 Tout effacer</button>
     </div>
   </div>
 
@@ -1303,18 +1323,10 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
       <!-- 1. Installation -->
       <div class="evp-row">
         <div class="evp-lbl" style="font-size:10px;line-height:1.3">Installation<br>sous contrat</div>
-        <div style="display:flex;gap:6px;align-items:flex-start;width:100%">
-          <div style="flex:1;min-width:0">
-            <input class="evp-inp" type="text" id="evInst" placeholder="Rechercher dans Gestion Contrats…" list="dlInst" oninput="onInstInput()" style="width:100%">
-            <datalist id="dlInst"></datalist>
-            <div class="iinfo" id="iInfo"></div>
-          </div>
-          <button type="button" id="evInstContratBtn"
-            onclick="ctxOpenContrat(document.getElementById('evInst').value)"
-            title="Ouvrir le contrat dans Gestion Contrats"
-            style="display:none;padding:6px 10px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;color:#1d4ed8;white-space:nowrap;flex-shrink:0;margin-top:1px">
-            📋 Contrat
-          </button>
+        <div>
+          <input class="evp-inp" type="text" id="evInst" placeholder="Rechercher dans Gestion Contrats…" list="dlInst" oninput="onInstInput()">
+          <datalist id="dlInst"></datalist>
+          <div class="iinfo" id="iInfo"></div>
         </div>
       </div>
 
@@ -1332,26 +1344,6 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
         </div>
       </div>
 
-      <!-- Lien contrat (caché, alimenté par paramètres URL ou clic depuis Contrats) -->
-      <div class="evp-row" id="evContratRow" style="display:none">
-        <div class="evp-lbl" style="font-size:10px;line-height:1.3">Contrat<br>associé</div>
-        <div style="display:flex;align-items:center;gap:6px;flex:1">
-          <input class="evp-inp" type="text" id="evContratId" readonly
-            style="flex:1;background:#eff6ff;color:var(--blue);font-weight:700;cursor:default"
-            placeholder="Aucun contrat lié">
-          <button type="button" onclick="ctxOpenContrat(document.getElementById('evContratId').value)"
-            title="Ouvrir le contrat"
-            style="padding:5px 10px;background:#eff6ff;border:1.5px solid #c7d2fe;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;color:var(--blue);white-space:nowrap">
-            📋 Voir
-          </button>
-          <button type="button" onclick="document.getElementById('evContratId').value='';document.getElementById('evContratRow').style.display='none'"
-            title="Dissocier le contrat"
-            style="padding:5px 8px;background:#fee2e2;border:1.5px solid #fca5a5;border-radius:7px;font-size:12px;cursor:pointer;color:#dc2626">
-            ✕
-          </button>
-        </div>
-      </div>
-
       <!-- 2. Note visible -->
       <div class="evp-row">
         <div class="evp-lbl">Note</div>
@@ -1362,22 +1354,23 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
       </div>
 
       <!-- 3. Type d'intervention -->
-      <div class="evp-row">
-        <div class="evp-lbl">Intervention</div>
-        <div class="trow" id="typeRow"><!-- buildTypeOpts() --></div>
+      <div class="evp-row" style="align-items:stretch">
+        <div class="evp-lbl" style="padding-top:0;display:flex;align-items:center;justify-content:flex-end">
+          <div style="border-right:3px solid var(--blue);padding-right:8px;color:var(--blue);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;line-height:1.4;text-align:right;align-self:stretch;display:flex;align-items:center">
+            Type<br>d'intervention
+          </div>
+        </div>
+        <div class="trow" id="typeRow" style="padding:4px 0"><!-- buildTypeOpts() --></div>
       </div>
 
       <!-- 4. État RDV (défaut : Non confirmé) -->
       <div class="evp-row">
         <div class="evp-lbl">État RDV</div>
         <select class="evp-select" id="evStat">
-          <option value="non_confirme" selected>🔴 1 - Non confirmé</option>
-          
-          <option value="confirme">✅ 2 - Confirmé</option>
-          <option value="attente">🟣 3 - Attente confirmation</option>
-          <option value="realise">🔵 4 - Réalisé</option>
-          <option value="annule">🟡 5 - Annulé</option>
-          <option value="a_deplacer">🟠 A - À déplacer</option>
+          <option value="non_confirme" selected>🔴 Non confirmé</option>
+          <option value="confirme">✅ Confirmé</option>
+          <option value="attente">🟣 Attente confirmation</option>
+          <option value="realise">🔵 Réalisé</option>
         </select>
       </div>
 
@@ -1467,6 +1460,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
   <div id="ppBod"></div>
   <div class="ppbtns">
     <button class="ppb" onclick="editPopup()" style="background:#eff6ff;color:var(--blue)">✏️ Modifier</button>
+    <button class="ppb" id="ppFicheBtn" onclick="openFicheInst(document.getElementById('ppFicheBtn').dataset.inst)" style="background:#f0fdf4;color:#16a34a;border:1px solid #86efac">📋 Fiche</button>
     <button class="ppb" onclick="closePopup()" style="background:var(--bg);color:var(--sub)">✕</button>
   </div>
 </div>
@@ -1525,6 +1519,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
       <button class="evp-tab" id="cfgtab-types" onclick="switchCfgTab('types')" style="font-size:11px">🏷 Types</button>
       <button class="evp-tab" id="cfgtab-res" onclick="switchCfgTab('res')" style="font-size:11px">👥 Ressources</button>
       <button class="evp-tab" id="cfgtab-states" onclick="switchCfgTab('states')" style="font-size:11px">🎨 États</button>
+      <button class="evp-tab" id="cfgtab-astr" onclick="switchCfgTab('astr')" style="font-size:11px">⚡ Astreintes</button>
     </div>
     <!-- Général -->
     <div id="cfgbody-gen" style="flex:1;overflow-y:auto">
@@ -1537,24 +1532,39 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
       </div>
     </div>
     <!-- Types -->
-    <div id="cfgbody-types" class="hidden" style="flex:1;overflow-y:auto">
-      <!-- Types verrouillés -->
-      <div style="font-size:10px;font-weight:800;color:var(--sub);text-transform:uppercase;margin-bottom:6px">Types système (non modifiables)</div>
-      <div id="cfgTypesLocked" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding-bottom:12px;border-bottom:2px dashed var(--line)"></div>
-      <!-- Types custom -->
-      <div style="font-size:10px;font-weight:800;color:var(--sub);text-transform:uppercase;margin-bottom:6px">Types personnalisés</div>
+    <div id="cfgbody-types" class="hidden" style="flex:1;overflow-y:auto;padding:4px 0">
+
+      <!-- Section : Groupes -->
+      <div style="font-size:10px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px;padding:0 4px">
+        📂 Groupes de types
+        <span style="font-size:10px;font-weight:500;color:var(--sub);text-transform:none;letter-spacing:0"> — glisser pour réordonner · cliquer le nom pour renommer</span>
+      </div>
+      <div id="cfgGroupsList" style="margin-bottom:14px"></div>
+      <div style="display:flex;gap:7px;align-items:center;padding:8px 10px;background:#f8fafc;border-radius:8px;border:1px dashed var(--line);margin-bottom:16px">
+        <input class="ri" id="cfgNewGroupLabel" placeholder="Nom du groupe…" style="flex:1">
+        <button class="rbtn" onclick="cfgAddGroup()">＋ Groupe</button>
+      </div>
+
+      <!-- Séparateur -->
+      <div style="border-top:2px dashed var(--line);margin:0 0 12px"></div>
+
+      <!-- Section : Types individuels -->
+      <div style="font-size:10px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px;padding:0 4px">
+        🏷 Types disponibles
+        <span style="font-size:10px;font-weight:500;color:var(--sub);text-transform:none;letter-spacing:0"> — glisser vers un groupe pour l'assigner</span>
+      </div>
       <div id="cfgTypesList" style="margin-bottom:10px"></div>
-      <!-- Ajout -->
       <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:10px;background:#f8fafc;border-radius:8px;border:1px dashed var(--line)">
         <input class="r-input ri" id="cfgNewLabel" placeholder="Nom du type…" style="flex:1;min-width:100px">
         <input class="ri" id="cfgNewIcon" placeholder="🔖" style="width:44px;text-align:center;font-size:15px" maxlength="2">
         <input type="color" id="cfgNewColor" value="#0891b2" style="width:30px;height:30px;border:2px solid var(--line);border-radius:5px;cursor:pointer;padding:2px">
-        <button class="rbtn" onclick="cfgAddType()">Ajouter</button>
+        <button class="rbtn" onclick="cfgAddType()">＋ Type</button>
       </div>
-      <div style="margin-top:8px;text-align:right">
-        <button class="rbtn" onclick="saveTypes();toast('✅ Types sauvegardés','ok')">💾 Enregistrer les types</button>
+      <div style="margin-top:10px;text-align:right">
+        <button class="rbtn" onclick="saveTypes();toast('✅ Sauvegardé','ok')" style="background:var(--blue);color:#fff;border:none">💾 Enregistrer</button>
       </div>
     </div>
+
     <!-- Ressources -->
     <div id="cfgbody-res" class="hidden" style="flex:1;overflow-y:auto;padding:4px 0">
       <!-- Onglets internes ressources -->
@@ -1606,19 +1616,39 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
         <button onclick="saveStateColors()" style="flex:1;padding:9px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">💾 Enregistrer</button>
         <button onclick="resetStateColors()" style="padding:9px 14px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--sub)">↺ Réinitialiser</button>
       </div>
+    </div>
+    <!-- Astreintes -->
+    <div id="cfgbody-astr" class="hidden" style="flex:1;overflow-y:auto;padding:16px 20px">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="background:#fef9ee;border:1.5px solid #fcd34d;border-radius:10px;padding:14px 16px">
+          <div style="font-size:13px;font-weight:800;color:#92400e;margin-bottom:4px">⚡ Créer une astreinte</div>
+          <div style="font-size:11px;color:#92400e;opacity:.8;margin-bottom:12px">Ajoute une période d'astreinte pour un technicien de détection</div>
+          <button onclick="closeConfig();openAstreinteModal()" style="width:100%;padding:11px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">⚡ Nouvelle astreinte</button>
+        </div>
+        <div style="background:#fff8f5;border:1.5px solid #fed7aa;border-radius:10px;padding:14px 16px">
+          <div style="font-size:13px;font-weight:800;color:#9a3412;margin-bottom:4px">📥 Importer planning d'astreintes</div>
+          <div style="font-size:11px;color:#9a3412;opacity:.8;margin-bottom:12px">Importer depuis un fichier Excel (colonnes S1–S53 par technicien)</div>
+          <button onclick="closeConfig();openImportAstreinte()" style="width:100%;padding:11px;background:#ea580c;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">📥 Importer depuis Excel</button>
+        </div>
+        <div style="background:#fff5f0;border:1.5px solid #fdba74;border-radius:10px;padding:14px 16px">
+          <div style="font-size:13px;font-weight:800;color:#7c2d12;margin-bottom:4px">📅 Import PlanningPME</div>
+          <div style="font-size:11px;color:#7c2d12;opacity:.8;margin-bottom:12px">Importer des RDV depuis un export CSV ou Excel PlanningPME</div>
+          <button onclick="closeConfig();openPlanningPMEImport()" style="width:100%;padding:11px;background:#e05a1e;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">📅 Import PlanningPME</button>
+        </div>
+      </div>
     </div></div>
 </div>
 
 <!-- MENU CONTEXTUEL -->
 <div id="ctxMenu">
   <div class="ctx-item" id="ctx-open" onclick="ctxOpen()">📂 Ouvrir / Modifier</div>
+  <div class="ctx-item" id="ctx-fiche" onclick="ctxOpenFiche()" style="font-weight:700;color:#16a34a">📋 Fiche installation</div>
+  <div class="ctx-sep"></div>
   <div class="ctx-item" id="ctx-type" onclick="ctxChangeType()">🏷 Type d'intervention</div>
   <div class="ctx-item" id="ctx-state" onmouseenter="showSubMenu()" onmouseleave="hideSubMenuDelay()">
     🎨 État du RDV <span class="ctx-arrow">▶</span>
   </div>
   <div class="ctx-sep"></div>
-  <div class="ctx-item" id="ctx-contrat" style="display:none;color:#1d4ed8;font-weight:700" onclick="ctxOpenContrat()">📋 Voir le contrat associé</div>
-  <div class="ctx-sep" id="ctx-contrat-sep" style="display:none"></div>
   <div class="ctx-item" onclick="openAppels()">📞 Appels clients</div>
   <div class="ctx-sep"></div>
   <div class="ctx-item" onclick="ctxCopy()">📋 Copier</div>
@@ -1633,27 +1663,311 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
 <!-- SOUS-MENU ÉTATS -->
 <div id="ctxSubMenu" onmouseenter="clearHideDelay()" onmouseleave="ctxClose()">
   <div class="ctx-state" data-s="" onclick="ctxSetState('')">
-    <div class="ctx-color-dot" style="background:#e2e8f0"></div>Aucun(e)
+    <div class="ctx-color-dot" style="background:#e2e8f0"></div>Aucun
   </div>
   <div class="ctx-state" data-s="non_confirme" onclick="ctxSetState('non_confirme')">
-    <div class="ctx-color-dot" style="background:#dc2626"></div>1 - Non confirmé
+    <div class="ctx-color-dot" style="background:#fee2e2;border:2px solid #991b1b"></div>Non confirmé
   </div>
   <div class="ctx-state" data-s="confirme" onclick="ctxSetState('confirme')">
-    <div class="ctx-color-dot" style="background:#111827"></div>2 - Confirmé
+    <div class="ctx-color-dot" style="background:#111827"></div>Confirmé
   </div>
   <div class="ctx-state" data-s="attente" onclick="ctxSetState('attente')">
-    <div class="ctx-color-dot" style="background:#a855f7"></div>3 - Attente confirmation
+    <div class="ctx-color-dot" style="background:#ede9fe;border:2px solid #7c3aed"></div>Attente confirmation
   </div>
   <div class="ctx-state" data-s="realise" onclick="ctxSetState('realise')">
-    <div class="ctx-color-dot" style="background:#16a34a"></div>4 - Réalisé
-  </div>
-  <div class="ctx-state" data-s="annule" onclick="ctxSetState('annule')">
-    <div class="ctx-color-dot" style="background:#ca8a04"></div>5 - Annulé
-  </div>
-  <div class="ctx-state" data-s="a_deplacer" onclick="ctxSetState('a_deplacer')">
-    <div class="ctx-color-dot" style="background:#ea580c"></div>A - RDV à déplacer
+    <div class="ctx-color-dot" style="background:#dcfce7;border:2px solid #16a34a"></div>Réalisé
   </div>
 </div>
+
+<!-- FICHE INSTALLATION -->
+<div id="ficheInstOverlay" onclick="if(event.target===this)closeFicheInst()">
+  <div id="ficheInstPanel">
+    <div class="fi-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="flex:1;min-width:0">
+          <div class="fi-title" id="fiTitle">–</div>
+          <div class="fi-meta" id="fiMeta"></div>
+        </div>
+        <button onclick="closeFicheInst()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;width:30px;height:30px;font-size:16px;cursor:pointer;flex-shrink:0">✕</button>
+      </div>
+      <!-- Infos contrat condensées -->
+      <div id="fiContratBar" style="display:none;margin-top:10px;background:rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:11px;display:flex;gap:12px;flex-wrap:wrap"></div>
+    </div>
+
+    <div class="fi-tabs">
+      <button class="fi-tab on" id="fi-tab-fil" onclick="switchFiTab('fil')">📅 Fil de l'eau</button>
+      <button class="fi-tab"    id="fi-tab-bl"  onclick="switchFiTab('bl')">🔔 En cours <span id="fiBadgeBl" style="display:none;background:#e03131;color:#fff;border-radius:10px;padding:0 5px;font-size:9px;font-weight:800;margin-left:3px">0</span></button>
+      <button class="fi-tab"    id="fi-tab-ap"  onclick="switchFiTab('ap')">📞 Appels <span id="fiBadgeAp" style="display:none;background:#d97706;color:#fff;border-radius:10px;padding:0 5px;font-size:9px;font-weight:800;margin-left:3px">0</span></button>
+    </div>
+
+    <!-- Tab : Fil de l'eau -->
+    <div id="fi-body-fil" class="fi-body">
+      <div id="fiFilContent" style="padding-bottom:8px"></div>
+    </div>
+
+    <!-- Tab : En cours (backlog) -->
+    <div id="fi-body-bl" class="fi-body" style="display:none">
+      <div id="fiBlContent" style="padding-bottom:8px"></div>
+    </div>
+
+    <!-- Tab : Appels -->
+    <div id="fi-body-ap" class="fi-body" style="display:none">
+      <div id="fiApContent" style="padding-bottom:8px"></div>
+    </div>
+
+    <div class="fi-foot">
+      <button onclick="fiBtnNouveauRdv()" style="flex:1;padding:9px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📅 Nouveau RDV</button>
+      <button onclick="fiBtnEnCours()" style="flex:1;padding:9px;background:#f0fdf4;color:#16a34a;border:1.5px solid #86efac;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔔 Ajouter en cours</button>
+      <button onclick="fiBtnAppel()" style="flex:1;padding:9px;background:#fef3c7;color:#d97706;border:1.5px solid #fcd34d;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📞 Enregistrer appel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Sync PlanningPME API -->
+<div id="ppmImportOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9350;align-items:center;justify-content:center" onclick="if(event.target===this)closePlanningPMEImport()">
+  <div style="background:#fff;border-radius:14px;width:min(96vw,580px);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.25);overflow:hidden">
+    <div style="background:#e05a1e;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div>
+        <div style="font-size:15px;font-weight:800">📅 Sync PlanningPME</div>
+        <div style="font-size:11px;opacity:.8">Export via bookmarklet → import JSON dans ACF</div>
+      </div>
+      <button onclick="closePlanningPMEImport()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;width:28px;height:28px;font-size:16px;cursor:pointer">✕</button>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:20px">
+
+      <!-- Étape 1 : Bookmarklet -->
+      <div style="background:#fff8f5;border:1.5px solid #fed7aa;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:12px;font-weight:800;color:#9a3412;margin-bottom:8px">① Installer le bookmarklet (une seule fois)</div>
+        <div style="font-size:11px;color:#7c2d12;margin-bottom:10px;line-height:1.6">
+          Glisse ce bouton dans ta barre de favoris Chrome, ou fais clic-droit → "Ajouter aux favoris"
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <a id="ppmBookmarkletLink" href="" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#e05a1e;color:#fff;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;cursor:grab;border:2px dashed rgba(255,255,255,.5)">
+            📅 Export PlanningPME → ACF
+          </a>
+          <span style="font-size:11px;color:#92400e">← Glisser dans les favoris</span>
+        </div>
+      </div>
+
+      <!-- Étape 2 : Utilisation -->
+      <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:12px;font-weight:800;color:#1e40af;margin-bottom:8px">② Exporter depuis PlanningPME</div>
+        <ol style="font-size:11px;color:#1e3a8a;margin:0;padding-left:16px;line-height:2">
+          <li>Ouvre <strong>planningpme.fr/?cli=acfincendie</strong></li>
+          <li>Clique sur le favori <strong>"Export PlanningPME → ACF"</strong></li>
+          <li>Saisis tes identifiants si demandé</li>
+          <li>Attends la fin — un fichier <code>.json</code> est téléchargé automatiquement</li>
+        </ol>
+      </div>
+
+      <!-- Étape 3 : Import JSON -->
+      <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:14px 16px">
+        <div style="font-size:12px;font-weight:800;color:#166534;margin-bottom:8px">③ Importer le fichier JSON</div>
+        <div style="font-size:11px;color:#14532d;margin-bottom:10px">
+          Options :
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:10px">
+          <input type="checkbox" id="ppmSkipExisting2" checked style="accent-color:#16a34a"> Ne pas dupliquer les RDV existants
+        </label>
+        <div style="border:2px dashed #86efac;border-radius:8px;padding:18px;text-align:center;cursor:pointer;background:#f0fdf4;transition:background .15s"
+          onclick="document.getElementById('ppmJsonInput').click()"
+          ondragover="event.preventDefault();this.style.background='#dcfce7'"
+          ondragleave="this.style.background='#f0fdf4'"
+          ondrop="event.preventDefault();this.style.background='#f0fdf4';ppmImportJson(event.dataTransfer.files[0])">
+          <div style="font-size:22px;margin-bottom:4px">📁</div>
+          <div style="font-size:12px;font-weight:700;color:#16a34a">Glisser le fichier JSON ici</div>
+          <div style="font-size:10px;color:#86efac;margin-top:2px">ou cliquer pour choisir</div>
+          <input type="file" id="ppmJsonInput" accept=".json" style="display:none" onchange="ppmImportJson(this.files[0])">
+        </div>
+        <!-- Progression -->
+        <div id="ppmJsonProgress" style="display:none;margin-top:12px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px" id="ppmJsonLbl">Import…</div>
+          <div style="background:#dcfce7;border-radius:6px;height:8px;overflow:hidden">
+            <div id="ppmJsonBar" style="background:#16a34a;height:100%;width:0%;transition:width .3s"></div>
+          </div>
+          <div id="ppmJsonLog" style="font-size:11px;color:#14532d;margin-top:6px;max-height:100px;overflow-y:auto"></div>
+        </div>
+      </div>
+
+    </div>
+    <div style="padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
+      <button onclick="closePlanningPMEImport()" style="padding:8px 16px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<style>/* Astreinte */
+.gev-astreinte{background:repeating-linear-gradient(45deg,#fef3c7,#fef3c7 6px,#fde68a 6px,#fde68a 12px)!important;border-color:#f59e0b!important;color:#92400e!important;}
+.tl-ev-astreinte{background:repeating-linear-gradient(45deg,#fef3c7,#fef3c7 6px,#fde68a 6px,#fde68a 12px)!important;border-color:#f59e0b!important;color:#92400e!important;}
+</style>
+
+  <!-- Modal Astreinte -->
+  <div id="astreinteOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9300;align-items:center;justify-content:center" onclick="if(event.target===this)closeAstreinte()">
+    <div style="background:#fff;border-radius:14px;width:min(96vw,560px);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.25);overflow:hidden">
+      <div style="background:#d97706;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div><div style="font-size:15px;font-weight:800">⚡ Astreinte</div>
+        <div style="font-size:11px;opacity:.8">Planifier une ou plusieurs astreintes</div></div>
+        <button onclick="closeAstreinte()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;width:28px;height:28px;font-size:16px;cursor:pointer">✕</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:20px">
+        <!-- Ressource -->
+        <div style="margin-bottom:14px">
+          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">RESSOURCE D'ASTREINTE</label>
+          <select id="astrRes" onchange="updateAstrPreview()" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:#fff"></select>
+        </div>
+        <!-- Période 1ère astreinte -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div>
+            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">DÉBUT (lundi de semaine)</label>
+            <input type="date" id="astrStart" oninput="updateAstrPreview()" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">DURÉE (semaines)</label>
+            <input type="number" id="astrWeeks" value="1" min="1" max="8" oninput="updateAstrPreview()" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+          </div>
+        </div>
+        <!-- Récurrence -->
+        <div style="margin-bottom:14px;background:#fef9ee;border-radius:10px;border:1px solid #fcd34d;padding:12px">
+          <label style="font-size:10px;font-weight:800;color:#92400e;display:block;margin-bottom:8px">🔁 RÉCURRENCE</label>
+          <!-- Mode -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+            <button type="button" onclick="setAstrRepeat('none')" data-r="none" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid #d97706;background:#fef3c7;color:#92400e">Aucune</button>
+            <button type="button" onclick="setAstrRepeat('weekly')" data-r="weekly" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">Hebdo.</button>
+            <button type="button" onclick="setAstrRepeat('biweekly')" data-r="biweekly" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">2 sem.</button>
+            <button type="button" onclick="setAstrRepeat('monthly')" data-r="monthly" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">Mensuel</button>
+            <button type="button" onclick="setAstrRepeat('custom')" data-r="custom" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">Perso.</button>
+          </div>
+          <!-- Options récurrence (cachées si none) -->
+          <div id="astrRecurOptions" style="display:none">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+              <div id="astrCustomIntervalWrap" style="display:none">
+                <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:3px">Toutes les N semaines</label>
+                <input type="number" id="astrRepeatN" value="4" min="1" max="52" oninput="updateAstrPreview()" style="width:100%;padding:6px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit;text-align:center">
+              </div>
+              <div>
+                <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:3px">Fin de récurrence</label>
+                <select id="astrEndMode" onchange="toggleAstrEndMode();updateAstrPreview()" style="width:100%;padding:6px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit;background:#fff">
+                  <option value="count">Après N occurrences</option>
+                  <option value="date">Jusqu'à une date</option>
+                  <option value="endofyear">Fin d'année</option>
+                </select>
+              </div>
+            </div>
+            <div id="astrEndCount" style="display:flex;align-items:center;gap:8px;font-size:12px">
+              <label style="color:var(--sub)">Nombre d'occurrences :</label>
+              <input type="number" id="astrRepeatCount" value="12" min="1" max="53" oninput="updateAstrPreview()" style="width:70px;padding:5px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;text-align:center">
+            </div>
+            <div id="astrEndDate" style="display:none;align-items:center;gap:8px;font-size:12px">
+              <label style="color:var(--sub)">Jusqu'au :</label>
+              <input type="date" id="astrRepeatUntil" oninput="updateAstrPreview()" style="padding:5px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit">
+            </div>
+          </div>
+        </div>
+        <!-- Note -->
+        <div style="margin-bottom:12px">
+          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">NOTE</label>
+          <input type="text" id="astrNote" placeholder="Ex: Astreinte 2026" oninput="updateAstrPreview()" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+        </div>
+        <!-- Aperçu -->
+        <div id="astrPreview" style="padding:10px;background:#fef9ee;border-radius:8px;border:1px solid #fcd34d;font-size:11px;color:#92400e"></div>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
+        <button onclick="closeAstreinte()" style="padding:8px 16px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Annuler</button>
+        <button onclick="saveAstreinte()" style="padding:8px 22px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⚡ Créer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Import Astreintes Excel -->
+  <div id="importAstrOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9310;align-items:center;justify-content:center" onclick="if(event.target===this)closeImportAstreinte()">
+    <div style="background:#fff;border-radius:14px;width:min(96vw,600px);max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.25);overflow:hidden">
+      <div style="background:#d97706;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div><div style="font-size:15px;font-weight:800">📥 Import planning d'astreintes</div>
+        <div style="font-size:11px;opacity:.8">Format : tableau Excel avec colonnes S1–S53 par technicien</div></div>
+        <button onclick="closeImportAstreinte()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;width:28px;height:28px;font-size:16px;cursor:pointer">✕</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:20px">
+        <div style="background:#fff8f3;border:1.5px solid #f0a080;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#7c3000">
+          <strong>Format attendu :</strong> Colonne A = Nom, Colonnes suivantes = S1 à S53.<br>
+          Si la cellule contient le nom du technicien → il est d'astreinte cette semaine.<br>
+          Plusieurs feuilles acceptées (une par année, ex: "ASTREINTES 2026").
+        </div>
+        <!-- Zone dépôt -->
+        <div id="iaDropZone" style="border:2px dashed #d97706;border-radius:12px;padding:28px;text-align:center;cursor:pointer;background:#fff8f3;transition:all .15s;margin-bottom:14px"
+          onclick="document.getElementById('iaFileInput').click()"
+          ondragover="event.preventDefault();this.style.background='#fde8d8'"
+          ondragleave="this.style.background='#fff8f3'"
+          ondrop="event.preventDefault();this.style.background='#fff8f3';handleImportAstrFile(event.dataTransfer.files[0])">
+          <div style="font-size:28px;margin-bottom:6px">📂</div>
+          <div style="font-size:13px;font-weight:700;color:#d97706">Glisser le fichier Excel ici</div>
+          <div style="font-size:11px;color:#999;margin-top:3px">ou cliquer pour choisir (.xlsx, .xls)</div>
+          <input type="file" id="iaFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleImportAstrFile(this.files[0])">
+        </div>
+        <!-- Filtre année -->
+        <div id="iaYearFilter" style="display:none;margin-bottom:12px">
+          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">ANNÉE À IMPORTER</label>
+          <div id="iaYearBtns" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        </div>
+        <!-- Options -->
+        <div id="iaOptions" style="display:none;margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer">
+            <input type="checkbox" id="iaSkipExist" checked style="accent-color:#d97706"> Ne pas dupliquer les astreintes existantes
+          </label>
+        </div>
+        <!-- Aperçu -->
+        <div id="iaPreview" style="display:none"></div>
+        <!-- Progression -->
+        <div id="iaProgress" style="display:none;margin-top:12px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px" id="iaProgressLbl">Import en cours…</div>
+          <div style="background:#f1f5f9;border-radius:6px;height:8px;overflow:hidden">
+            <div id="iaProgressBar" style="background:#d97706;height:100%;width:0%;transition:width .2s"></div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
+        <button onclick="closeImportAstreinte()" style="padding:8px 16px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Annuler</button>
+        <button id="iaImportBtn" onclick="doImportAstreinte()" style="display:none;padding:8px 22px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⚡ Importer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Modifier Astreinte -->
+  <div id="editAstrOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9320;align-items:center;justify-content:center" onclick="if(event.target===this)closeEditAstreinte()">
+    <div style="background:#fff;border-radius:14px;width:min(96vw,440px);box-shadow:0 16px 48px rgba(0,0,0,.25);overflow:hidden">
+      <div style="background:#d97706;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:15px;font-weight:800">⚡ Modifier l'astreinte</div>
+        <button onclick="closeEditAstreinte()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;width:28px;height:28px;font-size:16px;cursor:pointer">✕</button>
+      </div>
+      <div style="padding:20px">
+        <div id="eaInfo" style="background:#fef9ee;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:#92400e"></div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">RESSOURCE</label>
+          <select id="eaRes" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit;background:#fff"></select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">DÉBUT</label>
+            <input type="date" id="eaStart" style="width:100%;padding:7px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">FIN</label>
+            <input type="date" id="eaEnd" style="width:100%;padding:7px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+          </div>
+        </div>
+        <div style="margin-bottom:4px">
+          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">NOTE</label>
+          <input type="text" id="eaNote" style="width:100%;padding:7px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
+        </div>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:space-between">
+        <button onclick="deleteAstreinte()" style="padding:8px 14px;background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🗑 Supprimer</button>
+        <div style="display:flex;gap:8px">
+          <button onclick="closeEditAstreinte()" style="padding:8px 14px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Annuler</button>
+          <button onclick="saveEditAstreinte()" style="padding:8px 18px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">💾 Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script>
 const FB={apiKey:"AIzaSyAaySxLt8gyFiFjBzc2q9CrXvloaSU8DPU",authDomain:"gestion-contrats-acf.firebaseapp.com",projectId:"gestion-contrats-acf",storageBucket:"gestion-contrats-acf.firebasestorage.app",messagingSenderId:"55233673058",appId:"1:55233673058:web:0c6c51ca4c324e12305e3b"};
@@ -1676,6 +1990,14 @@ const TM_DEFAULT={
 };
 let TM={...TM_DEFAULT};  // peut être enrichi depuis Firebase
 let _typeOrder=[];  // ordre des types custom (ids)
+const DEFAULT_TYPE_GROUPS=[
+  {id:'g_maint',  label:'Visites maintenance', keys:['ve1','ve2','annuelle']},
+  {id:'g_inter',  label:'Interventions',        keys:['dep','cde','reco']},
+  {id:'g_mes',    label:'Mise en service',      keys:['mes','reception','form','cs']},
+  {id:'g_prot',   label:'Protection',           keys:['prot']},
+  {id:'g_divers', label:'Divers',               keys:['agence','conge','astreinte','autre']},
+];
+let _typeGroups=JSON.parse(JSON.stringify(DEFAULT_TYPE_GROUPS)); // deep copy
 const SIC={non_confirme:'🔴',confirme:'',realise:'🔵',annule:'❌',attente:'🟣',a_deplacer:'🟠'};
 // Couleurs de fond des événements selon leur état RDV
 const PLANNING_TO_VE={'non_confirme':'FFFF00','confirme':'FFC000','realise':'92D050','annule':'FF00FF','non_confirme':'FFCCFF','attente':'FFC000','a_deplacer':'FFFF00'};
@@ -1683,12 +2005,10 @@ const VE_TO_PLANNING={'FFFF00':'non_confirme','FFC000':'confirme','92D050':'real
 
 let STATE_COLORS={
   '':null,
-  non_confirme:{bg:'#ffffff',border:'#dc2626',text:'#991b1b'},
-  confirme:    {bg:'#ffffff',border:'#16a34a',text:'#166534'},
-  attente:     {bg:'#ffffff',border:'#a855f7',text:'#6b21a8'},
-  realise:     {bg:'#ffffff',border:'#16a34a',text:'#14532d'},
-  annule:      {bg:'#ffffff',border:'#ca8a04',text:'#713f12'},
-  a_deplacer:  {bg:'#ffffff',border:'#ea580c',text:'#7c2d12'},
+  non_confirme:{bg:'#fee2e2',border:'#991b1b',text:'#991b1b'},
+  confirme:    {bg:'#111827',border:'#111827',text:'#ffffff'},
+  attente:     {bg:'#ede9fe',border:'#7c3aed',text:'#4c1d95'},
+  realise:     {bg:'#dcfce7',border:'#16a34a',text:'#14532d'},
 };
 let _db=null,_lib=null;
 let _contrats=[],_fiches=[],_events=[];
@@ -1735,7 +2055,7 @@ function doSearch(q){
   matches.forEach(e=>{
     const tm=TM[e.type]||TM.autre;
     const sc=STATE_COLORS[e.rdvState||''];
-    const bg=tm.bg, cl2='#000', bd2=sc?sc.border:(rColor(e.tech)||tm.color);
+    const bg=sc?.bg||tm.bg, cl2=sc?.text||'#111', bd2=sc?sc.border:(rColor(e.tech)||tm.color);
     const dur=e.duration?`${e.duration}h`:(e.startTime&&e.endTime?`${e.startTime.replace(':','h')}-${e.endTime.replace(':','h')}`:'');
     const dEnd=e.dateEnd&&e.dateEnd>e.date?` → ${dfr2(e.dateEnd)}`:'';
     tableRows+=`<tr class="sr-row" onclick="searchGo('${e.date}','${esc(e.tech||'')}','${esc(e._fsId||e._id||'')}');closeSearch()" style="cursor:pointer;border-bottom:1px solid var(--line)">
@@ -1944,7 +2264,7 @@ function watchEv(){
         if(tc.typeOrder) _typeOrder=tc.typeOrder;
       }
       // Charger les couleurs personnalisées des types locked
-      const lc=cfg.find(x=>x._lockedColors);
+      const lc=docs.find(x=>x._lockedColors);
       if(lc&&lc.colors){
         Object.entries(lc.colors).forEach(([k,c])=>{
           if(TM[k]){TM[k].color=c.color||TM[k].color;TM[k].bg=c.bg||TM[k].bg;}
@@ -1995,7 +2315,7 @@ async function doRefresh(){
     const rc=cfg.find(x=>x._resConfig);
     if(rc&&rc.resources)_resources=rc.resources;
     const tc=cfg.find(x=>x._typesConfig);
-    if(tc&&tc.customTypes){tc.customTypes.forEach(t=>{const lbl=(t.label||'').toLowerCase();let icon=t.icon||'📌';if(!t.icon||t.icon==='📌'){if(lbl.includes('agence')||lbl.includes('bureau'))icon='🏢';else if(lbl.includes('cong'))icon='🌴';}TM[t.id]={label:t.label,icon,color:t.color||'#64748b',bg:t.bg||'#f1f5f9'};});if(tc.typeOrder)_typeOrder=tc.typeOrder;}
+    if(tc&&tc.customTypes){tc.customTypes.forEach(t=>{const lbl=(t.label||'').toLowerCase();let icon=t.icon||'📌';if(!t.icon||t.icon==='📌'){if(lbl.includes('agence')||lbl.includes('bureau'))icon='🏢';else if(lbl.includes('cong'))icon='🌴';}TM[t.id]={label:t.label,icon,color:t.color||'#64748b',bg:t.bg||'#f1f5f9'};});if(tc.typeOrder)_typeOrder=tc.typeOrder;if(tc.typeGroups&&tc.typeGroups.length)_typeGroups=tc.typeGroups;}
     setLastSync();
     setConn(true);
     render();
@@ -2024,22 +2344,6 @@ function ss(u){
   document.querySelectorAll('[onclick="openConfig()"]').forEach(el=>el.style.display=isAdmin?'':'none');
   buildTypeOpts();buildChips();buildLegend();buildTechSel();buildDL();updWEbtn();buildFilters();
   setTimeout(adjustViewTop,50);render();
-  // ── Lien depuis Gestion Contrats : ouvrir formulaire pré-rempli si params URL ──
-  setTimeout(()=>{
-    const p=new URLSearchParams(window.location.search);
-    if(p.get('action')==='new'){
-      const opts={
-        contratId:p.get('contratId')||'',
-        prefillTitle:p.get('title')||'',
-        ve:p.get('ve')||''
-      };
-      const tech=p.get('tech')||'';
-      const date=p.get('date')||dk(new Date());
-      openNewEvent(date,tech,'',opts);
-      // Nettoyer l'URL sans recharger
-      history.replaceState({},'',window.location.pathname);
-    }
-  },300);
 }
 function doLogout(){_user=null;localStorage.removeItem('pu');document.getElementById('app').classList.add('hidden');document.getElementById('loginWrap').style.display='flex';}
 async function boot(){msg('Connexion Firebase…');try{await initFB();}catch(e){msg('❌ Firebase : '+e.message);return;}msg('Chargement…');try{const[c,f,ev,cfg]=await Promise.all([getContratsMin(),getAll('techniciens'),getAll('planning_events'),getAll('planning_resources')]);_contrats=c;_fiches=f;_events=ev;const rc=cfg.find(x=>x._resConfig);if(rc&&rc.resources)_resources=rc.resources;const fc=cfg.find(x=>x._ferieConfig);if(fc&&fc.customFeries)_customFeries=fc.customFeries;const sc=cfg.find(x=>x._settings);if(sc)_showWE=sc.showWeekend!==false;
@@ -2047,7 +2351,7 @@ const vc=cfg.find(x=>x._version);if(vc)_applyVersion({num:vc.num||'1.0',date:vc.
 const sc2=cfg.find(x=>x._stateColors);if(sc2?.colors)_applyStateColors(sc2.colors);
 await loadVacSco();
 const sy=cfg.find(x=>x._syncOpts);if(sy){_syncOpts.planningToContrats=sy.planningToContrats===true;_syncOpts.contratsToPlanning=sy.contratsToPlanning===true;}
-    const tc=cfg.find(x=>x._typesConfig);if(tc&&tc.customTypes){tc.customTypes.forEach(t=>{const lbl=(t.label||'').toLowerCase();let icon=t.icon||'📌';if(!t.icon||t.icon==='📌'){if(lbl.includes('agence')||lbl.includes('bureau'))icon='🏢';else if(lbl.includes('cong'))icon='🌴';}TM[t.id]={label:t.label,icon,color:t.color||'#64748b',bg:t.bg||'#f1f5f9'};});if(tc.typeOrder)_typeOrder=tc.typeOrder;}}catch(e){msg('❌ Chargement : '+e.message);return;}watchEv();setLastSync();hideLoad();loadBacklog().catch(()=>{});updateDemOuvertesBadge().catch(()=>{});const sv=JSON.parse(localStorage.getItem('pu')||'null');if(sv)ss(sv);else{document.getElementById('loginWrap').style.display='flex';document.getElementById('loginU').focus();}}
+    const tc=cfg.find(x=>x._typesConfig);if(tc&&tc.customTypes){tc.customTypes.forEach(t=>{const lbl=(t.label||'').toLowerCase();let icon=t.icon||'📌';if(!t.icon||t.icon==='📌'){if(lbl.includes('agence')||lbl.includes('bureau'))icon='🏢';else if(lbl.includes('cong'))icon='🌴';}TM[t.id]={label:t.label,icon,color:t.color||'#64748b',bg:t.bg||'#f1f5f9'};});if(tc.typeOrder)_typeOrder=tc.typeOrder;if(tc.typeGroups&&tc.typeGroups.length)_typeGroups=tc.typeGroups;}}catch(e){msg('❌ Chargement : '+e.message);return;}watchEv();setLastSync();hideLoad();loadBacklog().catch(()=>{});updateDemOuvertesBadge().catch(()=>{});const sv=JSON.parse(localStorage.getItem('pu')||'null');if(sv)ss(sv);else{document.getElementById('loginWrap').style.display='flex';document.getElementById('loginU').focus();}}
 function msg(t){document.getElementById('loadMsg').textContent=t;}
 function hideLoad(){const s=document.getElementById('loading');s.classList.add('hide');setTimeout(()=>s.style.display='none',450);}
 const MOIS={'janvier':0,'février':1,'fevrier':1,'mars':2,'avril':3,'mai':4,'juin':5,'juillet':6,'août':7,'aout':7,'septembre':8,'octobre':9,'novembre':10,'décembre':11,'decembre':11,'jan':0,'fév':1,'fev':1,'mar':2,'avr':3,'jun':5,'jul':6,'aoû':7,'sep':8,'oct':9,'nov':10,'déc':11,'dec':11};
@@ -2364,7 +2668,7 @@ function closeConfig(){ document.getElementById('cfgOverlay').classList.remove('
 function cfgToggleWE(v){ _showWE=v; render(); saveSett(); }
 
 function switchCfgTab(t){
-  ['gen','types','res','states'].forEach(x=>{
+  ['gen','types','res','states','astr'].forEach(x=>{
     document.getElementById('cfgtab-'+x)?.classList.toggle('on',x===t);
     document.getElementById('cfgbody-'+x)?.classList.toggle('hidden',x!==t);
   });
@@ -2443,31 +2747,86 @@ function renderCfgSync(){
 }
 
 let _cfgTypeDragId=null;
+let _cfgGrpDragId=null;
+
 function renderCfgTypes(){
-  // Liste unifiée : tous les types (locked + custom) avec drag-and-drop
   const cl=document.getElementById('cfgTypesList');
-  const locked=document.getElementById('cfgTypesLocked');
-  if(locked) locked.innerHTML=''; // vider la section locked séparée
-  if(!cl) return;
-  const all=getAllOrderedTypes();
-  cl.innerHTML=all.map(([k,m])=>`<div class="rrow" draggable="true" style="align-items:center;cursor:grab;gap:8px"
-      ondragstart="_cfgTypeDragId='${k}'"
-      ondragover="event.preventDefault();this.style.background='#eff6ff'"
-      ondragleave="this.style.background=''"
-      ondrop="event.preventDefault();this.style.background='';if(_cfgTypeDragId&&_cfgTypeDragId!=='${k}'){
-        const o=getAllOrderedTypes().map(([x])=>x);
-        const fi=o.indexOf(_cfgTypeDragId),ti=o.indexOf('${k}');
-        if(fi>=0&&ti>=0){o.splice(fi,1);o.splice(ti,0,_cfgTypeDragId);_typeOrder=o;_cfgTypeDragId=null;renderCfgTypes();buildTypeOpts();buildLegend();saveTypes();}}">
-      <span class="rdrag">☰</span>
-      <input type="text" value="${m.icon}" maxlength="4" title="Changer l'icône"
-        onclick="event.stopPropagation()"
-        onchange="TM['${k}'].icon=this.value.trim()||'📌';buildTypeOpts();buildLegend();saveTypes();"
-        style="width:30px;font-size:15px;border:1.5px solid var(--line);border-radius:5px;text-align:center;padding:2px;cursor:text;background:var(--bg)">
-      <div style="width:16px;height:16px;border-radius:3px;background:${m.bg};border:2px solid ${m.color};flex-shrink:0"></div>
-      <span style="flex:1;font-size:12px;font-weight:700">${m.label}</span>
-      ${m.locked?'<span style="font-size:9px;color:var(--sub);padding:2px 6px;background:#f1f5f9;border-radius:10px">🔒 système</span>':
-        `<button class="rdel" onclick="cfgRemoveType('${k}')">✕</button>`}
+  const gl=document.getElementById('cfgGroupsList');
+  if(!cl||!gl) return;
+
+  // Groupes avec drop zones
+  gl.innerHTML=_typeGroups.map((g,gi)=>`
+    <div style="border:1.5px solid var(--line);border-radius:9px;margin-bottom:8px;overflow:hidden"
+      draggable="true"
+      ondragstart="event.dataTransfer.effectAllowed='move';_cfgGrpDragId='${g.id}'"
+      ondragover="event.preventDefault();this.style.outline='2px solid var(--blue)'"
+      ondragleave="this.style.outline=''"
+      ondrop="event.preventDefault();this.style.outline='';cfgDropGroup('${g.id}')">
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:#f8fafc;border-bottom:1px solid var(--line)">
+        <span style="color:#94a3b8;cursor:grab;font-size:15px">☰</span>
+        <input value="${g.label}" style="flex:1;border:none;background:transparent;font-size:12px;font-weight:700;color:var(--navy);outline:none;cursor:text"
+          onchange="_typeGroups[${gi}].label=this.value;buildTypeOpts()">
+        <button onclick="cfgRemoveGroup('${g.id}')" style="background:#fee2e2;color:#dc2626;border:none;border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer;display:${g.id.startsWith('g_')?'none':'inline'}">✕</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px;min-height:38px"
+        ondragover="event.preventDefault();event.stopPropagation();this.style.background='#eff6ff'"
+        ondragleave="this.style.background=''"
+        ondrop="event.preventDefault();event.stopPropagation();this.style.background='';cfgDropTypeInGroup('${g.id}')">
+        ${g.keys.filter(k=>TM[k]).map(k=>`<div draggable="true" ondragstart="event.stopPropagation();_cfgTypeDragId='${k}'" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:14px;font-size:11px;font-weight:700;cursor:grab;background:${TM[k].bg};color:${TM[k].color};border:1.5px solid ${TM[k].color}33">${TM[k].icon} ${TM[k].label}<span onclick="cfgRemoveTypeFromGroup('${g.id}','${k}')" style="margin-left:2px;opacity:.55;cursor:pointer">✕</span></div>`).join('')}
+        ${g.keys.filter(k=>TM[k]).length===0?'<span style="font-size:11px;color:#94a3b8;font-style:italic;align-self:center">Glisser des types ici</span>':''}
+      </div>
     </div>`).join('');
+
+  // Tous les types disponibles
+  const assignedKeys=new Set(_typeGroups.flatMap(g=>g.keys));
+  const all=getAllOrderedTypes();
+  cl.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:6px;padding:6px 0">'+
+    all.map(([k,m])=>`<div draggable="true" ondragstart="_cfgTypeDragId='${k}'" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700;cursor:grab;background:${m.bg};color:${m.color};border:1.5px solid ${assignedKeys.has(k)?m.color+'44':'#e2e8f0'};opacity:${assignedKeys.has(k)?'.5':'1'}" title="${assignedKeys.has(k)?'Déjà dans un groupe':'Glisser vers un groupe'}">${m.icon} ${m.label}${m.locked?'<span style="font-size:8px;opacity:.5">🔒</span>':"<span onclick=\"cfgRemoveType('"+k+"')\" style=\"margin-left:2px;opacity:.55;cursor:pointer;font-size:10px\">✕</span>"}</div>`).join('')+
+  '</div>';
+}
+
+function cfgDropGroup(targetId){
+  if(!_cfgGrpDragId||_cfgGrpDragId===targetId){_cfgGrpDragId=null;return;}
+  const fi=_typeGroups.findIndex(g=>g.id===_cfgGrpDragId);
+  const ti=_typeGroups.findIndex(g=>g.id===targetId);
+  if(fi<0||ti<0){_cfgGrpDragId=null;return;}
+  const [moved]=_typeGroups.splice(fi,1);
+  _typeGroups.splice(ti,0,moved);
+  _cfgGrpDragId=null;
+  renderCfgTypes();buildTypeOpts();
+}
+
+function cfgDropTypeInGroup(groupId){
+  if(!_cfgTypeDragId) return;
+  _typeGroups.forEach(g=>{g.keys=g.keys.filter(k=>k!==_cfgTypeDragId);});
+  const g=_typeGroups.find(g=>g.id===groupId);
+  if(g&&!g.keys.includes(_cfgTypeDragId)) g.keys.push(_cfgTypeDragId);
+  _cfgTypeDragId=null;
+  renderCfgTypes();buildTypeOpts();
+}
+
+function cfgRemoveTypeFromGroup(groupId,key){
+  const g=_typeGroups.find(g=>g.id===groupId);
+  if(g) g.keys=g.keys.filter(k=>k!==key);
+  renderCfgTypes();buildTypeOpts();
+}
+
+function cfgAddGroup(){
+  const label=(document.getElementById('cfgNewGroupLabel')?.value||'').trim();
+  if(!label){toast('Entrez un nom','warn');return;}
+  _typeGroups.push({id:'cg_'+Date.now(),label,keys:[]});
+  document.getElementById('cfgNewGroupLabel').value='';
+  renderCfgTypes();buildTypeOpts();
+}
+
+function cfgRemoveGroup(id){
+  const g=_typeGroups.find(x=>x.id===id);
+  if(!g) return;
+  if(!confirm('Supprimer le groupe "'+g.label+'" ?')) return;
+  const divers=_typeGroups.find(x=>x.id==='g_divers');
+  if(divers) g.keys.forEach(k=>{if(!divers.keys.includes(k))divers.keys.push(k);});
+  _typeGroups=_typeGroups.filter(x=>x.id!==id);
+  renderCfgTypes();buildTypeOpts();
 }
 
 async function cfgAddType(){
@@ -2521,7 +2880,7 @@ for(let i=0;i<dow;i++){
   if(wn!==lastWeekNum){h+=`<div class="week-num">${wn}</div>`;lastWeekNum=wn;}
   h+=`<div class="cday other"><div class="cdnum">${d.getDate()}</div></div>`;
 }let sp=0;for(let i=0;i<dow;i++){const d=new Date(y,mo,1-dow+i);if(_showWE||(d.getDay()!==0&&d.getDay()!==6))sp++;}let mc=0;for(let day=1;day<=dim;day++){const d=new Date(y,mo,day),key=dk(d),dow2=d.getDay();if(!_showWE&&(dow2===0||dow2===6))continue;mc++;
-    const wn2=isoWeek(d);if(wn2!==lastWeekNum){h+=`<div class="week-num">${wn2}</div>`;lastWeekNum=wn2;}const isT=d.getTime()===today.getTime(),isWE=dow2===0||dow2===6,isFr=isFer(key),isVS=isVacSco(key);let cls='cday'+(isT?' today':'')+(isWE?' we':'')+(isFr?' ferie':'')+(isVS?' vacsco':'');const de=bd[key]||[];const MAX=3;let ev=de.slice(0,MAX).map(e=>{const tm=TM[e.type]||TM.autre,tc=rColor(e.tech);const sc2=STATE_COLORS[e.rdvState||''];const bg2=tm.bg,cl2='#000',bd2=sc2?sc2.border:tc;const eid2=esc(e._id);const tr2=fmtTimeRange(e.startTime,e.duration);const isVE2=e.isVE;const dragCls=isVE2?'':' draggable';return`<div class="cev${dragCls}" data-evid="${eid2}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg2};color:#000;border-left:3px solid ${bd2}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" ><span style="font-size:9px;margin-right:2px;opacity:.9">${tm.icon}</span><span style="font-size:9px;font-weight:800;margin-right:3px;opacity:.85">${tm.label}</span>${tr2?`<span style="font-size:9px;opacity:.7;margin-right:2px">${tr2}</span>`:''}<span class="evdot" style="background:${bd2}"></span>${esc(e.title)}</div>`;}).join('');if(de.length>MAX)ev+=`<div class="cmore" onclick="event.stopPropagation()">+${de.length-MAX}</div>`;const fl2=isFr?`<span class="fblbl">${esc(ferLbl(key).slice(0,8))}</span>`:(isVS?`<span class="vacsco-lbl">${esc(vacScoLbl(key).slice(0,10))}</span>`:'');h+=`<div class="${cls}" data-date="${key}" onclick="openNewEvent('${key}',null)" ondragover="calDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="calDrop(event,this)"><div style="display:flex;align-items:center;flex-wrap:wrap"><span class="cdnum">${day}</span>${fl2}</div>${ev}</div>`;}const total=sp+mc;const rem=total%cols===0?0:cols-(total%cols);let filled=0;for(let i=1;filled<rem;i++){const d=new Date(y,mo+1,i);if(!_showWE&&(d.getDay()===0||d.getDay()===6))continue;const wn3=isoWeek(d);if(wn3!==lastWeekNum){h+=`<div class="week-num">${wn3}</div>`;lastWeekNum=wn3;}h+=`<div class="cday other"><div class="cdnum">${d.getDate()}</div></div>`;filled++;}grid.innerHTML=h;
+    const wn2=isoWeek(d);if(wn2!==lastWeekNum){h+=`<div class="week-num">${wn2}</div>`;lastWeekNum=wn2;}const isT=d.getTime()===today.getTime(),isWE=dow2===0||dow2===6,isFr=isFer(key),isVS=isVacSco(key);let cls='cday'+(isT?' today':'')+(isWE?' we':'')+(isFr?' ferie':'')+(isVS?' vacsco':'');const de=bd[key]||[];const MAX=3;let ev=de.slice(0,MAX).map(e=>{const tm=TM[e.type]||TM.autre,tc=rColor(e.tech);const sc2=STATE_COLORS[e.rdvState||''];const bg2=sc2?.bg||tm.bg,cl2=sc2?.text||'#111',bd2=sc2?sc2.border:tc;const eid2=esc(e._id);const tr2=fmtTimeRange(e.startTime,e.duration);const isVE2=e.isVE;const dragCls=isVE2?'':' draggable';return`<div class="cev${dragCls}" data-evid="${eid2}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg2};color:#000;border-left:3px solid ${bd2}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" ><span style="font-size:9px;margin-right:2px;opacity:.9">${tm.icon}</span><span style="font-size:9px;font-weight:800;margin-right:3px;opacity:.85">${tm.label}</span>${tr2?`<span style="font-size:9px;opacity:.7;margin-right:2px">${tr2}</span>`:''}<span class="evdot" style="background:${bd2}"></span>${esc(e.title)}</div>`;}).join('');if(de.length>MAX)ev+=`<div class="cmore" onclick="event.stopPropagation()">+${de.length-MAX}</div>`;const fl2=isFr?`<span class="fblbl">${esc(ferLbl(key).slice(0,8))}</span>`:(isVS?`<span class="vacsco-lbl">${esc(vacScoLbl(key).slice(0,10))}</span>`:'');h+=`<div class="${cls}" data-date="${key}" ondblclick="if(!event.target.closest('[data-evid]'))openNewEvent('${key}',null)" ondragover="calDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="calDrop(event,this)" style="cursor:default"><div style="display:flex;align-items:center;flex-wrap:wrap"><span class="cdnum">${day}</span>${fl2}</div>${ev}</div>`;}const total=sp+mc;const rem=total%cols===0?0:cols-(total%cols);let filled=0;for(let i=1;filled<rem;i++){const d=new Date(y,mo+1,i);if(!_showWE&&(d.getDay()===0||d.getDay()===6))continue;const wn3=isoWeek(d);if(wn3!==lastWeekNum){h+=`<div class="week-num">${wn3}</div>`;lastWeekNum=wn3;}h+=`<div class="cday other"><div class="cdnum">${d.getDate()}</div></div>`;filled++;}grid.innerHTML=h;
   // Calculer le nombre de lignes et fixer grid-template-rows pour remplir l'écran
   const totalCells=startPad+mainCount+filled;
   const nRows=Math.ceil(totalCells/cols)+1; // +1 pour l'en-tête
@@ -2598,12 +2957,12 @@ function renderMonthGantt(){
         const _astrToday=evs.filter(e=>e.tech===r.name&&e.type==='astreinte'&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
         const de=evs.filter(e=>e.tech===r.name&&e.date===key&&e.type!=='astreinte');
         const dropAttrs=isWE||isFr?'':` data-date="${key}" data-tech="${esc(r.name)}" ondragover="ganttDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="ganttDrop(event,this)" oncontextmenu="event.preventDefault();ganttCellRClick(event,this);"`;
-        const clkAttr=isWE||isFr?'':` onclick="openNewEvent('${key}','${esc(r.name)}')"`;
+        const clkAttr=isWE||isFr?'':` ondblclick="if(!event.target.closest('[data-evid]'))openNewEvent('${key}','${esc(r.name)}')"`;
         h+=`<td style="padding:1px 2px;vertical-align:top;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:28px;background:${bg};cursor:${isWE||isFr?'default':'pointer'}" ${dropAttrs}${clkAttr}>`;
         de.forEach(e=>{
           const tm=TM[e.type]||TM.autre;
           const sc=STATE_COLORS[e.rdvState||''];
-          const bg2=tm.bg, cl2='#000', bd2=sc?sc.border:tc;
+          const bg2=sc?.bg||tm.bg, cl2=sc?.text||'#111', bd2=sc?sc.border:tc;
           const eid=esc(e._id);
           const tr2=e.startTime?e.startTime.replace(':','h')+(e.endTime?'-'+e.endTime.replace(':','h'):''):'';
           const typesLabel=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):(tm.label);
@@ -2757,7 +3116,24 @@ function renderWeek(){
   h+='</tr></thead><tbody>';grps.forEach(({agence,service,res})=>{h+=`<tr class="ggrp"><td colspan="${days.length+1}">${agence?'🏢 '+esc(agence)+' - ':''}${esc(service||'Sans service')}</td></tr>`;res.forEach(r=>{const tc=r.color||TC[0];const _phoneHtml=(_view==='month4'&&r.phone)?`<div style="font-size:9px;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">📱 ${esc(r.phone)}</div>`:'';const _np=r.name.trim().split(/\s+/);
     const _prenom=_np[0]||'';
     const _nom=_np.slice(1).join(' ').toUpperCase()||'';
-    h+=`<tr><td class="gtc" style="padding:4px 6px;border-left:4px solid ${tc}"><div style="display:flex;align-items:center;gap:5px"><span class="gav" style="background:${tc}">${ini(r.name)}</span><div style="min-width:0"><div style="font-size:10px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--navy)">${esc(_nom||_prenom.toUpperCase())}</div><div style="font-size:9px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_nom?esc(_prenom):''}</div>${r.phone?`<div style="font-size:9px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px">📱 ${esc(r.phone)}</div>`:''}</div></div></td>`;// Pré-calcul des spans multi-jours pour cette ressource
+    // ── Ligne astreinte unifiée (colspan) ──
+const _rAstrEvs=_events.filter(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=dk(days[days.length-1])&&(e.dateEnd?e.dateEnd>=dk(days[0]):e.date>=dk(days[0])));
+if(_rAstrEvs.length){
+  let _astrCells='';let _di=0;
+  while(_di<days.length){
+    const _dkey=dk(days[_di]);
+    const _ae=_rAstrEvs.find(ae=>ae.date<=_dkey&&(ae.dateEnd?ae.dateEnd>=_dkey:ae.date===_dkey));
+    if(_ae){
+      let _se=_di;
+      while(_se+1<days.length){const _nk=dk(days[_se+1]);if(_ae.date<=_nk&&(_ae.dateEnd?_ae.dateEnd>=_nk:_ae.date===_nk))_se++;else break;}
+      const _sp=_se-_di+1,_aid=_ae._fsId||_ae._id||'';
+      _astrCells+=`<td colspan="${_sp}" style="padding:0;height:18px;border-right:1px solid var(--line);border-bottom:none;vertical-align:middle">${_mkAstrBand(_aid,'border-radius:0')}</td>`;
+      _di=_se+1;
+    }else{_astrCells+=`<td style="padding:0;height:18px;border:none"></td>`;_di++;}
+  }
+  h+=`<tr style="height:18px"><td class="gtc" style="padding:0;height:18px;border-bottom:none;background:#f8fafc;position:sticky;left:0;z-index:20;border-left:4px solid ${tc}"></td>${_astrCells}</tr>`;
+}
+h+=`<tr><td class="gtc" style="padding:4px 6px;border-left:4px solid ${tc}"><div style="display:flex;align-items:center;gap:5px"><span class="gav" style="background:${tc}">${ini(r.name)}</span><div style="min-width:0"><div style="font-size:10px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--navy)">${esc(_nom||_prenom.toUpperCase())}</div><div style="font-size:9px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_nom?esc(_prenom):''}</div>${r.phone?`<div style="font-size:9px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px">📱 ${esc(r.phone)}</div>`:''}</div></div></td>`;// Pré-calcul des spans multi-jours pour cette ressource
 const _spans4=[];
 const _covIdx=new Set(); // indices couverts (non-premier jour)
 days.forEach((d2,di2)=>{
@@ -2790,7 +3166,7 @@ days.forEach((d,di)=>{const key=dk(d),isT=d.getTime()===today.getTime(),isWE=d.g
   _daySpans.forEach(sp=>{
     const e=sp.ev;const tm=TM[e.type]||TM.autre;
     const sc3=STATE_COLORS[e.rdvState||''];
-    const bg3=tm.bg,cl3='#000',bd3=sc3?sc3.border:tc;
+    const bg3=sc3?.bg||tm.bg,cl3=sc3?.text||'#111',bd3=sc3?sc3.border:tc;
     const tr3=e.startTime&&e.endTime?e.startTime.replace(':','h')+'-'+e.endTime.replace(':','h'):(e.startTime?e.startTime.replace(':','h'):'');
     const eid3=esc(e._id);
     const _isConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));
@@ -2804,20 +3180,19 @@ days.forEach((d,di)=>{const key=dk(d),isT=d.getTime()===today.getTime(),isWE=d.g
       const _abbr2=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label[0]).join(''):tm.label.slice(0,3);
       _spanHtml+=`<div class="gev gev-span${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:#000;border-top:3px solid ${bd3};border-radius:2px;padding:1px 0;margin-bottom:1px;width:100%;display:block;overflow:hidden;cursor:pointer" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" data-tip="1"${e.note?' — '+esc(e.note):''}"><div style="font-size:10px;font-weight:800;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px;opacity:.9">${_abbr2}</div><div style="font-size:10px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px">${esc(e.title)}</div>${e.note?`<div style="width:6px;height:6px;border-radius:50%;background:#f59f00;margin:1px auto"></div>`:''}</div>`;
     } else {
-      _spanHtml+=`<div class="gev gev-span${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:#000;border-left:3px solid ${bd3};border-radius:4px;padding:3px 5px;margin-bottom:2px;display:block;width:100%;box-sizing:border-box" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)"><div style="font-size:10px;font-weight:800;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#111"><strong>${esc(e.title)}</strong></div><div style="font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px;display:flex;align-items:center;gap:3px"><span style="font-size:8px;background:rgba(0,0,0,.13);border-radius:3px;padding:0 4px;font-weight:800;flex-shrink:0;line-height:1.5">${_tls}</span>${tr3?`<span style="opacity:.7">${tr3}</span>`:''}${e.note?`<span style="font-size:9px;color:#92400e">📌 ${esc(e.note)}</span>`:''}<span style="font-size:8px;background:rgba(0,0,0,.18);border-radius:8px;padding:0 4px;margin-left:auto;font-weight:800">${workDaysLabel(e._origDates||[])}</span></div></div>`;
+      _spanHtml+=`<div class="gev gev-span${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:3px solid ${bd3};border-radius:4px;padding:3px 5px;margin-bottom:2px;display:block;width:100%;box-sizing:border-box" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)"><div style="font-size:10px;font-weight:800;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#111"><strong>${esc(e.title)}</strong></div><div style="font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px;display:flex;align-items:center;gap:3px"><span style="font-size:8px;background:rgba(0,0,0,.13);border-radius:3px;padding:0 4px;font-weight:800;flex-shrink:0;line-height:1.5">${_tls}</span>${tr3?`<span style="opacity:.7">${tr3}</span>`:''}${e.note?`<span style="font-size:9px;color:#92400e">📌 ${esc(e.note)}</span>`:''}<span style="font-size:8px;background:rgba(0,0,0,.18);border-radius:8px;padding:0 4px;margin-left:auto;font-weight:800">${workDaysLabel(e._origDates||[])}</span></div></div>`;
     }
   });
-  const ev=_deSlice.map(e=>{const tm=TM[e.type]||TM.autre;const sc3=STATE_COLORS[e.rdvState||''];const bg3=tm.bg,cl3='#000',bd3=sc3?sc3.border:tc;const tr3=e.startTime&&e.endTime?e.startTime.replace(':','h')+'-'+e.endTime.replace(':','h'):(e.startTime?e.startTime.replace(':','h'):'');const eid3=esc(e._id);const durH=e.duration||(e.startTime&&e.endTime?(()=>{const[hs2,ms3]=(e.startTime||'08:00').split(':').map(Number);const[he2,me2]=(e.endTime||'12:00').split(':').map(Number);return Math.round((he2*60+me2-hs2*60-ms3)/60*10)/10;})():null);const durLbl=durH!=null?(durH<1?Math.round(durH*60)+'m':(Number.isInteger(durH)?durH+'h':durH.toString().replace('.',',')+'h')):'';const multiCls=e.isMultiDay?(e.isFirstDay?'multi-first':e.isLastDay?'multi-last':'multi-mid'):'';const _isConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));
+  const ev=_deSlice.map(e=>{const tm=TM[e.type]||TM.autre;const sc3=STATE_COLORS[e.rdvState||''];const bg3=sc3?.bg||tm.bg,cl3=sc3?.text||'#111',bd3=sc3?sc3.border:tc;const tr3=e.startTime&&e.endTime?e.startTime.replace(':','h')+'-'+e.endTime.replace(':','h'):(e.startTime?e.startTime.replace(':','h'):'');const eid3=esc(e._id);const durH=e.duration||(e.startTime&&e.endTime?(()=>{const[hs2,ms3]=(e.startTime||'08:00').split(':').map(Number);const[he2,me2]=(e.endTime||'12:00').split(':').map(Number);return Math.round((he2*60+me2-hs2*60-ms3)/60*10)/10;})():null);const durLbl=durH!=null?(durH<1?Math.round(durH*60)+'m':(Number.isInteger(durH)?durH+'h':durH.toString().replace('.',',')+'h')):'';const multiCls=e.isMultiDay?(e.isFirstDay?'multi-first':e.isLastDay?'multi-last':'multi-mid'):'';const _isConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));
     const _isAstreinte=e.type==='astreinte'||e.types?.includes('astreinte');const borderL=e.isMultiDay&&!e.isFirstDay?'none':('3px solid '+bd3);let dayIndicator='';if(e.isMultiDay&&e._origDates){dayIndicator=`<span style="font-size:8px;background:rgba(0,0,0,.15);border-radius:8px;padding:0 4px;margin-left:3px;font-weight:700">${e._dayIdx+1}/${workDaysLabel(e._origDates)}</span>`;}else if(e.isMultiDay){const tag=e.isFirstDay?'1er':e.isLastDay?'fin':'';dayIndicator=tag?`<span style="font-size:8px;background:rgba(0,0,0,.15);border-radius:8px;padding:0 4px;margin-left:3px">${tag}</span>`:'';}if(_view==='bimonth'||_view==='quarter'){
     // Vue très compacte : bandeau coloré + abréviation type
     const _abbr=(e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label[0]).join(''):tm.label.slice(0,3));
     const _isConge2=_isConge;
     return`<div class="gev${_isConge2?' gev-hatch':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:#000;border-top:3px solid ${bd3};border-radius:2px;padding:1px 0;margin-bottom:1px;width:100%;display:block;overflow:hidden;cursor:pointer" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" data-evid="${eid3}" data-tip="1"${e.note?' — '+esc(e.note):''}"><div style="font-size:10px;font-weight:800;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px;opacity:.9">${_abbr}</div><div style="font-size:10px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px">${esc(e.title)}</div>${e.note?`<div style="width:6px;height:6px;border-radius:50%;background:#f59f00;margin:1px auto"></div>`:''}</div>`;}
-  if(_view==='month4'){const _tl4=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):tm.label;return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:#000;border-left:${borderL};padding:2px 3px;margin-bottom:1px;border-radius:3px" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]"><div style="font-size:10px;font-weight:800;line-height:1.35;white-space:normal;overflow:hidden;color:#111"><strong>${esc(e.title)}</strong></div><div style="font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px;display:flex;align-items:center;gap:3px"><span style="font-size:8px;background:rgba(0,0,0,.13);border-radius:3px;padding:0 4px;font-weight:800;flex-shrink:0;line-height:1.5">${_tl4}</span>${tr3?`<span style="opacity:.7">${tr3}</span>`:''}${dayIndicator}</div>${e.note?`<div style="font-size:9px;color:#000;padding:0 3px;margin-top:2px">📌 ${esc(e.note)}</div>`:''}</div>`;}return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:#000;border-left:${borderL}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]"><div style="font-size:10px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.35;color:#111">${esc(e.title)}${e.contratId?'<span style="font-size:8px;background:#dbeafe;color:#1d4ed8;border-radius:3px;padding:0 3px;margin-left:3px;font-weight:800;vertical-align:middle">📋</span>':''}</div><div style="font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px;display:flex;align-items:center;gap:3px"><span style="font-size:8px;background:rgba(0,0,0,.13);border-radius:3px;padding:0 4px;font-weight:800;flex-shrink:0;line-height:1.5">${e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):tm.label}</span>${tr3?`<span style="opacity:.7;font-size:9px">${tr3}</span>`:''}${dayIndicator}</div>${e.note?`<div style="font-size:9px;color:#92400e;padding:0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`:''}</div>`;}).join('');const moreHtml=_moreCount>0?`<div class="cmore" style="width:100%;padding:1px 3px" onclick="event.stopPropagation()">+${_moreCount}</div>`:'';const evFinal=_spanHtml+ev+moreHtml;const multi=(de.length>0||_daySpans.length>0)?' gd-multi':'';const cl=(isWE||isFr)?'':` ondblclick="event.stopPropagation();if(!event.target.closest('[data-evid]')){openNewEvent('${key}','${esc(r.name)}')}" onmousedown="gdSelStart(event,this)"`; const dropAttrs=(isWE||isFr)?'':' data-date="'+key+'" data-tech="'+esc(r.name)+'" ondragover="ganttDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="ganttDrop(event,this)" oncontextmenu="event.preventDefault();ganttCellRClick(event,this);"';const spacer='';const _colspanAttr=_colspan>1?` colspan="${_colspan}"`:'';const _astrToday=_events.filter(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
+  if(_view==='month4'){const _tl4=e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):tm.label;return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:${borderL};padding:2px 3px;margin-bottom:1px;border-radius:3px" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]"><div style="font-size:10px;font-weight:800;line-height:1.35;white-space:normal;overflow:hidden;color:#111"><strong>${esc(e.title)}</strong></div><div style="font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px;display:flex;align-items:center;gap:3px"><span style="font-size:8px;background:rgba(0,0,0,.13);border-radius:3px;padding:0 4px;font-weight:800;flex-shrink:0;line-height:1.5">${_tl4}</span>${tr3?`<span style="opacity:.7">${tr3}</span>`:''}${dayIndicator}</div>${e.note?`<div style="font-size:9px;color:#000;padding:0 3px;margin-top:2px">📌 ${esc(e.note)}</div>`:''}</div>`;}return`<div class="gev ${multiCls}${_isConge?' gev-hatch':''} ${_isAstreinte?' gev-astreinte':''} ${e.type==='astreinte'?' gev-astreinte':''}" data-evid="${eid3}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} style="background:${bg3};color:${cl3};border-left:${borderL}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" onmousemove="gevEdgeHover(event,this)" onmousedown="gevEdgeMousedown(event,this)" title="${esc(e.title)} [${tm.label}]"><div style="font-size:10px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.35;color:inherit">${esc(e.title)}</div><div style="font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px;display:flex;align-items:center;gap:3px"><span style="font-size:8px;background:rgba(0,0,0,.13);border-radius:3px;padding:0 4px;font-weight:800;flex-shrink:0;line-height:1.5">${e.types&&e.types.length>1?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):tm.label}</span>${tr3?`<span style="opacity:.7;font-size:9px">${tr3}</span>`:''}${dayIndicator}</div>${e.note?`<div style="font-size:9px;color:#92400e;padding:0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`:''}</div>`;}).join('');const moreHtml=_moreCount>0?`<div class="cmore" style="width:100%;padding:1px 3px" onclick="event.stopPropagation()">+${_moreCount}</div>`:'';const evFinal=_spanHtml+ev+moreHtml;const multi=(de.length>0||_daySpans.length>0)?' gd-multi':'';const cl=(isWE||isFr)?'':` ondblclick="event.stopPropagation();if(!event.target.closest('[data-evid]')){openNewEvent('${key}','${esc(r.name)}')}" onmousedown="gdSelStart(event,this)"`; const dropAttrs=(isWE||isFr)?'':' data-date="'+key+'" data-tech="'+esc(r.name)+'" ondragover="ganttDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="ganttDrop(event,this)" oncontextmenu="event.preventDefault();ganttCellRClick(event,this);"';const spacer='';const _colspanAttr=_colspan>1?` colspan="${_colspan}"`:'';const _astrToday=_events.filter(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
         const _hasAstr=(_astrToday||[]).length>0;
         const _astrEvId=(_astrToday[0]?._fsId||_astrToday[0]?._id||'');
-        const _astrBand=_hasAstr?_mkAstrBand(_astrEvId,''):'';
-        h+=`<td class="${cls}${multi}${_hasAstr?' has-astreinte':''}"${_colspanAttr}${cl}${dropAttrs}>${_astrBand}${evFinal}</td>`;});});});if(!grps.length||grps.every(g=>!g.res.length))h+=`<tr><td colspan="${days.length+1}" style="padding:40px;text-align:center;color:var(--sub)">Aucune ressource active - configurez l'onglet Ressources</td></tr>`;h+='</tbody>';
+        h+=`<td class="${cls}${multi}"${_colspanAttr}${cl}${dropAttrs} title="${isWE||isFr?'':evFinal?'':'Double-clic pour créer un RDV'}">${evFinal}</td>`;});});});if(!grps.length||grps.every(g=>!g.res.length))h+=`<tr><td colspan="${days.length+1}" style="padding:40px;text-align:center;color:var(--sub)">Aucune ressource active - configurez l'onglet Ressources</td></tr>`;h+='</tbody>';
   document.getElementById('gantt').innerHTML=h;
   requestAnimationFrame(()=>{
     const wrap=document.getElementById('ganttWrap');
@@ -3028,10 +3403,7 @@ function renderTimeline(){
           h+=`<div style="position:absolute;left:${(hh-H_START)*HOUR_W}px;top:${SPAN_H}px;bottom:0;width:1px;background:rgba(0,0,0,.04)"></div>`;
         }
 
-        // Bandeau astreinte
-        const _tlAstr=_events.some(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
-        const _tlAstrEv=_events.find(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=key&&(e.dateEnd?e.dateEnd>=key:e.date===key));
-        if(_tlAstrEv){const _aid=_tlAstrEv._fsId||_tlAstrEv._id||'';h+=_mkAstrBand(_aid,'position:absolute;top:0;left:0;right:0;height:16px;display:flex;align-items:center;justify-content:center;z-index:3;user-select:none;font-size:10px;');}
+        // Bandeau astreinte rendu en une seule bande après (voir plus bas)
 
         // RDV normaux
         let _lanes=[];
@@ -3059,9 +3431,11 @@ function renderTimeline(){
           const isEclated=e.isMultiDay&&!spanIds.has(e._id.split('__')[0]);
           const extraStyle=isEclated?'border-style:dashed;opacity:.85;':'';
           const dayBadge=isEclated&&e._origDates?`<span style="background:rgba(0,0,0,.2);border-radius:8px;padding:0 3px;margin-left:2px;font-size:8px">${e._dayIdx+1}/${workDaysLabel(e._origDates)}</span>`:'';
-          h+=`<div class="tl-ev" data-evid="${eid3}" data-st="${esc(st)}" data-et="${esc(et)}" data-hourw="${HOUR_W}" data-hstart="${H_START}" data-hend="${H_END}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" ondblclick="event.stopPropagation();tlEvDblClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" style="position:absolute;left:${x}px;top:${top}px;width:${ew}px;height:${ROW_H-6}px;background:${bg3};color:#000;border-left:3px solid ${bd3};border-radius:3px;padding:2px 4px;overflow:hidden;cursor:grab;font-size:9px;box-shadow:0 1px 3px rgba(0,0,0,.1);z-index:2;${extraStyle}">${resizeHandle}`;
+          const _tlIsConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));
+          const _tlHatch=_tlIsConge?'background-color:#dcfce7;background-image:repeating-linear-gradient(-45deg,rgba(134,239,172,.55) 0px,rgba(134,239,172,.55) 5px,rgba(220,252,231,.3) 5px,rgba(220,252,231,.3) 10px);border-left-color:#16a34a;color:#14532d;':'';
+          h+=`<div class="tl-ev" data-evid="${eid3}" data-st="${esc(st)}" data-et="${esc(et)}" data-hourw="${HOUR_W}" data-hstart="${H_START}" data-hend="${H_END}" ${e.isVE?'':`draggable="true" ondragstart="evDragStart(event,this)" ondragend="evDragEnd(event,this)"`} onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" ondblclick="event.stopPropagation();tlEvDblClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" style="position:absolute;left:${x}px;top:${top}px;width:${ew}px;height:${ROW_H-6}px;background:${bg3};color:${cl3};border-left:3px solid ${bd3};border-radius:3px;padding:2px 4px;overflow:hidden;cursor:grab;font-size:9px;box-shadow:0 1px 3px rgba(0,0,0,.1);z-index:2;${extraStyle}${_tlHatch}">${resizeHandle}`;
           const tlTypesLabel=(e.types&&e.types.length>1)?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):(tm.label);
-          h+=`<div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;line-height:1.35">${esc(e.title||'')}${e.contratId?'<span style="font-size:8px;background:#dbeafe;color:#1d4ed8;border-radius:3px;padding:0 3px;margin-left:3px;font-weight:800">\U0001f4cb</span>':''}</div>`;
+          h+=`<div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;line-height:1.35">${esc(e.title||'')}</div>`;
           h+=`<div style="font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.8;display:flex;align-items:center;gap:3px"><span style="background:rgba(0,0,0,.12);border-radius:3px;padding:0 3px;font-weight:800;flex-shrink:0">${tlTypesLabel}</span><span style="opacity:.85">${st.replace(':','h')}–${et.replace(':','h')}</span>${dayBadge}</div>`;
           if(e.hcInst) h+=`<div style="font-size:10px;color:#555;padding:0 2px;font-style:italic;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">🏗️ ${esc(e.hcInst)}</div>`;
           if(e.note) h+=`<div style="font-size:10px;color:#000;padding:0 2px;border-radius:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`;
@@ -3111,8 +3485,10 @@ function renderTimeline(){
           const _stSpan=e.startTime||'08:00', _etSpan=e.endTime||'17:00';
           const _trSpan=`${_stSpan.replace(':','h')}–${_etSpan.replace(':','h')}`;
           const _tlTypesSpan=(e.types&&e.types.length>1)?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):(tm.label);
-          h+=`<div data-evid="${eid3}" data-span-id="${bid}" data-span-days="${esc(JSON.stringify(info.days))}" data-day-w="${DAY_W}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" ondblclick="event.stopPropagation();tlEvDblClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" style="position:absolute;left:${xStart}px;top:${top}px;width:${spanW}px;height:${_spanH}px;background:${bg3};color:#000;border-top:3px solid ${bd3};${isFirstVis?'border-left:3px solid '+bd3+';':''}${isLastVis?'border-right:2px solid '+bd3+';':''}border-radius:${br};padding:3px 6px;overflow:hidden;cursor:grab;font-size:9px;z-index:3;box-shadow:0 1px 3px rgba(0,0,0,.1);">${arrowL}`;
-          h+=`<div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;line-height:1.35">${esc(e.title||'')}${e.contratId?'<span style="font-size:8px;background:#dbeafe;color:#1d4ed8;border-radius:3px;padding:0 3px;margin-left:3px;font-weight:800">\U0001f4cb</span>':''}</div>`;
+          const _tlSpanIsConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));
+          const _tlSpanHatch=_tlSpanIsConge?'background-color:#dcfce7;background-image:repeating-linear-gradient(-45deg,rgba(134,239,172,.55) 0px,rgba(134,239,172,.55) 5px,rgba(220,252,231,.3) 5px,rgba(220,252,231,.3) 10px);':'';
+          h+=`<div data-evid="${eid3}" data-span-id="${bid}" data-span-days="${esc(JSON.stringify(info.days))}" data-day-w="${DAY_W}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" ondblclick="event.stopPropagation();tlEvDblClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" style="position:absolute;left:${xStart}px;top:${top}px;width:${spanW}px;height:${_spanH}px;background:${bg3};color:#000;border-top:3px solid ${bd3};${isFirstVis?'border-left:3px solid '+bd3+';':''}${isLastVis?'border-right:2px solid '+bd3+';':''}border-radius:${br};padding:3px 6px;overflow:hidden;cursor:grab;font-size:9px;z-index:3;box-shadow:0 1px 3px rgba(0,0,0,.1);${_tlSpanHatch}">${arrowL}`;
+          h+=`<div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;line-height:1.35">${esc(e.title||'')}</div>`;
           h+=`<div style="font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85;display:flex;align-items:center;gap:3px"><span style="background:rgba(0,0,0,.12);border-radius:3px;padding:0 3px;font-weight:800;flex-shrink:0">${_tlTypesSpan}</span><span>${_trSpan}</span>${e._origDates?`<span style="background:rgba(0,0,0,.15);border-radius:8px;padding:0 4px;font-size:8px;margin-left:2px">${visibleDays.filter(d=>{const dt=new Date(d);return dt.getDay()!==0&&dt.getDay()!==6&&!isFer(d);}).length}/${workDaysLabel(e._origDates)}</span>`:''}</div>`;
           if(e.hcInst) h+=`<div style="font-size:10px;color:#555;padding:0 2px;font-style:italic;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">🏗️ ${esc(e.hcInst)}</div>`;
           if(e.note) h+=`<div style="font-size:10px;color:#000;padding:0 2px;border-radius:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📌 ${esc(e.note)}</div>`;
@@ -3120,6 +3496,17 @@ function renderTimeline(){
         });
       }
 
+      // ── Bande astreinte unique (couvre toute la période) ──
+      const _tlResAstrEvs=_events.filter(e=>e.type==='astreinte'&&(e.tech===r.name||e.techs?.includes(r.name))&&e.date<=dk(days[days.length-1])&&(e.dateEnd?e.dateEnd>=dk(days[0]):e.date>=dk(days[0])));
+      _tlResAstrEvs.forEach(ae=>{
+        const _aid=ae._fsId||ae._id||'';
+        const _startDi=Math.max(0,days.findIndex(d=>dk(d)>=ae.date));
+        let _endDi=_startDi;
+        for(let _di2=days.length-1;_di2>=0;_di2--){if(ae.dateEnd?dk(days[_di2])<=ae.dateEnd:dk(days[_di2])===ae.date){_endDi=_di2;break;}}
+        const _xStart=_startDi*DAY_W;
+        const _bW=(_endDi-_startDi+1)*DAY_W;
+        h+=_mkAstrBand(_aid,`position:absolute;top:0;left:${_xStart}px;width:${_bW}px;height:18px;display:flex;align-items:center;justify-content:center;z-index:6;user-select:none;font-size:10px;border-radius:0;pointer-events:auto;`);
+      });
       h+=`</div>`; // end zone jours
 
       h+=`</div>`; // end row
@@ -3426,11 +3813,8 @@ function tlSelEnd(evt){
   }
   const h1=Math.min(startH,curH);
   const h2=Math.max(startH,curH);
-  // Si sélection trop petite (< 15 min) → simple clic
-  if(h2-h1<0.24){
-    openNewEvent(date,tech);
-    return;
-  }
+  // Sélection trop petite (< 15 min) → ignorer (double-clic requis)
+  if(h2-h1<0.24) return;
   // Déjà arrondi au demi-heure
   const startTime=tlHourToStr(h1);
   const endTime=tlHourToStr(h2);
@@ -3636,7 +4020,6 @@ function setInstFilter(f){
 function onInstInput(){
   const v=document.getElementById('evInst').value, info=document.getElementById('iInfo');
   const c=_contrats.find(r=>r.Installation&&r.Installation.toLowerCase()===v.toLowerCase());
-  const btn=document.getElementById('evInstContratBtn');
   if(c){
     const p=[];
     if(c.Type_Contrat){const isP=(c.Type_Contrat||'').toUpperCase()==='PROT';p.push(isP?'🚿 Protection':'🔥 Détection');}
@@ -3648,11 +4031,7 @@ function onInstInput(){
     info.innerHTML=p.join(' &nbsp;·&nbsp; '); info.style.display='';
     const s=document.getElementById('evTech');
     if(s&&!s.value&&c.Technicien)s.value=c.Technicien;
-    if(btn) btn.style.display='';
-  }else{
-    info.style.display='none';
-    if(btn) btn.style.display='none';
-  }
+  }else info.style.display='none';
 }
 // Mise à jour affichage heure en temps réel
 function updEvTitle(){
@@ -3730,17 +4109,14 @@ document.getElementById('typeRow').addEventListener('click',e=>{
   const o=e.target.closest('.topt');if(!o)return;
   o.classList.toggle('on');  // multi-sélection
 });
-function openNewEvent(ds,tech,dateEnd,opts){
-  opts=opts||{};
+function openNewEvent(ds,tech,dateEnd){
   closePopup();_editId=null;
   document.getElementById('evTitle2').textContent='Evénement';
   document.getElementById('evDelBtn').classList.add('hidden');
   document.getElementById('evDate').value=ds||dk(new Date());
   document.getElementById('evDateEnd').value=dateEnd||ds||dk(new Date());
-  document.getElementById('evInst').value=opts.prefillTitle||'';
+  document.getElementById('evInst').value='';
   document.getElementById('evNote').value='';
-  const _instBtn=document.getElementById('evInstContratBtn');
-  if(_instBtn) _instBtn.style.display=opts.prefillTitle?'':'none';
   populateHcSelect(); setHcSelect(''); 
   document.getElementById('evTime').value='08:00';
   const sl=document.getElementById('evDurSlider');if(sl){sl.value=4;}
@@ -3755,15 +4131,8 @@ function openNewEvent(ds,tech,dateEnd,opts){
   ['am','pm'].forEach(m=>document.getElementById('hd'+m.charAt(0).toUpperCase()+m.slice(1))?.classList.remove('on'));
   document.getElementById('iInfo').style.display='none';
   _evTechs=tech?[tech]:[];
-  // Contrat associé
-  const cid=document.getElementById('evContratId');
-  const crow=document.getElementById('evContratRow');
-  if(opts.contratId){cid.value=opts.contratId;crow.style.display='';}
-  else{cid.value='';crow.style.display='none';}
   buildEvTechTags(); buildTechSel();
   setInstFilter('');updTimeRange();buildTypeOpts();
-  // Pré-sélectionner le type VE si fourni
-  if(opts.ve){setTimeout(()=>{document.querySelectorAll('.topt').forEach(o=>{if(o.dataset.t===opts.ve.toLowerCase()){o.classList.add('on');}else{o.classList.remove('on');}});},80);}
   document.getElementById('evOverlay').classList.add('on');
   document.getElementById('evPage').classList.add('on');
   setTimeout(()=>document.getElementById('evInst').focus(),100);
@@ -3785,12 +4154,6 @@ function openEditEv(ev){
   document.getElementById('evDateEnd').value=src.dateEnd||ev.dateEnd||'';
   document.getElementById('evInst').value=src.title||ev.title||'';
   document.getElementById('evNote').value=src.note||ev.note||'';
-  const _instBtnE=document.getElementById('evInstContratBtn');
-  if(_instBtnE){
-    const _instVal=src.title||ev.title||'';
-    const _matchC=_contrats.find(r=>r.Installation&&r.Installation.toLowerCase()===_instVal.toLowerCase());
-    _instBtnE.style.display=_matchC?'':'none';
-  }
   populateHcSelect(); setHcSelect(src.hcInst||ev.hcInst||'');
   const st=src.startTime||ev.startTime||'08:00';
   const et=src.endTime||ev.endTime||(st?'12:00':'12:00');
@@ -3812,12 +4175,6 @@ function openEditEv(ev){
   buildEvTechTags(); buildTechSel();
   // Types : prendre types[] de src
   buildTypeOpts(src.types||src.type||ev.types||ev.type);
-  // Contrat associé
-  const cid2=document.getElementById('evContratId');
-  const crow2=document.getElementById('evContratRow');
-  const _cid=src.contratId||ev.contratId||'';
-  if(_cid){cid2.value=_cid;crow2.style.display='';}
-  else{cid2.value='';crow2.style.display='none';}
   setTimeout(updTimeRange,50);
   document.getElementById('evOverlay').classList.add('on');
   document.getElementById('evPage').classList.add('on');
@@ -3850,12 +4207,10 @@ async function saveEv(){
   if(!date){toast('Date requise','warn');return;}
   if(!_evTechs.length){toast('Ajoutez au moins une ressource','warn');return;}
   document.getElementById('typeRow').style.outline='';
-  const contratId=(document.getElementById('evContratId')?.value||'').trim();
   const techs=_evTechs;
   const data={type,types,date,dateEnd,tech,techs,title,note,hcInst,
     duration:dur,startTime,endTime,allDay,
     status:rdvState,rdvState,
-    ...(contratId?{contratId}:{}),
     updatedAt:new Date().toISOString(),by:_user?.login||'?'};
   // Cas spécial : VE depuis contrats → sync statut uniquement
   if(_editId&&(_editId.includes('_VE1')||_editId.includes('_VE2'))){
@@ -4001,7 +4356,7 @@ function gdCellClick(evt,td){
   if(evt.target===td||( evt.target.dataset&&evt.target.dataset.newev))openNewEvent(td.dataset.date,td.dataset.tech);
 }
 
-function showPop(e,id){e.stopPropagation();const ev=buildEvs().find(x=>x._id===id);if(!ev)return;_popId=id;const tm=TM[ev.type]||TM.autre;document.getElementById('ppTit').innerHTML=`<span style="color:${tm.color}">${tm.icon} ${tm.label}</span> - ${esc(ev.title)}`;const si=SIC[ev.status]||'📅';const tr4=fmtTimeRange(ev.startTime,ev.duration);document.getElementById('ppBod').innerHTML=`<div class="ppr"><span>👤</span><b>${esc(ev.tech)}</b></div><div class="ppr"><span>📅</span><b>${ev.rawDate||ev.date}${tr4?' '+tr4:''}</b></div><div class="ppr"><span>${si}</span><b>${ev.status}</b></div>${ev.ville?`<div class="ppr"><span>📍</span><b>${esc(ev.ville)}</b></div>`:''}${ev.client?`<div class="ppr"><span>📋</span><b>${esc(ev.client)}</b></div>`:''}${ev.note?`<div class="ppr"><span>📝</span><span>${esc(ev.note)}</span></div>`:''}${ev.isVE?'<div style="margin-top:5px;font-size:10px;color:var(--sub)">📋 Depuis les contrats</div>':''}`;const p=document.getElementById('popup');p.style.display='block';const r=e.target.closest('.cev,.gev')?.getBoundingClientRect()||{left:e.clientX,top:e.clientY,width:0,height:0};let left=r.left+r.width+8,top=r.top;if(left+280>window.innerWidth)left=r.left-288;if(top+230>window.innerHeight)top=window.innerHeight-240;p.style.left=Math.max(8,left)+'px';p.style.top=Math.max(8,top)+'px';}
+function showPop(e,id){e.stopPropagation();const ev=buildEvs().find(x=>x._id===id);if(!ev)return;_popId=id;const tm=TM[ev.type]||TM.autre;document.getElementById('ppTit').innerHTML=`<span style="color:${tm.color}">${tm.icon} ${tm.label}</span> - ${esc(ev.title)}`;const si=SIC[ev.status]||'📅';const tr4=fmtTimeRange(ev.startTime,ev.duration);document.getElementById('ppBod').innerHTML=`<div class="ppr"><span>👤</span><b>${esc(ev.tech)}</b></div><div class="ppr"><span>📅</span><b>${ev.rawDate||ev.date}${tr4?' '+tr4:''}</b></div><div class="ppr"><span>${si}</span><b>${ev.status}</b></div>${ev.ville?`<div class="ppr"><span>📍</span><b>${esc(ev.ville)}</b></div>`:''}${ev.client?`<div class="ppr"><span>📋</span><b>${esc(ev.client)}</b></div>`:''}${ev.note?`<div class="ppr"><span>📝</span><span>${esc(ev.note)}</span></div>`:''}${ev.isVE?'<div style="margin-top:5px;font-size:10px;color:var(--sub)">📋 Depuis les contrats</div>':''}`;const _fb=document.getElementById('ppFicheBtn');if(_fb)_fb.dataset.inst=ev.title||'';const p=document.getElementById('popup');p.style.display='block';const r=e.target.closest('.cev,.gev')?.getBoundingClientRect()||{left:e.clientX,top:e.clientY,width:0,height:0};let left=r.left+r.width+8,top=r.top;if(left+280>window.innerWidth)left=r.left-288;if(top+230>window.innerHeight)top=window.innerHeight-240;p.style.left=Math.max(8,left)+'px';p.style.top=Math.max(8,top)+'px';}
 function closePopup(){document.getElementById('popup').style.display='none';_popId=null;}
 function editPopup(){if(!_popId)return;const ev=buildEvs().find(x=>x._id===_popId);closePopup();if(ev)openEditEv(ev);}
 document.addEventListener('click',e=>{if(!document.getElementById('popup').contains(e.target))closePopup();});
@@ -4277,11 +4632,28 @@ async function doMoveOrCopy(evId, changes, copy){
 function buildTypeOpts(sel=null){
   const row=document.getElementById('typeRow'); if(!row) return;
   const selArr=Array.isArray(sel)?sel:(sel?[sel]:[]);
-  // Ordre dynamique défini dans Configuration → Types (getAllOrderedTypes)
   const all=getAllOrderedTypes();
-  row.innerHTML=all.map(([k,m])=>{
+  const allMap=Object.fromEntries(all);
+
+  // Clés déjà assignées dans les groupes
+  const assignedKeys=new Set(_typeGroups.flatMap(g=>g.keys));
+  // Types non assignés → groupe Divers (dernier groupe, ou orphelins en bas)
+  const orphans=all.filter(([k])=>!assignedKeys.has(k)).map(([k])=>k);
+  const diversIdx=_typeGroups.findIndex(g=>g.id==='g_divers');
+
+  const btn=(k,m)=>{
     const on=selArr.includes(k)?' on':'';
-    return `<div class="topt${on}" data-t="${k}" style="background:${m.bg};color:${m.color}">${m.icon} ${m.label}</div>`;
+    return`<div class="topt${on}" data-t="${k}" style="background:${m.bg};color:${m.color}">${m.icon} ${m.label}</div>`;
+  };
+
+  row.innerHTML=_typeGroups.map(g=>{
+    const keys=[...g.keys,...(g.id==='g_divers'?orphans:[])];
+    const btns=keys.filter(k=>allMap[k]).map(k=>btn(k,allMap[k])).join('');
+    if(!btns) return '';
+    return`<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:5px">
+      <div style="font-size:9px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;min-width:108px;text-align:right;padding-right:6px;padding-top:6px">${esc(g.label)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">${btns}</div>
+    </div>`;
   }).join('');
 }
 
@@ -4408,7 +4780,7 @@ async function saveTypes(){
   try{
     const cfg = await getAll('planning_resources');
     const doc = cfg.find(x=>x._typesConfig);
-    const data = {_typesConfig:true, customTypes, typeOrder:_typeOrder, updatedAt:new Date().toISOString()};
+    const data = {_typesConfig:true, customTypes, typeOrder:_typeOrder, typeGroups:_typeGroups, updatedAt:new Date().toISOString()};
     if(doc?._fsId) await fsSet('planning_resources',doc._fsId,data);
     else await fsAdd('planning_resources',data);
     toast("Types sauvegardes","ok");
@@ -4469,23 +4841,46 @@ function ctxChangeType(){
   if(!ev) return;
   const existing=document.getElementById('typeChangeModal');
   if(existing) existing.remove();
-  // Types actuellement sélectionnés
   const currentTypes=ev.types||[ev.type]||[];
+  const allMap=Object.fromEntries(getAllOrderedTypes());
+
+  // Clés orphelines → groupe Divers
+  const assignedKeys=new Set(_typeGroups.flatMap(g=>g.keys));
+  const orphans=getAllOrderedTypes().filter(([k])=>!assignedKeys.has(k)).map(([k])=>k);
+
+  const btn=(k,m)=>{
+    if(!m) return '';
+    const active=currentTypes.includes(k);
+    return `<button id="tcbtn-${k}" onclick="toggleTypeBtn('${k}')"
+      style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:16px;border:2px solid ${m.color};background:${active?m.color:m.bg};color:${active?'#fff':m.color};font-weight:700;font-size:11px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap"
+      data-active="${active?'1':'0'}"><span style="font-size:12px">${m.icon}</span>${m.label}</button>`;
+  };
+
+  const groupsHtml=_typeGroups.map(g=>{
+    const keys=[...g.keys,...(g.id==='g_divers'?orphans:[])];
+    const btns=keys.filter(k=>allMap[k]).map(k=>btn(k,allMap[k])).join('');
+    if(!btns) return '';
+    return `<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f1f5f9">
+      <div style="font-size:9px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;min-width:100px;text-align:right;padding-right:8px;padding-top:7px;border-right:2px solid var(--blue);color:var(--blue);flex-shrink:0">${esc(g.label)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;padding:2px 0">${btns}</div>
+    </div>`;
+  }).join('');
+
   const modal=document.createElement('div');
   modal.id='typeChangeModal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(10,15,40,.4);z-index:9000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)';
-  const all=[...Object.entries(TM).filter(([,m])=>m.locked),...getOrderedTypes()];
-  const btns=all.map(([k,m])=>{
-    const active=currentTypes.includes(k);
-    return `<button id="tcbtn-${k}" onclick="toggleTypeBtn('${k}')" style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:8px;border:2px solid ${m.color};background:${active?m.color:m.bg};color:${active?'#fff':m.color};font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s" data-active="${active?'1':'0'}"><span style='font-size:14px'>${m.icon}</span>${m.label}</button>`;
-  }).join('');
-  modal.innerHTML=`<div style="background:var(--card);border-radius:14px;padding:22px 24px;max-width:500px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-    <div style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:2px">Type d'intervention</div>
-    <div style="font-size:11px;color:var(--sub);margin-bottom:14px">${esc(ev.title||'RDV')} — cliquez pour sélectionner (multi-choix)</div>
-    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px">${btns}</div>
+  modal.innerHTML=`<div style="background:var(--card);border-radius:14px;padding:22px 24px;max-width:560px;width:94%;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <div style="width:4px;border-radius:4px;background:var(--blue);align-self:stretch"></div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--navy)">Type d'intervention</div>
+        <div style="font-size:11px;color:var(--sub)">${esc(ev.title||'RDV')} — multi-choix possible</div>
+      </div>
+    </div>
+    <div style="margin:14px 0 18px">${groupsHtml}</div>
     <div style="display:flex;justify-content:flex-end;gap:8px">
       <button onclick="document.getElementById('typeChangeModal').remove()" style="padding:8px 16px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--sub);cursor:pointer;font-family:inherit;font-size:12px;font-weight:700">Annuler</button>
-      <button onclick="doChangeType()" style="padding:8px 16px;border-radius:7px;background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700">✅ Valider</button>
+      <button onclick="doChangeType()" style="padding:8px 18px;border-radius:7px;background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700">✅ Valider</button>
     </div>
   </div>`;
   document.body.appendChild(modal);
@@ -4551,26 +4946,24 @@ function showCtx(e,evId){
   // Afficher "Éclater" si RDV multi-jours
   const _ev3=_events.find(e=>e._id===_baseId2||e._fsId===_baseId2);
   const _isMulti=_ev3&&_ev3.dateEnd&&_ev3.dateEnd>_ev3.date;
-  // Afficher "Voir le contrat" si l'event a un contratId
-  const _baseId3=evId.split('__')[0];
-  const _ev4=_events.find(e=>e._id===_baseId3||e._fsId===_baseId3||e._id===evId);
-  const _cid=_ev4?.contratId||'';
-  const _ctxContrat=document.getElementById('ctx-contrat');
-  const _ctxContratSep=document.getElementById('ctx-contrat-sep');
-  if(_ctxContrat){
-    _ctxContrat.style.display=_cid?'flex':'none';
-    _ctxContrat.dataset.contratId=_cid;
-    if(_cid) _ctxContrat.textContent='📋 Voir : '+_cid.slice(0,30)+(_cid.length>30?'…':'');
-  }
-  if(_ctxContratSep) _ctxContratSep.style.display=_cid?'':'none';
+  const _ecl=document.getElementById('ctx-eclater');
+  if(_ecl) _ecl.style.display=_isMulti?'flex':'none';
+}
+
+function ctxOpenFiche(){
+  if(!_ctxId){closeCtx();return;}
+  const baseId=_ctxId.split('__')[0];
+  const ev=_events.find(e=>e._id===baseId||e._fsId===baseId)||buildEvs().find(e=>e._id===_ctxId);
+  const instName=ev?.title||ev?.installation||'';
+  closeCtx();
+  if(instName) openFicheInst(instName);
 }
 
 function ctxOpenContrat(contratId){
   const cid=contratId||document.getElementById('ctx-contrat')?.dataset?.contratId||'';
   if(!cid){toast('Aucun contrat associé','info');return;}
   closeCtx();
-  const url='gestion_contrats_v2.html?installation='+encodeURIComponent(cid);
-  window.open(url,'_blank');
+  window.open('gestion_contrats_v2.html?installation='+encodeURIComponent(cid),'_blank');
 }
 
 function closeCtx(){
@@ -5164,7 +5557,7 @@ async function gevResizeEnd(evt){
 function gevResizeStart(evt,el){} // conservé pour compatibilité
 
 window.addEventListener('resize',()=>{ adjustViewTop(); setTimeout(()=>{ if(_view!=='month'&&_view!=='res') render(); },150); });
-Object.assign(window,{toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail});
+Object.assign(window,{toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail,openFicheInst,closeFicheInst,switchFiTab,ctxOpenFiche,ctxOpenContrat,fiBtnNouveauRdv,fiBtnEnCours,fiBtnAppel,cfgAddGroup,cfgRemoveGroup,cfgDropGroup,cfgDropTypeInGroup,cfgRemoveTypeFromGroup,openPlanningPMEImport,closePlanningPMEImport,handlePPMFile,doPPMImport,updatePPMPreview,ppmConnect,ppmImportJson});
 // ── SÉLECTION MULTI-JOURS PAR GLISSER-SOURIS ───────────────────────────────
 let _gdSel=null;
 
@@ -5822,18 +6215,21 @@ async function saveVersion(){
 
 // ── COULEURS DES ÉTATS RDV ─────────────────────────────────────────────────
 const STATE_DEFAULTS={
-  non_confirme:{label:'Non confirmé',icon:'🔴',bg:'#ffffff',border:'#dc2626',text:'#991b1b'},
-  confirme:    {label:'Confirmé',    icon:'',  bg:'#ffffff',border:'#16a34a',text:'#166534'},
-  attente:     {label:'En attente',  icon:'🟣',bg:'#ffffff',border:'#a855f7',text:'#6b21a8'},
-  realise:     {label:'Réalisé',     icon:'🔵',bg:'#ffffff',border:'#16a34a',text:'#14532d'},
-  annule:      {label:'Annulé',      icon:'🟡',bg:'#ffffff',border:'#ca8a04',text:'#713f12'},
-  a_deplacer:  {label:'À déplacer',  icon:'🟠',bg:'#fff7ed',border:'#ea580c',text:'#7c2d12'},
+  non_confirme:{label:'Non confirmé',icon:'🔴',bg:'#fee2e2',border:'#991b1b',text:'#991b1b'},
+  confirme:    {label:'Confirmé',    icon:'✅',bg:'#111827',border:'#111827',text:'#ffffff'},
+  attente:     {label:'En attente',  icon:'🟣',bg:'#ede9fe',border:'#7c3aed',text:'#4c1d95'},
+  realise:     {label:'Réalisé',     icon:'🔵',bg:'#dcfce7',border:'#16a34a',text:'#14532d'},
 };
 
 function _applyStateColors(custom){
   if(!custom) return;
   Object.entries(custom).forEach(([k,v])=>{
-    if(STATE_COLORS[k]) STATE_COLORS[k]={...STATE_COLORS[k],...v};
+    if(STATE_COLORS[k]){
+      if(v.border) STATE_COLORS[k].border=v.border;
+      // Ne pas appliquer bg=#ffffff (valeur forcée par l'ancien bug)
+      if(v.bg && v.bg!=='#ffffff') STATE_COLORS[k].bg=v.bg;
+      if(v.text && v.text!=='#000000' && v.text!=='#000') STATE_COLORS[k].text=v.text;
+    }
   });
 }
 
@@ -5842,22 +6238,38 @@ function renderStateColors(){
   if(!list) return;
   list.innerHTML=Object.entries(STATE_DEFAULTS).map(([k,def])=>{
     const cur=STATE_COLORS[k]||def;
-    // Forcer fond blanc
-    if(cur.bg&&cur.bg!=='#ffffff') cur.bg='#ffffff';
-    return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">
-      <div style="width:130px;flex-shrink:0">
-        <div style="font-size:12px;font-weight:700">${def.icon} ${def.label}</div>
-        <div style="margin-top:5px;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;background:#fff;color:#000;border-left:4px solid ${cur.border};display:inline-block" id="sp_${k}">Aperçu</div>
+    return`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)">
+      <div style="width:140px;flex-shrink:0">
+        <div style="font-size:12px;font-weight:700;color:var(--navy)">${def.icon} ${def.label}</div>
+        <div style="margin-top:6px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;background:${cur.bg||'#fff'};color:${cur.text||'#000'};border-left:4px solid ${cur.border};display:inline-block;box-shadow:0 1px 3px rgba(0,0,0,.08)" id="sp_${k}">Aperçu RDV</div>
       </div>
-      <div style="display:flex;gap:10px;flex:1;flex-wrap:wrap">
+      <div style="display:flex;gap:14px;flex:1;flex-wrap:wrap">
         <div>
-          <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:3px">Bordure</label>
+          <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:4px">Fond</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="color" value="${cur.bg||'#ffffff'}" data-key="${k}" data-prop="bg"
+              oninput="updateStatePreview(this)" onchange="updateStatePreview(this)"
+              style="width:36px;height:28px;border:1.5px solid var(--line);border-radius:5px;cursor:pointer;padding:1px">
+            <input type="text" value="${cur.bg||'#ffffff'}" data-key="${k}" data-prop="bg" data-hex="1"
+              oninput="syncStateHex(this)" style="width:72px;padding:4px 6px;border:1.5px solid var(--line);border-radius:6px;font-size:11px;font-family:monospace">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:4px">Bordure gauche</label>
           <div style="display:flex;align-items:center;gap:6px">
             <input type="color" value="${cur.border}" data-key="${k}" data-prop="border"
               oninput="updateStatePreview(this)" onchange="updateStatePreview(this)"
               style="width:36px;height:28px;border:1.5px solid var(--line);border-radius:5px;cursor:pointer;padding:1px">
             <input type="text" value="${cur.border}" data-key="${k}" data-prop="border" data-hex="1"
               oninput="syncStateHex(this)" style="width:72px;padding:4px 6px;border:1.5px solid var(--line);border-radius:6px;font-size:11px;font-family:monospace">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:4px">Texte</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="color" value="${cur.text||'#111827'}" data-key="${k}" data-prop="text"
+              oninput="updateStatePreview(this)" onchange="updateStatePreview(this)"
+              style="width:36px;height:28px;border:1.5px solid var(--line);border-radius:5px;cursor:pointer;padding:1px">
           </div>
         </div>
       </div>
@@ -5879,10 +6291,9 @@ function updateStatePreview(inp){
   const k=inp.dataset.key, prop=inp.dataset.prop, val=inp.value;
   if(!STATE_COLORS[k]) STATE_COLORS[k]={...(STATE_DEFAULTS[k]||{bg:'#ffffff',border:'#000',text:'#000'})};
   STATE_COLORS[k][prop]=val;
-  STATE_COLORS[k].bg='#ffffff'; // toujours blanc
   // Mettre à jour l'aperçu
   const sp=document.getElementById('sp_'+k);
-  if(sp) sp.style.borderLeftColor=STATE_COLORS[k].border||'#000';
+  if(sp){sp.style.borderLeftColor=STATE_COLORS[k].border||'#000';sp.style.background=STATE_COLORS[k].bg||'#fff';sp.style.color=STATE_COLORS[k].text||'#000';}
   // Sync hex
   document.querySelectorAll(`[data-key="${k}"][data-prop="${prop}"][data-hex]`).forEach(el=>{if(el!==inp)el.value=val;});
   render();
@@ -5893,8 +6304,6 @@ async function saveStateColors(){
     if(STATE_COLORS[k]) custom[k]={bg:STATE_COLORS[k].bg,border:STATE_COLORS[k].border,text:STATE_COLORS[k].text};
   });
   try{
-    // Forcer fond blanc sur tous les états
-    Object.values(STATE_COLORS).forEach(c=>{if(c&&c.bg)c.bg='#ffffff';});
     const cfg=await getAll('planning_resources');
     const doc=cfg.find(x=>x._stateColors);
     const data={_stateColors:true,colors:custom,updatedAt:new Date().toISOString()};
@@ -6810,13 +7219,14 @@ let _ppmData=[], _ppmHeaders=[], _ppmMapping={};
 
 function openPlanningPMEImport(){
   document.getElementById('ppmImportOverlay').style.display='flex';
-  _ppmData=[]; _ppmHeaders=[];
-  document.getElementById('ppmMappingSection').style.display='none';
-  document.getElementById('ppmPreview').style.display='none';
-  document.getElementById('ppmProgress').style.display='none';
-  document.getElementById('ppmImportBtn').style.display='none';
-  document.getElementById('ppmDropZone').style.display='block';
-  document.getElementById('ppmFileInput').value='';
+  // Injecter le bookmarklet dans le lien
+  const lnk=document.getElementById('ppmBookmarkletLink');
+  if(lnk) lnk.href=`javascript:%28async%20function%28%29%7B%20if%28%21location.href.includes%28%27planningpme%27%29%29%7Balert%28%27Utilisez%20ce%20bookmarklet%20sur%20planningpme.fr%27%29%3Breturn%3B%7D%20const%20BASE%3D%27https%3A%2F%2Fapi.planningpme.com%2Facfincendie%27%3B%20let%20token%3Dnull%3B%20const%20origFetch%3Dwindow.fetch%3B%20let%20captureResolve%3B%20const%20capturePromise%3Dnew%20Promise%28r%3D%3E%7BcaptureResolve%3Dr%3B%7D%29%3B%20window.fetch%3Dasync%20function%28...args%29%7B%20const%20res%3Dawait%20origFetch.apply%28this%2Cargs%29%3B%20const%20clone%3Dres.clone%28%29%3B%20clone.text%28%29.then%28t%3D%3E%7Btry%7Bconst%20obj%3DJSON.parse%28t%29%3Bif%28obj.access_token%29captureResolve%28obj.access_token%29%3B%7Dcatch%28_%29%7B%7D%7D%29.catch%28%28%29%3D%3E%7B%7D%29%3B%20return%20res%3B%20%7D%3B%20const%20raceTimeout%3Dnew%20Promise%28r%3D%3EsetTimeout%28r%2C4000%2Cnull%29%29%3B%20token%3Dawait%20Promise.race%28%5BcapturePromise%2CraceTimeout%5D%29%3B%20window.fetch%3DorigFetch%3B%20if%28%21token%29%7B%20token%3Dprompt%28%27Collez%20votre%20access_token%20PlanningPME%5Cn%28F12%20%E2%86%92%20Network%20%E2%86%92%20token%20%E2%86%92%20Response%29%20%3A%27%29%3B%20if%28%21token%7C%7Ctoken.length%3C20%29%7Balert%28%27Token%20invalide%27%29%3Breturn%3B%7D%20%7D%20const%20div%3Ddocument.createElement%28%27div%27%29%3B%20div.style.cssText%3D%27position%3Afixed%3Btop%3A20px%3Bright%3A20px%3Bz-index%3A999999%3Bbackground%3A%23fff%3Bborder-radius%3A12px%3Bpadding%3A20px%2024px%3Bbox-shadow%3A0%208px%2032px%20rgba%280%2C0%2C0%2C.3%29%3Bfont-family%3Asans-serif%3Bwidth%3A340px%3Bborder%3A2px%20solid%20%23e05a1e%27%3B%20div.innerHTML%3D%27%3Cdiv%20style%3D%22font-size%3A14px%3Bfont-weight%3A800%3Bcolor%3A%23e05a1e%3Bmargin-bottom%3A8px%22%3E%F0%9F%93%85%20Export%20PlanningPME%20%E2%86%92%20ACF%3C%2Fdiv%3E%3Cdiv%20id%3D%22bkLbl%22%20style%3D%22font-size%3A12px%3Bcolor%3A%23374151%3Bmargin-bottom%3A8px%22%3EChargement%20ressources...%3C%2Fdiv%3E%3Cdiv%20style%3D%22background%3A%23f1f5f9%3Bborder-radius%3A6px%3Bheight%3A8px%3Boverflow%3Ahidden%3Bmargin-bottom%3A8px%22%3E%3Cdiv%20id%3D%22bkBar%22%20style%3D%22background%3A%23e05a1e%3Bheight%3A100%25%3Bwidth%3A0%25%3Btransition%3Awidth%20.3s%3Bborder-radius%3A6px%22%3E%3C%2Fdiv%3E%3C%2Fdiv%3E%3Cdiv%20id%3D%22bkLog%22%20style%3D%22font-size%3A10px%3Bcolor%3A%236b7280%3Bmax-height%3A160px%3Boverflow-y%3Aauto%3Bline-height%3A1.8%22%3E%3C%2Fdiv%3E%27%3B%20document.body.appendChild%28div%29%3B%20const%20setLbl%3Dt%3D%3Ediv.querySelector%28%27%23bkLbl%27%29.textContent%3Dt%3B%20const%20setBar%3Dp%3D%3Ediv.querySelector%28%27%23bkBar%27%29.style.width%3Dp%2B%27%25%27%3B%20const%20log%3D%28t%2Cc%29%3D%3E%7Bconst%20el%3Ddiv.querySelector%28%27%23bkLog%27%29%3Bel.innerHTML%2B%3D%60%3Cdiv%20style%3D%22color%3A%24%7Bc%7C%7C%27%236b7280%27%7D%22%3E%24%7Bt%7D%3C%2Fdiv%3E%60%3Bel.scrollTop%3Del.scrollHeight%3B%7D%3B%20const%20H%3D%7B%27Content-Type%27%3A%27application%2Fjson%27%2C%27Authorization%27%3A%27Bearer%20%27%2Btoken%7D%3B%20let%20rows%3D%5B%5D%3B%20let%20resMap%3D%7B%7D%3B%20try%7B%20const%20rRes%3Dawait%20origFetch%28BASE%2B%27%2Fapi%2Fplanning%2FGetRows%27%2C%7Bmethod%3A%27POST%27%2Cheaders%3AH%2C%20body%3AJSON.stringify%28%7BrowType%3A1%2Cdepartments%3A%5B%5D%2Cskills%3A%5B%5D%2Cresources%3A%5B%5D%2Ccategories%3A%5B%5D%7D%29%7D%29%3B%20if%28%21rRes.ok%29throw%20new%20Error%28%27GetRows%20%27%2BrRes.status%29%3B%20const%20rd%3Dawait%20rRes.json%28%29%3B%20rows%3Drd%3F.rows%7C%7C%5B%5D%3B%20rows.forEach%28r%3D%3E%7BresMap%5Br.key%5D%3Dr.label%7C%7Cr.name%7C%7C%27%27%3B%7D%29%3B%20log%28%27%E2%9C%85%20%27%2Brows.length%2B%27%20ressources%27%2C%27%2316a34a%27%29%3BsetBar%285%29%3B%20%7Dcatch%28e%29%7Blog%28%27%E2%9D%8C%20%27%2Be.message%2C%27%23dc2626%27%29%3Breturn%3B%7D%20const%20allDos%3D%5B%5D%3B%20const%20dateFrom%3D%272025-01-01T00%3A00%3A00.000Z%27%3B%20const%20dateTo%3D%272027-07-01T00%3A00%3A00.000Z%27%3B%20for%28let%20i%3D0%3Bi%3Crows.length%3Bi%2B%2B%29%7B%20const%20row%3Drows%5Bi%5D%3B%20setBar%285%2BMath.round%28i%2Frows.length%2A90%29%29%3B%20setLbl%28row.label%2B%27%20%28%27%2Bi%2B%27%2F%27%2Brows.length%2B%27%29...%27%29%3B%20try%7B%20const%20res%3Dawait%20origFetch%28BASE%2B%27%2Fapi%2Fplanning%2FGetDos%27%2C%7Bmethod%3A%27POST%27%2Cheaders%3AH%2C%20body%3AJSON.stringify%28%7BrowType%3A1%2CrowKeys%3A%5Brow.key%5D%2Cassignments%3A%5B%5D%2Ccategories%3A%5B%5D%2Ccontracts%3Atrue%2C%20customers%3A%5B%5D%2CdateFrom%2CdateTo%2Cdepartments%3A%5B%5D%2Cfilters%3A%7B%7D%2C%20hideAssi%3Afalse%2ChideEmptyRows%3Afalse%2ChideTask%3Afalse%2ChideUnav%3Afalse%2C%20projects%3A%5B%5D%2CpublicHolidays%3Atrue%2Cresources%3A%5B%5D%2CsetDisplayHours%3Afalse%2Cskills%3A%5B%5D%2C%20subProjects%3A%5B%5D%2CtaskStatutes%3A%5B%5D%2Ctasks%3A%5B%5D%2Cunavailabilities%3A%5B%5D%2CunavailabilityStatutes%3A%5B%5D%7D%29%7D%29%3B%20if%28res.ok%29%7B%20const%20data%3Dawait%20res.json%28%29%3B%20const%20rdvs%3Ddata%3F.dos%7C%7C%5B%5D%3B%20rdvs.forEach%28d%3D%3E%7Bd._tech%3Drow.label%3Bd._rowKey%3Drow.key%3B%7D%29%3B%20allDos.push%28...rdvs%29%3B%20log%28row.label%2B%27%20%E2%86%92%20%27%2Brdvs.length%2B%27%20RDV%27%29%3B%20%7D%20%7Dcatch%28e%29%7Blog%28%27%E2%9A%A0%20%27%2Brow.label%2B%27%20%3A%20%27%2Be.message%2C%27%23d97706%27%29%3B%7D%20await%20new%20Promise%28r%3D%3EsetTimeout%28r%2C200%29%29%3B%20%7D%20setBar%2897%29%3BsetLbl%28%27G%C3%A9n%C3%A9ration%20fichier...%27%29%3B%20log%28%27%F0%9F%93%8A%20Total%20%3A%20%27%2BallDos.length%2B%27%20RDV%27%2C%27%231d4ed8%27%29%3B%20const%20blob%3Dnew%20Blob%28%5BJSON.stringify%28%7BexportDate%3Anew%20Date%28%29.toISOString%28%29%2Cversion%3A2%2CresMap%2Cdos%3AallDos%7D%29%5D%2C%7Btype%3A%27application%2Fjson%27%7D%29%3B%20const%20url%3DURL.createObjectURL%28blob%29%3Bconst%20a%3Ddocument.createElement%28%27a%27%29%3B%20a.href%3Durl%3Ba.download%3D%27planningpme_%27%2Bnew%20Date%28%29.toISOString%28%29.slice%280%2C10%29%2B%27.json%27%3B%20document.body.appendChild%28a%29%3Ba.click%28%29%3Bdocument.body.removeChild%28a%29%3BURL.revokeObjectURL%28url%29%3B%20setBar%28100%29%3BsetLbl%28%27%E2%9C%85%20%27%2BallDos.length%2B%27%20RDV%20export%C3%A9s%20%21%27%29%3B%20log%28%27%F0%9F%93%81%20Fichier%20.json%20t%C3%A9l%C3%A9charg%C3%A9%20%E2%80%94%20importez%20dans%20ACF%20Planning%27%2C%27%2316a34a%27%29%3B%20setTimeout%28%28%29%3D%3Ediv.remove%28%29%2C15000%29%3B%20%7D%29%28%29%3B`;
+  // Reset progression
+  const pg=document.getElementById('ppmJsonProgress');
+  if(pg) pg.style.display='none';
+  const inp=document.getElementById('ppmJsonInput');
+  if(inp) inp.value='';
 }
 function closePlanningPMEImport(){
   document.getElementById('ppmImportOverlay').style.display='none';
@@ -6990,14 +7400,15 @@ function updatePPMPreview(){
   const prev=document.getElementById('ppmPreview');
   if(!evs.length){
     prev.style.display='block';
-    prev.innerHTML='<div style="color:var(--sub);font-size:12px;padding:10px">Aucun événement détecté avec ce mapping.</div>';
+    (document.getElementById('ppmPreviewContent')||prev).innerHTML='<div style="color:var(--sub);font-size:12px;padding:10px">Aucun événement détecté avec ce mapping.</div>';
     document.getElementById('ppmImportBtn').style.display='none';
     return;
   }
   const dfr=d=>d?d.split('-').reverse().join('/'):'';
   prev.style.display='block';
+  const _ppc=document.getElementById('ppmPreviewContent')||prev;
   const shown=evs.slice(0,5);
-  prev.innerHTML=`<div style="font-size:11px;font-weight:800;color:var(--navy);margin-bottom:8px">Aperçu — ${evs.length} RDV détectés</div>
+  _ppc.innerHTML=`<div style="font-size:11px;font-weight:800;color:var(--navy);margin-bottom:8px">Aperçu — ${evs.length} RDV détectés</div>
   <div style="background:#fff;border-radius:8px;overflow:hidden;border:1px solid var(--line)">
     <table style="width:100%;border-collapse:collapse;font-size:11px">
       <tr style="background:#f1f5f9">
@@ -7066,7 +7477,9 @@ let _astrRepeat='none';
 function openAstreinteModal(){
   const sel=document.getElementById('astrRes');
   if(sel){
-    const actives=_resources.filter(r=>r.active!==false);
+    const detection=_resources.filter(r=>r.active!==false&&(r.service||'').toLowerCase().includes('détec'));
+    // Fallback : si aucun détection trouvé, montrer tous les actifs
+    const actives=detection.length?detection:_resources.filter(r=>r.active!==false);
     sel.innerHTML=actives.map(r=>`<option value="${esc(r.name)}">${r.name}</option>`).join('');
   }
   const today=new Date();
@@ -7528,177 +7941,606 @@ function closeHcEdit(){
   document.getElementById('hcEditModal')?.remove();
 }
 
+// ══════════════════════════════════════════════════════
+//  FICHE INSTALLATION — panneau unifié fil de l'eau
+// ══════════════════════════════════════════════════════
+let _fiInstName='', _fiContrat=null, _fiTab='fil';
+
+async function openFicheInst(instName){
+  _fiInstName = instName||'';
+  _fiContrat  = _contrats.find(c=>c.Installation&&c.Installation.toLowerCase()===_fiInstName.toLowerCase())||null;
+  closePopup(); closeCtx();
+
+  // Header
+  document.getElementById('fiTitle').textContent = _fiInstName||'Installation';
+  const meta=[];
+  if(_fiContrat?.Client)  meta.push('📋 '+_fiContrat.Client);
+  if(_fiContrat?.Ville)   meta.push('📍 '+_fiContrat.Ville);
+  if(_fiContrat?.Technicien) meta.push('👤 '+_fiContrat.Technicien);
+  document.getElementById('fiMeta').textContent = meta.join('  ·  ');
+
+  // Barre infos contrat
+  const bar=document.getElementById('fiContratBar');
+  if(_fiContrat){
+    const isP=(_fiContrat.Type_Contrat||'').toUpperCase()==='PROT';
+    const items=[
+      isP?'🚿 Protection':'🔥 Détection',
+      _fiContrat.VE1?'VE1 : '+_fiContrat.VE1:'',
+      _fiContrat.VE2?'VE2 : '+_fiContrat.VE2:'',
+      _fiContrat.Fin_Validite?'Validité : '+_fiContrat.Fin_Validite:'',
+    ].filter(Boolean);
+    bar.innerHTML=items.map(t=>`<span style="white-space:nowrap;opacity:.9">${esc(t)}</span>`).join('');
+    bar.style.display='flex';
+  } else { bar.style.display='none'; }
+
+  document.getElementById('ficheInstOverlay').style.display='flex';
+  switchFiTab('fil');
+  _renderFiBl();
+  await _renderFiAp();
+}
+
+function closeFicheInst(){
+  document.getElementById('ficheInstOverlay').style.display='none';
+}
+
+function switchFiTab(tab){
+  _fiTab=tab;
+  ['fil','bl','ap'].forEach(t=>{
+    document.getElementById('fi-tab-'+t).classList.toggle('on',t===tab);
+    document.getElementById('fi-body-'+t).style.display=t===tab?'':'none';
+  });
+  if(tab==='fil') _renderFiFil();
+}
+
+function _renderFiFil(){
+  const today=dk(new Date());
+  const allEvs=buildEvs().filter(e=>{
+    const t=(e.title||'').toLowerCase();
+    const n=_fiInstName.toLowerCase();
+    return t===n||t.startsWith(n.slice(0,8).toLowerCase());
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+
+  const future=allEvs.filter(e=>e.date>=today);
+  const past  =allEvs.filter(e=>e.date< today).reverse();
+
+  let h='';
+  if(!allEvs.length){
+    h='<div style="padding:40px 18px;text-align:center;color:var(--sub);font-size:12px">Aucun RDV trouvé pour cette installation</div>';
+  } else {
+    if(future.length){
+      h+='<div class="fi-section">À venir ('+future.length+')</div>';
+      h+=future.map(e=>_fiEvRow(e,false)).join('');
+    }
+    if(past.length){
+      h+='<div class="fi-section">Passés ('+past.length+')</div>';
+      h+=past.map(e=>_fiEvRow(e,true)).join('');
+    }
+  }
+  document.getElementById('fiFilContent').innerHTML=h;
+}
+
+function _fiEvRow(e,isPast){
+  const tm=TM[e.type]||TM.autre;
+  const sc=STATE_COLORS[e.rdvState||''];
+  const dotColor=sc?sc.border:tm.color||'#94a3b8';
+  const df=d=>d?d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4):'';
+  const tr=e.startTime&&e.endTime?e.startTime.replace(':','h')+'–'+e.endTime.replace(':','h'):'';
+  return`<div class="fi-ev${isPast?' fi-ev-past':''}" onclick="closeFicheInst();setTimeout(()=>{const ev=buildEvs().find(x=>x._id==='${esc(e._id)}');if(ev)openEditEv(ev);},80)">
+    <div class="fi-ev-dot" style="background:${dotColor}"></div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:12px;font-weight:700;color:var(--navy)">${df(e.date)}${e.dateEnd&&e.dateEnd>e.date?' → '+df(e.dateEnd):''} <span style="font-size:10px;font-weight:600;color:var(--sub)">${tr}</span></div>
+      <div style="font-size:11px;color:var(--sub);margin-top:1px">${esc(tm.label)} · ${esc(e.tech||'')}</div>
+      ${e.note?`<div style="font-size:10px;color:#92400e;margin-top:2px">📌 ${esc(e.note)}</div>`:''}
+    </div>
+    ${sc?`<span style="font-size:9px;padding:2px 6px;border-radius:4px;background:${sc.bg||'#f1f5f9'};color:${sc.border};font-weight:700;white-space:nowrap;flex-shrink:0">${sc.label||''}</span>`:''}
+  </div>`;
+}
+
+function _renderFiBl(){
+  const items=_backlog.filter(b=>{
+    const t=(b.installation||b.title||'').toLowerCase();
+    const n=_fiInstName.toLowerCase();
+    return t===n||t.includes(n.slice(0,8).toLowerCase())||n.includes((b.installation||'').toLowerCase().slice(0,8));
+  });
+  const badge=document.getElementById('fiBadgeBl');
+  badge.textContent=items.length;
+  badge.style.display=items.length?'':'none';
+
+  if(!items.length){
+    document.getElementById('fiBlContent').innerHTML='<div style="padding:40px 18px;text-align:center;color:var(--sub);font-size:12px">Aucune intervention en cours</div>';
+    return;
+  }
+  const PRIO={haute:'🔴',normale:'🟡',basse:'🟢'};
+  document.getElementById('fiBlContent').innerHTML=
+    '<div class="fi-section">Interventions en cours ('+items.length+')</div>'+
+    items.map(b=>`<div class="fi-bl">
+      <div style="font-size:14px;flex-shrink:0">${PRIO[b.priority]||'🟡'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:700;color:var(--navy)">${esc(b.title)}</div>
+        <div style="font-size:10px;color:var(--sub);margin-top:1px">${[b.tech,(TM[b.type]||TM.autre).label,b.deadline?'⏰ '+b.deadline:''].filter(Boolean).join(' · ')}</div>
+        ${b.note?`<div style="font-size:10px;color:#92400e;margin-top:2px">📌 ${esc(b.note)}</div>`:''}
+      </div>
+      <button onclick="event.stopPropagation();closeFicheInst();setTimeout(()=>planifyBacklog('${esc(b._fsId||b._id)}'),80)"
+        style="padding:4px 10px;background:#eff6ff;color:var(--blue);border:1.5px solid #bfdbfe;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">
+        📅 Planifier
+      </button>
+    </div>`).join('');
+}
+
+async function _renderFiAp(){
+  let calls=[];
+  try{
+    const all=await getAll('planning_appels');
+    calls=all.filter(a=>a.instName&&a.instName.toLowerCase()===_fiInstName.toLowerCase())
+      .sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  }catch(_){}
+  const open=calls.filter(a=>a.suivi&&a.suivi!=='termine');
+  const badge=document.getElementById('fiBadgeAp');
+  badge.textContent=open.length;
+  badge.style.display=open.length?'':'none';
+
+  const SUIVI_CFG={
+    '':         {label:'–',      bg:'#f1f5f9',text:'#64748b'},
+    'rappeler': {label:'Rappeler',bg:'#fef3c7',text:'#d97706'},
+    'attente':  {label:'En attente',bg:'#ede9fe',text:'#7c3aed'},
+    'termine':  {label:'Terminé',bg:'#f0fdf4',text:'#16a34a'},
+  };
+  const df=d=>d?d.slice(8,10)+'/'+d.slice(5,7):'';
+  if(!calls.length){
+    document.getElementById('fiApContent').innerHTML='<div style="padding:40px 18px;text-align:center;color:var(--sub);font-size:12px">Aucun appel enregistré</div>';
+    return;
+  }
+  document.getElementById('fiApContent').innerHTML=
+    '<div class="fi-section">Appels ('+calls.length+')</div>'+
+    calls.map(a=>{
+      const cfg=SUIVI_CFG[a.suivi||'']||SUIVI_CFG[''];
+      return`<div style="padding:9px 18px;border-bottom:1px solid #f1f5f9">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="font-size:11px;font-weight:700;color:var(--navy);flex:1">${df(a.date)} · ${esc(a.author||'')}</div>
+          <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:${cfg.bg};color:${cfg.text};font-weight:700;flex-shrink:0">${cfg.label}</span>
+        </div>
+        ${a.note?`<div style="font-size:11px;color:var(--text);margin-top:3px">${esc(a.note)}</div>`:''}
+        ${a.comments?`<div style="font-size:10px;color:var(--sub);margin-top:2px;font-style:italic">${esc(a.comments)}</div>`:''}
+      </div>`;
+    }).join('');
+}
+
+function fiBtnNouveauRdv(){
+  const contrat=_fiContrat;
+  const ve1done=(contrat?.VE1_statut==='00B0F0'||contrat?.VE1_statut==='92D050');
+  const ve=ve1done?'VE2':'VE1';
+  const tech=ve==='VE1'?(contrat?.Technicien||''):(contrat?.Binome||contrat?.Technicien||'');
+  closeFicheInst();
+  setTimeout(()=>openNewEvent(dk(new Date()),tech,'',{
+    contratId:_fiInstName,
+    prefillTitle:_fiInstName,
+    ve:contrat?ve:''
+  }),80);
+}
+
+function fiBtnEnCours(){
+  closeFicheInst();
+  setTimeout(()=>{
+    openBacklogForm(null);
+    // Pré-remplir l'installation
+    setTimeout(()=>{
+      const el=document.getElementById('blInstSearch');
+      if(el){ el.value=_fiInstName; }
+      const ti=document.getElementById('blTitle');
+      if(ti&&!ti.value) ti.value=_fiInstName;
+    },50);
+  },80);
+}
+
+function fiBtnAppel(){
+  closeFicheInst();
+  // Rerouter vers openAppels avec l'installation pré-sélectionnée
+  const contrat=_fiContrat;
+  _appelsInstId=contrat?._fsId||_fiInstName;
+  _appelsInstName=_fiInstName;
+  setTimeout(()=>openAppels(),80);
+}
+
+// ══════════════════════════════════════════════════════
+//  SYNC API PLANNINGPME DIRECT
+// ══════════════════════════════════════════════════════
+const PPM_BASE = 'https://api.planningpme.com/acfincendie';
+
+// Correspondance statuts PlanningPME → états planning
+const PPM_STATUS_MAP = {
+  1014: 'non_confirme', // 1-Non confirmé
+  1016: 'non_confirme', // valeur conge etc
+  1015: 'confirme',     // 2-Confirmé
+  1017: 'attente',      // 3-Attente
+  1018: 'realise',      // 4-Réalisé
+};
+
+function ppmLog(msg, color=''){
+  const log = document.getElementById('ppmSyncLog');
+  if(log) log.innerHTML += `<div style="color:${color||'var(--sub)'}">${msg}</div>`;
+}
+
+async function ppmConnect(){
+  const login  = document.getElementById('ppmLogin')?.value.trim();
+  const pass   = document.getElementById('ppmPass')?.value.trim();
+  const dfrom  = document.getElementById('ppmDateFrom')?.value || '2025-01-01';
+  const dto    = document.getElementById('ppmDateTo')?.value   || '2027-01-01';
+  const skipEx = document.getElementById('ppmSkipExisting2')?.checked;
+  const errEl  = document.getElementById('ppmConnectErr');
+
+  if(!login||!pass){ if(errEl){errEl.textContent='Renseignez vos identifiants';errEl.style.display='block';} return; }
+  if(errEl) errEl.style.display='none';
+
+  // Basculer vers l'affichage progression
+  document.getElementById('ppmLoginSection').style.display='none';
+  document.getElementById('ppmSyncProgress').style.display='block';
+  const lbl = document.getElementById('ppmSyncLbl');
+  const bar = document.getElementById('ppmSyncBar');
+
+  try{
+    // ── 1. Authentification ──────────────────────────────
+    lbl.textContent = '🔐 Connexion à PlanningPME…';
+    ppmLog('Connexion à '+PPM_BASE+'/token…');
+    const tokenRes = await fetch(PPM_BASE+'/token', {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:`grant_type=password&username=${encodeURIComponent(login)}&password=${encodeURIComponent(pass)}`
+    });
+    if(!tokenRes.ok) throw new Error('Authentification échouée ('+tokenRes.status+')');
+    const tokenData = await tokenRes.json();
+    const token = tokenData.access_token;
+    if(!token) throw new Error('Token non reçu');
+    ppmLog('✅ Connecté','#16a34a');
+    bar.style.width='10%';
+
+    // ── 2. Récupération de tous les RDV par tranches de 3 mois ──
+    lbl.textContent = '📥 Récupération des RDV…';
+    const authH = {'Content-Type':'application/json','Authorization':'Bearer '+token};
+    const allDos = [];
+    let cur = new Date(dfrom+'T00:00:00');
+    const end = new Date(dto+'T00:00:00');
+    let chunk = 0;
+
+    while(cur < end){
+      const next = new Date(cur);
+      next.setMonth(next.getMonth()+3);
+      if(next > end) next.setTime(end.getTime());
+
+      const from3 = cur.toISOString();
+      const to3   = next.toISOString();
+      ppmLog(`Chargement ${cur.toLocaleDateString('fr-FR')} → ${next.toLocaleDateString('fr-FR')}…`);
+
+      const res = await fetch(PPM_BASE+'/api/planning/GetDos', {
+        method:'POST',
+        headers: authH,
+        body: JSON.stringify({
+          rowType:1, rowKeys:[], assignments:[], categories:[],
+          contracts:true, customers:[], dateFrom:from3, dateTo:to3,
+          departments:[], filters:{}, hideAssi:false, hideEmptyRows:false,
+          hideTask:false, hideUnav:false, projects:[], publicHolidays:true,
+          resources:[], setDisplayHours:false, skills:[], subProjects:[],
+          taskStatutes:[], tasks:[], unavailabilities:[], unavailabilityStatutes:[]
+        })
+      });
+      if(!res.ok){ ppmLog('⚠ Erreur '+res.status+' sur cette période','#d97706'); }
+      else{
+        const data = await res.json();
+        const rows = data?.dos || [];
+        allDos.push(...rows);
+        ppmLog(`  → ${rows.length} RDV trouvés`);
+      }
+      chunk++;
+      bar.style.width = Math.min(80, 10+chunk*10)+'%';
+      cur = new Date(next);
+      await new Promise(r=>setTimeout(r,300));
+    }
+
+    ppmLog(`📊 Total : ${allDos.length} RDV récupérés`,'#1d4ed8');
+    lbl.textContent = `💾 Import de ${allDos.length} RDV…`;
+
+    // ── 3. Conversion et import Firebase ─────────────────
+    // Récupérer les ressources pour mapper rowKey → nom
+    let resMap = {};
+    try{
+      const rowRes = await fetch(PPM_BASE+'/api/planning/GetRows',{
+        method:'POST', headers:authH,
+        body: JSON.stringify({rowType:1,departments:[],skills:[],resources:[],categories:[]})
+      });
+      if(rowRes.ok){
+        const rowData = await rowRes.json();
+        (rowData?.rows||[]).forEach(r=>{ resMap[r.key]=r.label||r.name||('Res '+r.key); });
+      }
+    }catch(_){}
+
+    // Clés existantes pour déduplication
+    const existingKeys = skipEx ? new Set(_events.map(e=>e.ppmKey?.toString()).filter(Boolean)) : new Set();
+
+    let imported=0, skipped=0, errors=0;
+    const total = allDos.length;
+
+    for(let i=0;i<total;i++){
+      const d = allDos[i];
+      bar.style.width = Math.min(99, 80+(i/total)*19)+'%';
+      if(i%50===0) lbl.textContent = `💾 Import… ${i}/${total}`;
+
+      if(skipEx && existingKeys.has(String(d.key))){ skipped++; continue; }
+
+      // Déterminer le type depuis le label/tooltip
+      const lbl2 = (d.label||'').toLowerCase();
+      const tip  = (d.tooltip||'').toLowerCase();
+      let type='autre';
+      if(lbl2.includes('ve1')||tip.includes('ve1')) type='ve1';
+      else if(lbl2.includes('ve2')||tip.includes('ve2')) type='ve2';
+      else if(lbl2.includes('mes ')||lbl2==='mes'||tip.includes(' mes ')) type='mes';
+      else if(lbl2.includes('dépann')||lbl2.includes('depann')) type='dep';
+      else if(lbl2.includes('formation')||lbl2.includes('form.')) type='form';
+      else if(lbl2.includes('cong')||lbl2.includes('dolibarr')) type='conge';
+      else if(lbl2.includes('astreinte')) type='astreinte';
+      else if(lbl2.includes('réception')||lbl2.includes('reception')) type='rec';
+      else if(lbl2.includes('protection')||lbl2.includes('prot')) type='prot';
+      else if(lbl2.includes('agence')) type='agence';
+      else if(lbl2.includes('annuelle')||lbl2.includes('annual')) type='annuelle';
+
+      const sd = new Date(d.startDate);
+      const ed = new Date(d.endDate);
+      const fmtD = dt => dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+      const fmtT = dt => String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+
+      // Ressource : depuis d.rowKey ou chercher dans la structure
+      const techName = resMap[d.rowKey] || d.resource || '';
+      // Matcher avec nos ressources
+      const matchRes = _resources.find(r=>r.name&&(r.name.toLowerCase()===techName.toLowerCase()||techName.toLowerCase().includes(r.name.toLowerCase().split(' ')[0])));
+      const tech = matchRes?.name || techName;
+
+      const rdvState = PPM_STATUS_MAP[d.statusKey] || 'non_confirme';
+
+      const data = {
+        ppmKey: d.key,
+        title: d.label||'Sans titre',
+        type, types:[type],
+        date: fmtD(sd),
+        dateEnd: fmtD(ed)!==fmtD(sd)?fmtD(ed):'',
+        startTime: d.allDay?'08:00':fmtT(sd),
+        endTime:   d.allDay?'18:00':fmtT(ed),
+        allDay: !!d.allDay,
+        tech, techs: tech?[tech]:[],
+        note: d.remark||'',
+        status: rdvState, rdvState,
+        source:'planningpme',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        by: _user?.login||'?'
+      };
+      try{
+        await fsAdd('planning_events', data, 'PPM: '+data.title);
+        imported++;
+      }catch(ex){ errors++; console.warn(ex); }
+      if(i%20===0) await new Promise(r=>setTimeout(r,10));
+    }
+
+    bar.style.width='100%';
+    lbl.textContent = `✅ Terminé : ${imported} importés, ${skipped} ignorés, ${errors} erreurs`;
+    ppmLog(`✅ ${imported} RDV importés dans Firebase`,'#16a34a');
+    if(skipped) ppmLog(`⏭ ${skipped} doublons ignorés`);
+    if(errors)  ppmLog(`⚠ ${errors} erreurs`,'#d97706');
+    toast(`✅ ${imported} RDV PlanningPME importés`,'ok');
+
+  }catch(err){
+    lbl.textContent = '❌ Erreur : '+err.message;
+    ppmLog('❌ '+err.message,'#dc2626');
+    console.error(err);
+    // Revenir au formulaire
+    setTimeout(()=>{
+      document.getElementById('ppmSyncProgress').style.display='none';
+      document.getElementById('ppmLoginSection').style.display='block';
+      const errEl=document.getElementById('ppmConnectErr');
+      if(errEl){errEl.textContent=err.message;errEl.style.display='block';}
+    },2000);
+  }
+}
+
+async function ppmImportJson(file){
+  if(!file) return;
+  const skipEx=document.getElementById('ppmSkipExisting2')?.checked;
+  const pg=document.getElementById('ppmJsonProgress');
+  const lbl=document.getElementById('ppmJsonLbl');
+  const bar=document.getElementById('ppmJsonBar');
+  const logEl=document.getElementById('ppmJsonLog');
+  if(pg) pg.style.display='block';
+  if(lbl) lbl.textContent='Lecture du fichier…';
+  if(bar) bar.style.width='2%';
+  if(logEl) logEl.innerHTML='';
+
+  const addLog=(t,c)=>{if(logEl){logEl.innerHTML+=`<div style="color:${c||'#14532d'}">${t}</div>`;logEl.scrollTop=logEl.scrollHeight;}};
+
+  // Fonction matching PlanningPME ↔ ACF
+  const matchTech=(techRaw)=>{
+    if(!techRaw) return '';
+    const tLow=techRaw.toLowerCase();
+    const tWords=tLow.split(/\s+/);
+    const m=_resources.find(r=>{
+      if(!r.name) return false;
+      const rLow=r.name.toLowerCase();
+      if(rLow===tLow) return true;
+      const rWords=rLow.split(/\s+/);
+      if(rWords.every(w=>tWords.some(tw=>tw===w||tw.startsWith(w)||w.startsWith(tw)))) return true;
+      const rL=rWords.reduce((a,b)=>a.length>b.length?a:b,'');
+      const tL=tWords.reduce((a,b)=>a.length>b.length?a:b,'');
+      return rL.length>3&&tL.length>3&&(rL===tL||rL.startsWith(tL)||tL.startsWith(rL));
+    });
+    return m?.name||techRaw;
+  };
+
+  const fmtD=dt=>{try{const d=new Date(dt);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}catch(_){return '';}};
+  const fmtT=dt=>{try{const d=new Date(dt);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}catch(_){return '08:00';}};
+  const PPM_STATUS={1014:'non_confirme',1016:'non_confirme',1015:'confirme',1017:'attente',1018:'realise'};
+
+  try{
+    const text=await file.text();
+    addLog('Fichier lu : '+Math.round(text.length/1024)+' Ko');
+
+    let payload;
+    try{ payload=JSON.parse(text); }
+    catch(pe){ throw new Error('JSON invalide : '+pe.message); }
+
+    const allDos=payload.dos||[];
+    const resMap=payload.resMap||{};
+
+    // Filtrer à partir du 01/01/2025
+    const DOS_FROM=new Date('2025-01-01');
+    const dos=allDos.filter(d=>new Date(d.startDate)>=DOS_FROM);
+    addLog(`RDV dans le fichier : ${allDos.length} total → ${dos.length} à partir du 01/01/2025`);
+
+    // Mapping techniciens
+    const techNames=new Set(dos.map(d=>d._tech||resMap[d.rowKey]||'').filter(Boolean));
+    const mappingLines=[];
+    techNames.forEach(t=>{
+      const matched=matchTech(t);
+      const found=_resources.some(r=>r.name===matched);
+      mappingLines.push(`${t} → <b style="color:${found?'#16a34a':'#dc2626'}">${matched}${found?'':' ❌'}</b>`);
+    });
+    addLog('Mapping :<br>'+mappingLines.join('<br>'));
+
+    if(!dos.length){ if(lbl)lbl.textContent='❌ Aucun RDV trouvé'; return; }
+
+    const existingKeys=skipEx?new Set(_events.map(ev=>String(ev.ppmKey||'')).filter(Boolean)):new Set();
+    addLog('Clés existantes : '+existingKeys.size);
+
+    // Préparer les données
+    const toImport=[];
+    for(const d of dos){
+      if(skipEx&&existingKeys.has(String(d.key))) continue;
+      const lbl2=(d.label||'').toLowerCase();
+      let type='autre';
+      if(lbl2.includes('ve1')) type='ve1';
+      else if(lbl2.includes('ve2')) type='ve2';
+      else if(lbl2==='mes'||lbl2.startsWith('mes ')) type='mes';
+      else if(lbl2.includes('dépann')||lbl2.includes('depann')) type='dep';
+      else if(lbl2.includes('formation')) type='form';
+      else if(lbl2.includes('cong')||lbl2.includes('dolibarr')) type='conge';
+      else if(lbl2.includes('astreinte')) type='astreinte';
+      else if(lbl2.includes('réception')||lbl2.includes('reception')) type='rec';
+      else if(lbl2.includes('protection')||lbl2.includes('prot')) type='prot';
+      else if(lbl2.includes('agence')) type='agence';
+      else if(lbl2.includes('annuelle')) type='annuelle';
+
+      const techRaw=d._tech||resMap[d.rowKey]||'';
+      const tech=matchTech(techRaw);
+      const dateStr=fmtD(d.startDate);
+      const dateEndStr=fmtD(d.endDate);
+
+      toImport.push({
+        ppmKey:d.key,
+        title:d.label||'Sans titre',
+        type,types:[type],
+        date:dateStr,
+        dateEnd:dateEndStr!==dateStr?dateEndStr:'',
+        startTime:d.allDay?'08:00':fmtT(d.startDate),
+        endTime:d.allDay?'18:00':fmtT(d.endDate),
+        allDay:!!d.allDay,
+        tech,techs:tech?[tech]:[],
+        note:d.remark||'',
+        status:PPM_STATUS[d.statusKey]||'non_confirme',
+        rdvState:PPM_STATUS[d.statusKey]||'non_confirme',
+        source:'planningpme',
+        createdAt:new Date().toISOString(),
+        updatedAt:new Date().toISOString(),
+        by:_user?.login||'?'
+      });
+    }
+
+    const skipped=dos.length-toImport.length;
+    addLog(`À importer : ${toImport.length} RDV (${skipped} doublons ignorés)`);
+    if(lbl) lbl.textContent=`Import de ${toImport.length} RDV par lots…`;
+
+    // Import par lots de 500 (limite Firebase writeBatch)
+    const BATCH_SIZE=499;
+    let imported=0, errors=0;
+    for(let i=0;i<toImport.length;i+=BATCH_SIZE){
+      const chunk=toImport.slice(i,i+BATCH_SIZE);
+      if(bar) bar.style.width=Math.round((i/toImport.length)*100)+'%';
+      if(lbl) lbl.textContent=`Import lot ${Math.floor(i/BATCH_SIZE)+1}/${Math.ceil(toImport.length/BATCH_SIZE)} (${i}/${toImport.length})…`;
+      try{
+        const batch=_lib.writeBatch(_db);
+        for(const data of chunk){
+          const ref=_lib.doc(_lib.collection(_db,'planning_events'));
+          batch.set(ref,data);
+        }
+        await batch.commit();
+        imported+=chunk.length;
+        addLog(`✅ Lot ${Math.floor(i/BATCH_SIZE)+1} : ${chunk.length} RDV importés`,'#16a34a');
+      }catch(ex){
+        errors+=chunk.length;
+        addLog(`❌ Lot ${Math.floor(i/BATCH_SIZE)+1} échoué : ${ex.message}`,'#dc2626');
+        console.error(ex);
+      }
+      await new Promise(r=>setTimeout(r,200));
+    }
+
+    if(bar) bar.style.width='100%';
+    if(lbl) lbl.textContent=`✅ ${imported} importés, ${skipped} doublons, ${errors} erreurs`;
+    addLog(`✅ ${imported} RDV importés dans Firebase`,'#16a34a');
+    if(errors) addLog(`⚠ ${errors} erreurs`,'#d97706');
+    toast(`✅ ${imported} RDV PlanningPME importés`,'ok');
+
+  }catch(ex){
+    if(lbl) lbl.textContent='❌ '+ex.message;
+    addLog('❌ '+ex.message,'#dc2626');
+    toast('❌ '+ex.message,'err');
+    console.error(ex);
+  }
+}
+
+
+async function clearAllEvents(){
+  if(!confirm('⚠️ Supprimer TOUS les RDV du planning ?\n\nCette action est irréversible.')) return;
+  if(!confirm('Confirmation finale — tous les RDV seront effacés de Firebase.')) return;
+  const prog=document.createElement('div');
+  prog.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;background:#1f2937;color:#fff;border-radius:10px;padding:14px 24px;font-size:13px;font-weight:700;font-family:inherit;box-shadow:0 4px 20px rgba(0,0,0,.4);min-width:280px;text-align:center';
+  prog.innerHTML='<div id="progLbl">🗑 Initialisation…</div><div style="background:#374151;border-radius:4px;height:6px;margin-top:8px;overflow:hidden"><div id="progBar" style="background:#ef4444;height:100%;width:0%;transition:width .3s"></div></div>';
+  document.body.appendChild(prog);
+  const setP=(txt,pct)=>{
+    document.getElementById('progLbl').textContent=txt;
+    document.getElementById('progBar').style.width=pct+'%';
+  };
+  try{
+    // Capturer les IDs AVANT toute modification (avant que le listener ne les écrase)
+    const fsIds=_events.map(ev=>ev._fsId).filter(Boolean);
+    const total=fsIds.length;
+    if(!total){setP('✅ Aucun RDV',100);setTimeout(()=>prog.remove(),2000);return;}
+    setP(`🗑 ${total} RDV à supprimer…`,0);
+    await new Promise(r=>setTimeout(r,150));
+
+    // Suspendre le rendu pendant la suppression
+    _savingRes=true;
+
+    const BATCH=499;
+    let n=0;
+    for(let i=0;i<fsIds.length;i+=BATCH){
+      const chunk=fsIds.slice(i,i+BATCH);
+      const batch=_lib.writeBatch(_db);
+      for(const id of chunk) batch.delete(_lib.doc(_db,'planning_events',id));
+      await batch.commit();
+      n+=chunk.length;
+      setP(`🗑 ${n} / ${total} supprimés…`, Math.round(n/total*100));
+      await new Promise(r=>setTimeout(r,300));
+    }
+    _savingRes=false;
+    _events=[];
+    render();
+    setP(`✅ ${n} RDV supprimés !`,100);
+    setTimeout(()=>prog.remove(),2500);
+    toast('✅ '+n+' RDV supprimés','ok');
+  }catch(e){
+    _savingRes=false;
+    document.getElementById('progLbl').textContent='❌ '+e.message;
+    setTimeout(()=>prog.remove(),4000);
+    toast('❌ '+e.message,'err');
+    console.error(e);
+  }
+}
+
+
 boot();
 </script>
-</html/* Astreinte */
-.gev-astreinte{background:repeating-linear-gradient(45deg,#fef3c7,#fef3c7 6px,#fde68a 6px,#fde68a 12px)!important;border-color:#f59e0b!important;color:#92400e!important;}
-.tl-ev-astreinte{background:repeating-linear-gradient(45deg,#fef3c7,#fef3c7 6px,#fde68a 6px,#fde68a 12px)!important;border-color:#f59e0b!important;color:#92400e!important;}
-
-  <!-- Modal Astreinte -->
-  <  <div id="astreinteOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9300;align-items:center;justify-content:center" onclick="if(event.target===this)closeAstreinte()">
-    <div style="background:#fff;border-radius:14px;width:min(96vw,560px);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.25);overflow:hidden">
-      <div style="background:#d97706;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-        <div><div style="font-size:15px;font-weight:800">⚡ Astreinte</div>
-        <div style="font-size:11px;opacity:.8">Planifier une ou plusieurs astreintes</div></div>
-        <button onclick="closeAstreinte()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;width:28px;height:28px;font-size:16px;cursor:pointer">✕</button>
-      </div>
-      <div style="flex:1;overflow-y:auto;padding:20px">
-        <!-- Ressource -->
-        <div style="margin-bottom:14px">
-          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">RESSOURCE D'ASTREINTE</label>
-          <select id="astrRes" onchange="updateAstrPreview()" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:#fff"></select>
-        </div>
-        <!-- Période 1ère astreinte -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-          <div>
-            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">DÉBUT (lundi de semaine)</label>
-            <input type="date" id="astrStart" oninput="updateAstrPreview()" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
-          </div>
-          <div>
-            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">DURÉE (semaines)</label>
-            <input type="number" id="astrWeeks" value="1" min="1" max="8" oninput="updateAstrPreview()" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
-          </div>
-        </div>
-        <!-- Récurrence -->
-        <div style="margin-bottom:14px;background:#fef9ee;border-radius:10px;border:1px solid #fcd34d;padding:12px">
-          <label style="font-size:10px;font-weight:800;color:#92400e;display:block;margin-bottom:8px">🔁 RÉCURRENCE</label>
-          <!-- Mode -->
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-            <button type="button" onclick="setAstrRepeat('none')" data-r="none" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid #d97706;background:#fef3c7;color:#92400e">Aucune</button>
-            <button type="button" onclick="setAstrRepeat('weekly')" data-r="weekly" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">Hebdo.</button>
-            <button type="button" onclick="setAstrRepeat('biweekly')" data-r="biweekly" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">2 sem.</button>
-            <button type="button" onclick="setAstrRepeat('monthly')" data-r="monthly" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">Mensuel</button>
-            <button type="button" onclick="setAstrRepeat('custom')" data-r="custom" class="astr-rb" style="padding:4px 11px;font-size:11px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--sub)">Perso.</button>
-          </div>
-          <!-- Options récurrence (cachées si none) -->
-          <div id="astrRecurOptions" style="display:none">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
-              <div id="astrCustomIntervalWrap" style="display:none">
-                <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:3px">Toutes les N semaines</label>
-                <input type="number" id="astrRepeatN" value="4" min="1" max="52" oninput="updateAstrPreview()" style="width:100%;padding:6px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit;text-align:center">
-              </div>
-              <div>
-                <label style="font-size:10px;font-weight:700;color:var(--sub);display:block;margin-bottom:3px">Fin de récurrence</label>
-                <select id="astrEndMode" onchange="toggleAstrEndMode();updateAstrPreview()" style="width:100%;padding:6px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit;background:#fff">
-                  <option value="count">Après N occurrences</option>
-                  <option value="date">Jusqu'à une date</option>
-                  <option value="endofyear">Fin d'année</option>
-                </select>
-              </div>
-            </div>
-            <div id="astrEndCount" style="display:flex;align-items:center;gap:8px;font-size:12px">
-              <label style="color:var(--sub)">Nombre d'occurrences :</label>
-              <input type="number" id="astrRepeatCount" value="12" min="1" max="53" oninput="updateAstrPreview()" style="width:70px;padding:5px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;text-align:center">
-            </div>
-            <div id="astrEndDate" style="display:none;align-items:center;gap:8px;font-size:12px">
-              <label style="color:var(--sub)">Jusqu'au :</label>
-              <input type="date" id="astrRepeatUntil" oninput="updateAstrPreview()" style="padding:5px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit">
-            </div>
-          </div>
-        </div>
-        <!-- Note -->
-        <div style="margin-bottom:12px">
-          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">NOTE</label>
-          <input type="text" id="astrNote" placeholder="Ex: Astreinte 2026" oninput="updateAstrPreview()" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
-        </div>
-        <!-- Aperçu -->
-        <div id="astrPreview" style="padding:10px;background:#fef9ee;border-radius:8px;border:1px solid #fcd34d;font-size:11px;color:#92400e"></div>
-      </div>
-      <div style="padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
-        <button onclick="closeAstreinte()" style="padding:8px 16px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Annuler</button>
-        <button onclick="saveAstreinte()" style="padding:8px 22px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⚡ Créer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Import Astreintes Excel -->
-  <div id="importAstrOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9310;align-items:center;justify-content:center" onclick="if(event.target===this)closeImportAstreinte()">
-    <div style="background:#fff;border-radius:14px;width:min(96vw,600px);max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.25);overflow:hidden">
-      <div style="background:#d97706;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-        <div><div style="font-size:15px;font-weight:800">📥 Import planning d'astreintes</div>
-        <div style="font-size:11px;opacity:.8">Format : tableau Excel avec colonnes S1–S53 par technicien</div></div>
-        <button onclick="closeImportAstreinte()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;width:28px;height:28px;font-size:16px;cursor:pointer">✕</button>
-      </div>
-      <div style="flex:1;overflow-y:auto;padding:20px">
-        <div style="background:#fff8f3;border:1.5px solid #f0a080;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#7c3000">
-          <strong>Format attendu :</strong> Colonne A = Nom, Colonnes suivantes = S1 à S53.<br>
-          Si la cellule contient le nom du technicien → il est d'astreinte cette semaine.<br>
-          Plusieurs feuilles acceptées (une par année, ex: "ASTREINTES 2026").
-        </div>
-        <!-- Zone dépôt -->
-        <div id="iaDropZone" style="border:2px dashed #d97706;border-radius:12px;padding:28px;text-align:center;cursor:pointer;background:#fff8f3;transition:all .15s;margin-bottom:14px"
-          onclick="document.getElementById('iaFileInput').click()"
-          ondragover="event.preventDefault();this.style.background='#fde8d8'"
-          ondragleave="this.style.background='#fff8f3'"
-          ondrop="event.preventDefault();this.style.background='#fff8f3';handleImportAstrFile(event.dataTransfer.files[0])">
-          <div style="font-size:28px;margin-bottom:6px">📂</div>
-          <div style="font-size:13px;font-weight:700;color:#d97706">Glisser le fichier Excel ici</div>
-          <div style="font-size:11px;color:#999;margin-top:3px">ou cliquer pour choisir (.xlsx, .xls)</div>
-          <input type="file" id="iaFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleImportAstrFile(this.files[0])">
-        </div>
-        <!-- Filtre année -->
-        <div id="iaYearFilter" style="display:none;margin-bottom:12px">
-          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">ANNÉE À IMPORTER</label>
-          <div id="iaYearBtns" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-        </div>
-        <!-- Options -->
-        <div id="iaOptions" style="display:none;margin-bottom:12px">
-          <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer">
-            <input type="checkbox" id="iaSkipExist" checked style="accent-color:#d97706"> Ne pas dupliquer les astreintes existantes
-          </label>
-        </div>
-        <!-- Aperçu -->
-        <div id="iaPreview" style="display:none"></div>
-        <!-- Progression -->
-        <div id="iaProgress" style="display:none;margin-top:12px">
-          <div style="font-size:12px;font-weight:700;margin-bottom:6px" id="iaProgressLbl">Import en cours…</div>
-          <div style="background:#f1f5f9;border-radius:6px;height:8px;overflow:hidden">
-            <div id="iaProgressBar" style="background:#d97706;height:100%;width:0%;transition:width .2s"></div>
-          </div>
-        </div>
-      </div>
-      <div style="padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
-        <button onclick="closeImportAstreinte()" style="padding:8px 16px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Annuler</button>
-        <button id="iaImportBtn" onclick="doImportAstreinte()" style="display:none;padding:8px 22px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⚡ Importer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Modifier Astreinte -->
-  <div id="editAstrOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9320;align-items:center;justify-content:center" onclick="if(event.target===this)closeEditAstreinte()">
-    <div style="background:#fff;border-radius:14px;width:min(96vw,440px);box-shadow:0 16px 48px rgba(0,0,0,.25);overflow:hidden">
-      <div style="background:#d97706;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:15px;font-weight:800">⚡ Modifier l'astreinte</div>
-        <button onclick="closeEditAstreinte()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;width:28px;height:28px;font-size:16px;cursor:pointer">✕</button>
-      </div>
-      <div style="padding:20px">
-        <div id="eaInfo" style="background:#fef9ee;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:#92400e"></div>
-        <div style="margin-bottom:12px">
-          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">RESSOURCE</label>
-          <select id="eaRes" style="width:100%;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit;background:#fff"></select>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-          <div>
-            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">DÉBUT</label>
-            <input type="date" id="eaStart" style="width:100%;padding:7px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
-          </div>
-          <div>
-            <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">FIN</label>
-            <input type="date" id="eaEnd" style="width:100%;padding:7px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
-          </div>
-        </div>
-        <div style="margin-bottom:4px">
-          <label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:5px">NOTE</label>
-          <input type="text" id="eaNote" style="width:100%;padding:7px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit">
-        </div>
-      </div>
-      <div style="padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:space-between">
-        <button onclick="deleteAstreinte()" style="padding:8px 14px;background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🗑 Supprimer</button>
-        <div style="display:flex;gap:8px">
-          <button onclick="closeEditAstreinte()" style="padding:8px 14px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Annuler</button>
-          <button onclick="saveEditAstreinte()" style="padding:8px 18px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">💾 Enregistrer</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </html>
