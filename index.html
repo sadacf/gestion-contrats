@@ -292,8 +292,6 @@ tr.validite-expiree td { opacity: .85; }
 
 #mainTable tbody tr { border-bottom: 1px solid #e8eef5; transition: background .12s; }
 #mainTable tbody tr:hover { background: #dbeafe !important; }
-#mainTable tbody tr:hover .btn-planifier-inline { opacity: 1 !important; }
-.btn-planifier-inline:focus { opacity: 1 !important; }
 #mainTable tbody tr:nth-child(odd)  { background: #ffffff; }
 #mainTable tbody tr:nth-child(even) { background: #f1f5fb; }
 #mainTable tbody tr:nth-child(even):hover { background: #dbeafe; }
@@ -1804,8 +1802,6 @@ function loadSheetJS(callback) {
     <div class="modal-body" id="detailBody"></div>
     <div class="modal-footer">
       <button class="hbtn hbtn-ghost" style="background:#f1f5f9;color:var(--text);border:1px solid var(--line)" onclick="closeModal('detailModal')">Fermer</button>
-      <button class="hbtn" id="detailPlanVE1Btn" style="background:#eff6ff;color:#2563eb;border:1.5px solid #bfdbfe;font-weight:700" title="Ouvrir le planning et pré-remplir VE1">📅 Planifier VE1</button>
-      <button class="hbtn" id="detailPlanVE2Btn" style="background:#eff6ff;color:#2563eb;border:1.5px solid #bfdbfe;font-weight:700" title="Ouvrir le planning et pré-remplir VE2">📅 Planifier VE2</button>
       <button class="hbtn hbtn-primary" id="detailEditBtn">✏️ Modifier</button>
     </div>
   </div>
@@ -2124,7 +2120,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/18-04-26-17:16';
+const APP_VERSION = 'V1/20-04-26-11:05';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -3027,21 +3023,6 @@ function init() {
     // Rappel sauvegarde mensuelle
     setTimeout(() => checkRappelSauvegarde(), 5000);
   }
-  // ── Lien retour depuis Planning : filtrer sur l'installation demandée ──
-  setTimeout(() => {
-    const p = new URLSearchParams(window.location.search);
-    const inst = p.get('installation');
-    if (inst) {
-      switchTab('contrats');
-      const sb = document.getElementById('searchBox');
-      if (sb) { sb.value = inst; applyFilters(); }
-      // Ouvrir le détail si un seul résultat
-      setTimeout(() => {
-        if (filtered.length === 1) showDetail(0);
-      }, 200);
-      history.replaceState({}, '', window.location.pathname);
-    }
-  }, 400);
 }
 
 /* ═══════════════════════════════════════════════
@@ -4728,8 +4709,6 @@ function showDetail(idx) {
   const r = filtered[idx];
   document.getElementById('detailTitle').textContent = r.Installation || 'Contrat';
   document.getElementById('detailEditBtn').onclick = () => { closeModal('detailModal'); openEditById(r._id); };
-  document.getElementById('detailPlanVE1Btn').onclick = () => { closeModal('detailModal'); planifierContratRecord(r, 'VE1'); };
-  document.getElementById('detailPlanVE2Btn').onclick = () => { closeModal('detailModal'); planifierContratRecord(r, 'VE2'); };
 
   const svcs = [
     ['Astreinte',r.Astreinte],['MO Inclus',r.MO_Inclus],['Formation SSI',r.Formation_SSI],
@@ -5515,47 +5494,6 @@ async function saveResilies(list) {
     console.warn('Sync résiliés Firebase échouée:', e);
     toast('⚠ Résiliés sauvegardés localement — sync Firebase échouée', 'warning');
   }
-}
-
-/* ═══════════════════════════════════════════════
-   LIEN BIDIRECTIONNEL → PLANNING
-═══════════════════════════════════════════════ */
-function planifierContrat(idx) {
-  // Bouton 📅 sur la ligne : choisir VE1 ou VE2 selon ce qui n'est pas encore archivé
-  const r = filtered[idx];
-  const ve1done = r.VE1_statut === '00B0F0' || r.VE1_statut === '92D050';
-  const ve = ve1done ? 'VE2' : 'VE1';
-  planifierContratRecord(r, ve);
-}
-
-function planifierContratRecord(r, ve) {
-  // Calcul de la date suggérée depuis le mois VE (format "mois AAAA" ou date)
-  let dateSugg = '';
-  try {
-    const rawVe = r[ve];
-    if (rawVe) {
-      const moisMap = {
-        'janvier':0,'février':1,'fevrier':1,'mars':2,'avril':3,'mai':4,'juin':5,
-        'juillet':6,'août':7,'aout':7,'septembre':8,'octobre':9,'novembre':10,'décembre':11,'decembre':11
-      };
-      const m = String(rawVe).trim().toLowerCase().match(/^([a-zàâäéèêëîïôùûü]+)\s+(\d{4})$/);
-      if (m && moisMap[m[1]] !== undefined) {
-        const d = new Date(parseInt(m[2]), moisMap[m[1]], 1);
-        dateSugg = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-01';
-      }
-    }
-  } catch(e) {}
-
-  const tech = ve === 'VE1' ? (r.Technicien || '') : (r.Binome || r.Technicien || '');
-  const params = new URLSearchParams({
-    action: 'new',
-    contratId: r.Installation || '',
-    title:    r.Installation || '',
-    tech:     tech,
-    ve:       ve,
-    ...(dateSugg ? { date: dateSugg } : {})
-  });
-  window.open('planning_v2.html?' + params.toString(), '_blank');
 }
 
 function dupliquerContrat(id) {
@@ -6435,19 +6373,19 @@ async function envoyerMailsGlobaux() {
     return `• ${name} : ${parts.join(', ')}`;
   }).join('\n');
 
+
   if (!confirm(`Envoyer des mails à ${techsAvecProblemes.length} technicien(s) ?\n\n${recap}`)) return;
 
-  let nbEnvoyes = 0;
+  const myMail = _currentUser ? (techFiches.find(f => getTechFullName(f).toLowerCase() === (_currentUser.ficheLinked||'').toLowerCase())?.mail || '') : '';
   let nbSansMail = 0;
+  const mailQueue = [];
 
   for (const [name, s] of techsAvecProblemes) {
     const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === name.toLowerCase());
     const mail = fiche?.mail || '';
     if (!mail) { nbSansMail++; continue; }
 
-    // Construit le corps du mail
     let body = `Bonjour ${name},\n\nVoici un récapitulatif de vos points en attente :\n\n`;
-
     if (s.retards.length > 0) {
       body += `⚠ SITES EN RETARD (${s.retards.length}) :\n`;
       s.retards.forEach(r => {
@@ -6458,41 +6396,105 @@ async function envoyerMailsGlobaux() {
       });
       body += '\n';
     }
-
     if (s.q7.length > 0) {
       body += `⏳ Q7 EN ATTENTE (${s.q7.length}) :\n`;
       s.q7.forEach(r => body += `  • ${r.Installation}${r.Ville ? ' ('+r.Ville+')' : ''}\n`);
       body += '\n';
     }
-
     if (s.rapports.length > 0) {
       body += `📄 RAPPORTS MANQUANTS (${s.rapports.length}) :\n`;
       s.rapports.forEach(r => body += `  • ${r.Installation}${r.Ville ? ' ('+r.Ville+')' : ''}\n`);
       body += '\n';
     }
-
     body += 'Merci de traiter ces points dans les meilleurs délais.\n\nCordialement';
-
     const subject = encodeURIComponent(`⚠ Points en attente — ${name}`);
-    const myMail = _currentUser ? (techFiches.find(f => getTechFullName(f).toLowerCase() === (_currentUser.ficheLinked||'').toLowerCase())?.mail || '') : '';
     const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(',');
-    window.open(`mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
-    marquerMailTechEnvoye(name);
-    nbEnvoyes++;
-
-    // Petite pause entre chaque mail pour éviter le blocage du navigateur
-    await new Promise(r => setTimeout(r, 500));
+    mailQueue.push({ name, email: mail, mailto: `mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}` });
   }
 
-  let msg = `📧 ${nbEnvoyes} mail(s) ouverts`;
-  if (nbSansMail > 0) msg += ` — ${nbSansMail} technicien(s) sans adresse mail`;
-  // Marquer l'envoi global
-  try {
-    const key = MAIL_TECH_SENT_KEY + '_global_' + getMailTechSentKey();
-    localStorage.setItem(key, JSON.stringify({ sentAt: new Date().toISOString(), nb: nbEnvoyes }));
-  } catch {}
-  updateSynthese();
-  toast(msg, 'success');
+  if (mailQueue.length === 0) { toast('Aucun mail à envoyer (adresses manquantes ?)', 'warning'); return; }
+
+  _showMailQueue(mailQueue, (nbEnvoyes) => {
+    mailQueue.forEach(m => marquerMailTechEnvoye(m.name));
+    try {
+      const key = MAIL_TECH_SENT_KEY + '_global_' + getMailTechSentKey();
+      localStorage.setItem(key, JSON.stringify({ sentAt: new Date().toISOString(), nb: nbEnvoyes }));
+    } catch {}
+    updateSynthese();
+    let msg = `📧 ${nbEnvoyes} mail(s) envoyé(s)`;
+    if (nbSansMail > 0) msg += ` — ${nbSansMail} sans adresse`;
+    toast(msg, 'success');
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   MODALE D'ENVOI MAILS — évite le blocage popup
+═══════════════════════════════════════════════ */
+function _showMailQueue(mails, onAllSent) {
+  // mails = [{ name, mailto }]
+  // Crée une modale avec un bouton par mail — l'utilisateur clique lui-même
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99999;display:flex;align-items:center;justify-content:center';
+  
+  let html = `
+    <div style="background:#fff;border-radius:14px;padding:24px 28px;max-width:520px;width:90vw;box-shadow:0 16px 50px rgba(0,0,0,.35);max-height:85vh;display:flex;flex-direction:column">
+      <div style="font-size:15px;font-weight:800;color:#1e3a5f;margin-bottom:6px">📧 Envoi des mails</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:16px">Cliquez sur chaque bouton pour ouvrir le mail dans Outlook. Une fenêtre s'ouvrira pour chaque technicien.</div>
+      <div style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px;max-height:400px">`;
+
+  mails.forEach((m, i) => {
+    html += `
+      <div id="_mq_row_${i}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#1e293b">${esc(m.name)}</div>
+          <div style="font-size:11px;color:#94a3b8">${esc(m.email)}</div>
+        </div>
+        <button id="_mq_btn_${i}" onclick="_mqSend(${i})"
+          style="background:#1e40af;color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+          📧 Ouvrir
+        </button>
+        <span id="_mq_ok_${i}" style="display:none;color:#16a34a;font-size:16px">✅</span>
+      </div>`;
+  });
+
+  html += `
+      </div>
+      <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <span id="_mq_count" style="font-size:12px;color:#64748b">0 / ${mails.length} envoyé(s)</span>
+        <div style="display:flex;gap:8px">
+          <button onclick="this.closest('[style*=inset]').remove()" style="border:1px solid #e2e8f0;background:#f8fafc;border-radius:7px;padding:6px 14px;font-size:12px;cursor:pointer;color:#475569">Fermer</button>
+          <button id="_mq_done" onclick="_mqFinish()" style="background:#16a34a;color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;display:none">✅ Marquer comme envoyés</button>
+        </div>
+      </div>
+    </div>`;
+
+  modal.innerHTML = html;
+  document.body.appendChild(modal);
+
+  window._mqMails     = mails;
+  window._mqSentCount = 0;
+  window._mqOnDone    = onAllSent;
+
+  window._mqSend = (i) => {
+    const m = window._mqMails[i];
+    window.location.href = m.mailto; // href évite le blocage popup vs window.open
+    const btn = document.getElementById('_mq_btn_' + i);
+    const ok  = document.getElementById('_mq_ok_'  + i);
+    const row = document.getElementById('_mq_row_' + i);
+    if (btn) btn.style.display = 'none';
+    if (ok)  ok.style.display  = 'inline';
+    if (row) row.style.background = '#f0fdf4';
+    window._mqSentCount++;
+    const count = document.getElementById('_mq_count');
+    if (count) count.textContent = `${window._mqSentCount} / ${window._mqMails.length} envoyé(s)`;
+    const done = document.getElementById('_mq_done');
+    if (done) done.style.display = '';
+  };
+
+  window._mqFinish = () => {
+    modal.remove();
+    if (typeof window._mqOnDone === 'function') window._mqOnDone(window._mqSentCount);
+  };
 }
 
 /* ═══════════════════════════════════════════════
@@ -6585,58 +6587,50 @@ async function envoyerMailsMoisCourantEtSuivant() {
 
 ${recap}`)) return;
 
-  let nbEnvoyes = 0, nbSansMail = 0;
+  let nbSansMail = 0;
+  const myMail2 = _currentUser ? (techFiches.find(f => getTechFullName(f).toLowerCase() === (_currentUser.ficheLinked||'').toLowerCase())?.mail || '') : '';
+  const mailQueue2 = [];
 
   for (const [name, v] of techs) {
     const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === name.toLowerCase());
     const mail  = fiche?.mail || '';
     if (!mail) { nbSansMail++; continue; }
 
-    let body = `Bonjour ${name},
-
-`;
-
+    let body = `Bonjour ${name},\n\n`;
     if (v.courant.length > 0) {
       body += `📅 SITES DU MOIS EN COURS — ${nomMoisCourant.toUpperCase()} (${v.courant.length} site(s)) :\n`;
-      // Dédupliquer par installation
       const seen = new Set();
       v.courant.forEach(({ r, field }) => {
         const key = r.Installation + '|' + field;
         if (seen.has(key)) return; seen.add(key);
-        const veLabel = field === 've1' ? 'VE1' : 'VE2';
-        body += `  • ${r.Installation}${r.Ville ? ' (' + r.Ville + ')' : ''} — ${veLabel}\n`;
+        body += `  • ${r.Installation}${r.Ville ? ' (' + r.Ville + ')' : ''} — ${field === 've1' ? 'VE1' : 'VE2'}\n`;
       });
       body += '\n';
     }
-
     if (v.suivant.length > 0) {
       body += `📅 SITES DU MOIS SUIVANT — ${nomMoisSuivant.toUpperCase()} (${v.suivant.length} site(s)) :\n`;
       const seen = new Set();
       v.suivant.forEach(({ r, field }) => {
         const key = r.Installation + '|' + field;
         if (seen.has(key)) return; seen.add(key);
-        const veLabel = field === 've1' ? 'VE1' : 'VE2';
-        body += `  • ${r.Installation}${r.Ville ? ' (' + r.Ville + ')' : ''} — ${veLabel}\n`;
+        body += `  • ${r.Installation}${r.Ville ? ' (' + r.Ville + ')' : ''} — ${field === 've1' ? 'VE1' : 'VE2'}\n`;
       });
       body += '\n';
     }
-
-    body += `Bonne organisation !
-
-Cordialement`;
-
-    const myMail = _currentUser ? (techFiches.find(f => getTechFullName(f).toLowerCase() === (_currentUser.ficheLinked||'').toLowerCase())?.mail || '') : '';
-    const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(',');
-    const subject = encodeURIComponent(`📅 Planning ${nomMoisCourant} + ${nomMoisSuivant} — ${name}`);
-    window.open(`mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
-    nbEnvoyes++;
-    await new Promise(r => setTimeout(r, 500));
+    body += `Bonne organisation !\n\nCordialement`;
+    const cc2 = [MAIL_OLIVIER_BELLIARD, myMail2].filter(Boolean).filter(m => m !== mail).join(',');
+    const subject2 = encodeURIComponent(`📅 Planning ${nomMoisCourant} + ${nomMoisSuivant} — ${name}`);
+    mailQueue2.push({ name, email: mail, mailto: `mailto:${mail}?cc=${encodeURIComponent(cc2)}&subject=${subject2}&body=${encodeURIComponent(body)}` });
   }
 
-  marquerMailMoisEnvoye(nbEnvoyes);
-  let msg = `📅 ${nbEnvoyes} mail(s) ouverts`;
-  if (nbSansMail > 0) msg += ` — ${nbSansMail} sans adresse mail`;
-  toast(msg, 'success');
+  if (mailQueue2.length === 0) { toast('Aucun mail à envoyer', 'warning'); return; }
+
+  _showMailQueue(mailQueue2, (nbEnvoyes) => {
+    marquerMailMoisEnvoye(nbEnvoyes);
+    let msg = `📅 ${nbEnvoyes} mail(s) envoyé(s)`;
+    if (nbSansMail > 0) msg += ` — ${nbSansMail} sans adresse`;
+    toast(msg, 'success');
+  });
 }
 
 // Rafraîchir les indicateurs manuellement
