@@ -2120,7 +2120,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/20-04-26-11:05';
+const APP_VERSION = 'V1/20-04-26-11:26';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -6318,7 +6318,7 @@ function envoyerMailTechnicien(name) {
   body += 'Merci de traiter ces points dans les meilleurs délais.\n\nCordialement';
 
   const myMail = _currentUser ? (techFiches.find(f => getTechFullName(f).toLowerCase() === (_currentUser.ficheLinked||'').toLowerCase())?.mail || '') : '';
-  const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(',');
+  const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(';');
   const subject = encodeURIComponent(`⚠ Points en attente — ${name}`);
   window.open(`mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
   marquerMailTechEnvoye(name);
@@ -6408,7 +6408,7 @@ async function envoyerMailsGlobaux() {
     }
     body += 'Merci de traiter ces points dans les meilleurs délais.\n\nCordialement';
     const subject = encodeURIComponent(`⚠ Points en attente — ${name}`);
-    const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(',');
+    const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(';');
     mailQueue.push({ name, email: mail, mailto: `mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}` });
   }
 
@@ -6618,7 +6618,7 @@ ${recap}`)) return;
       body += '\n';
     }
     body += `Bonne organisation !\n\nCordialement`;
-    const cc2 = [MAIL_OLIVIER_BELLIARD, myMail2].filter(Boolean).filter(m => m !== mail).join(',');
+    const cc2 = [MAIL_OLIVIER_BELLIARD, myMail2].filter(Boolean).filter(m => m !== mail).join(';');
     const subject2 = encodeURIComponent(`📅 Planning ${nomMoisCourant} + ${nomMoisSuivant} — ${name}`);
     mailQueue2.push({ name, email: mail, mailto: `mailto:${mail}?cc=${encodeURIComponent(cc2)}&subject=${subject2}&body=${encodeURIComponent(body)}` });
   }
@@ -6763,7 +6763,7 @@ async function envoyerPlanningMoisSuivant(force = false) {
     body += `\nTotal : ${sites.length} site(s)\n\nBonne intervention !\n\nCordialement`;
 
     const myMail = _currentUser ? (techFiches.find(f => getTechFullName(f).toLowerCase() === (_currentUser.ficheLinked||'').toLowerCase())?.mail || '') : '';
-    const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(',');
+    const cc = [MAIL_OLIVIER_BELLIARD, myMail].filter(Boolean).filter(m => m !== mail).join(';');
     const subject = encodeURIComponent(`📅 Planning interventions ${nomMois} — ${name}`);
     window.open(`mailto:${mail}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
     nbEnvoyes++;
@@ -8853,7 +8853,7 @@ function envoyerMailNouveauContrat() {
   // Construction des destinataires
   const destList = [MAIL_OLIVIER_BELLIARD];
   if (mailTech) destList.push(mailTech);
-  const dest = destList.join(',');
+  const dest = destList.join(';');
 
   // Sujet
   const isNew = !editingId;
