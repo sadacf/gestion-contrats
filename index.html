@@ -2120,7 +2120,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/20-04-26-11:26';
+const APP_VERSION = 'V1/23-04-26-10:16';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5438,7 +5438,8 @@ function deleteCurrentContract() {
   const r = db.find(x => x._id === editingId);
   if (!r) return;
   confirmDelete(`Supprimer "${r.Installation}" ?`, () => {
-    db = db.filter(x => x._id !== editingId);
+    // Supprimer uniquement par _id strict — évite d'effacer un doublon qui partagerait le même _fsId
+    db = db.filter(x => x._id !== r._id);
     SP.deleteContract(r).catch(e => toast('Erreur suppression SharePoint', 'error'));
     if (!SP.isOnSharePoint) saveDB();
     buildFilters(); updateStats(); applyFilters();
@@ -5504,6 +5505,7 @@ function dupliquerContrat(id) {
   // Créer une copie indépendante sans modifier l'original
   const copie = JSON.parse(JSON.stringify(r));
   copie._id = genId();
+  delete copie._fsId;  // IMPORTANT : nouveau _fsId sera généré par Firebase → évite partage de document
   copie.Installation = r.Installation + ' (copie)';
   // Réinitialiser VE statuts et commentaire
   copie.VE1_statut = null; copie.VE2_statut = null;
@@ -9066,10 +9068,16 @@ function closeLoginAndStart() {
       }
     });
     // Suppressions
-    const newIds = new Set(newContracts.map(c => c._id || c._fsId));
+    // Construire des sets séparés pour _id et _fsId
+    const newFsIds = new Set(newContracts.map(c => c._fsId).filter(Boolean));
+    const newCIds  = new Set(newContracts.map(c => c._id).filter(Boolean));
     const avant = db.length;
     db = db.filter(c => {
-      const kept = newIds.has(c._id) || newIds.has(c._fsId);
+      // Un contrat est supprimé seulement si ni son _id ni son _fsId n'apparaît dans Firebase
+      // Note: si deux contrats locaux partagent le même _fsId (bug de doublon), on garde celui dont l'_id est présent
+      const keptById   = c._id   && newCIds.has(c._id);
+      const keptByFsId = c._fsId && newFsIds.has(c._fsId);
+      const kept = keptById || (!c._id && keptByFsId);
       if (!kept) changes.push({ type: 'suppression', installation: c.Installation || '?', by: '', at: null });
       return kept;
     });
