@@ -1200,6 +1200,9 @@ function loadSheetJS(callback) {
         <button class="dash-nav-item" onclick="exportJSON()" style="padding-left:20px" title="Sauvegarde complète 100% — à faire chaque semaine">
           <span class="nav-icon">💾</span> EXPORTER JSON
         </button>
+        <button class="dash-nav-item" onclick="exportExcel()" style="padding-left:20px" title="Exporter les contrats au format Excel (.xlsx)">
+          <span class="nav-icon">📊</span> EXPORTER EXCEL
+        </button>
       </div>
     </div>
 
@@ -2120,7 +2123,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/23-04-26-10:16';
+const APP_VERSION = 'V1/24-04-26-18:37';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -6430,6 +6433,270 @@ async function envoyerMailsGlobaux() {
 }
 
 /* ═══════════════════════════════════════════════
+   EXPORT EXCEL
+═══════════════════════════════════════════════ */
+async function exportExcel() {
+  // Charger SheetJS si besoin
+  if (!window.XLSX) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  const wb = XLSX.utils.book_new();
+  const now = new Date();
+
+  // ── Couleurs VE → label + couleur fond Excel ──────────────────────────
+  const VE_MAP = {
+    '00B0F0': { label: 'Archivé',      bg: '00B0F0', fg: 'FFFFFF' },
+    '92D050': { label: 'Réalisé',      bg: '92D050', fg: '1A4731' },
+    'FFFF00': { label: 'À faire',      bg: 'FFFF00', fg: '4D3A00' },
+    'FFC000': { label: 'À planifier',  bg: 'FFC000', fg: '4D2E00' },
+    'FF00FF': { label: 'N+1',          bg: 'FF00FF', fg: '400040' },
+    'SO':     { label: 'S.O',          bg: 'D0D0D0', fg: '333333' },
+    'NONE':   { label: '',             bg: null,     fg: null     },
+  };
+
+  const veInfo = (color) => VE_MAP[color] || { label:'', bg:null, fg:null };
+
+  // Crée un style de cellule colorée
+  const colorStyle = (bgHex, fgHex, bold=false, center=false) => ({
+    font:      { bold, color: { rgb: fgHex || '000000' }, sz: 10 },
+    fill:      bgHex ? { patternType:'solid', fgColor:{ rgb: bgHex } } : undefined,
+    alignment: { horizontal: center ? 'center' : 'left', vertical:'center', wrapText: false },
+    border: {
+      top:    { style:'thin', color:{ rgb:'CCCCCC' } },
+      bottom: { style:'thin', color:{ rgb:'CCCCCC' } },
+      left:   { style:'thin', color:{ rgb:'CCCCCC' } },
+      right:  { style:'thin', color:{ rgb:'CCCCCC' } },
+    }
+  });
+
+  const headerStyle = (bgHex) => ({
+    font:      { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
+    fill:      { patternType:'solid', fgColor:{ rgb: bgHex } },
+    alignment: { horizontal:'center', vertical:'center', wrapText: true },
+    border: {
+      top:    { style:'medium', color:{ rgb: bgHex } },
+      bottom: { style:'medium', color:{ rgb: bgHex } },
+      left:   { style:'thin',   color:{ rgb: 'FFFFFF' } },
+      right:  { style:'thin',   color:{ rgb: 'FFFFFF' } },
+    }
+  });
+
+  // Applique des styles à une feuille après création
+  const applyStyles = (ws, rowCount, colStyles) => {
+    for (let ri = 1; ri <= rowCount; ri++) {
+      colStyles.forEach(({ ci, styleFn, rowData }) => {
+        const ref = XLSX.utils.encode_cell({r: ri, c: ci});
+        if (!ws[ref]) ws[ref] = { v: '', t: 's' };
+        ws[ref].s = styleFn(ri, ws[ref].v, rowData ? rowData[ri-1] : null);
+      });
+    }
+  };
+
+  // ── Feuille 1 : Contrats actifs ────────────────────────────────────────
+  const headers = [
+    'Installation','Client','Ville','Type Contrat','Matériel',
+    'Technicien','Binôme','Agence',
+    'VE1','Statut VE1','VE2','Statut VE2',
+    'Fin Validité','Q7','Q7 VE1 Tech','Q7 VE2 Tech',
+    'Remarques','Date enregistrement','Suspendu'
+  ];
+
+  // Index des colonnes importantes
+  const COL = {};
+  headers.forEach((h, i) => COL[h] = i);
+
+  const rows = db.map(r => {
+    const fiche = techFiches.find(f => getTechFullName(f).toLowerCase() === (r.Technicien||'').trim().toLowerCase());
+    const c1 = getVeColorForRecord(r,'ve1');
+    const c2 = getVeColorForRecord(r,'ve2');
+    return [
+      r.Installation   || '',
+      r.Client         || '',
+      r.Ville          || '',
+      r.Type_Contrat   || '',
+      r.Type_Materiel  || '',
+      r.Technicien     || '',
+      r.Binome         || '',
+      fiche?.agence    || '',
+      r.VE1            || '',
+      veInfo(c1).label,
+      r.VE2            || '',
+      veInfo(c2).label,
+      r.Fin_Validite   || '',
+      r.Q7             || '',
+      r.Q7_VE1_tech    || '',
+      r.Q7_VE2_tech    || '',
+      r.Commentaire    || '',
+      r._createdAt ? new Date(r._createdAt).toLocaleDateString('fr-FR') : '',
+      r._suspension ? 'Oui' : '',
+    ];
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+  // Largeurs colonnes
+  ws['!cols'] = [
+    {wch:35},{wch:22},{wch:16},{wch:10},{wch:18},
+    {wch:18},{wch:16},{wch:10},
+    {wch:10},{wch:14},{wch:10},{wch:14},
+    {wch:13},{wch:22},{wch:16},{wch:16},
+    {wch:30},{wch:16},{wch:10}
+  ];
+  ws['!rows'] = [{hpt:22}]; // hauteur ligne d'en-tête
+
+  // Styles en-têtes
+  headers.forEach((_, ci) => {
+    const ref = XLSX.utils.encode_cell({r:0, c:ci});
+    if (!ws[ref]) return;
+    ws[ref].s = headerStyle('1E3A5F');
+  });
+
+  // Styles données — colorier VE1, VE2, Q7
+  for (let ri = 1; ri <= rows.length; ri++) {
+    const r = db[ri-1];
+    const c1 = getVeColorForRecord(r,'ve1');
+    const c2 = getVeColorForRecord(r,'ve2');
+    const vi1 = veInfo(c1);
+    const vi2 = veInfo(c2);
+    const hasQ7 = (r.Q7_VE1_tech || r.Q7_VE2_tech) && (!r.Q7 || !r.Q7.toString().trim());
+    const isSusp = !!r._suspension;
+
+    // Couleur ligne de base : gris clair si suspendu
+    const rowBg = isSusp ? 'F0F0F0' : null;
+
+    // Appliquer style de base sur toutes les cellules de la ligne
+    headers.forEach((_, ci) => {
+      const ref = XLSX.utils.encode_cell({r:ri, c:ci});
+      if (!ws[ref]) ws[ref] = { v:'', t:'s' };
+      ws[ref].s = colorStyle(rowBg, rowBg ? '888888' : '1E293B', false, [COL['Type Contrat'],COL['Suspendu']].includes(ci));
+    });
+
+    // Cellule VE1 (mois) → couleur de fond
+    if (vi1.bg) {
+      const ref1 = XLSX.utils.encode_cell({r:ri, c:COL['VE1']});
+      if (!ws[ref1]) ws[ref1] = {v:r.VE1||'',t:'s'};
+      ws[ref1].s = colorStyle(vi1.bg, vi1.fg, true, true);
+    }
+    // Cellule Statut VE1 → même couleur
+    if (vi1.bg) {
+      const ref1s = XLSX.utils.encode_cell({r:ri, c:COL['Statut VE1']});
+      if (!ws[ref1s]) ws[ref1s] = {v:vi1.label,t:'s'};
+      ws[ref1s].s = colorStyle(vi1.bg, vi1.fg, true, true);
+    }
+
+    // Cellule VE2 (mois)
+    if (vi2.bg) {
+      const ref2 = XLSX.utils.encode_cell({r:ri, c:COL['VE2']});
+      if (!ws[ref2]) ws[ref2] = {v:r.VE2||'',t:'s'};
+      ws[ref2].s = colorStyle(vi2.bg, vi2.fg, true, true);
+    }
+    // Cellule Statut VE2
+    if (vi2.bg) {
+      const ref2s = XLSX.utils.encode_cell({r:ri, c:COL['Statut VE2']});
+      if (!ws[ref2s]) ws[ref2s] = {v:vi2.label,t:'s'};
+      ws[ref2s].s = colorStyle(vi2.bg, vi2.fg, true, true);
+    }
+
+    // Q7 en attente → fond orange sur les colonnes Q7
+    if (hasQ7) {
+      [COL['Q7'], COL['Q7 VE1 Tech'], COL['Q7 VE2 Tech']].forEach(ci => {
+        const ref = XLSX.utils.encode_cell({r:ri, c:ci});
+        if (!ws[ref]) ws[ref] = {v:'',t:'s'};
+        ws[ref].s = colorStyle('FEF3C7', '92400E', true, false);
+      });
+    }
+
+    // Q7 livré → fond vert léger
+    if ((r.Q7_VE1_tech || r.Q7_VE2_tech) && r.Q7 && r.Q7.toString().trim()) {
+      const ref = XLSX.utils.encode_cell({r:ri, c:COL['Q7']});
+      if (!ws[ref]) ws[ref] = {v:r.Q7||'',t:'s'};
+      ws[ref].s = colorStyle('D1FAE5', '065F46', true, false);
+    }
+
+    // Fin validité expirée → fond rose
+    if (r.Fin_Validite) {
+      const fvRef = XLSX.utils.encode_cell({r:ri, c:COL['Fin Validité']});
+      try {
+        const parts = r.Fin_Validite.split(/[\/\-\.]/);
+        let d;
+        if (parts[0].length <= 2) d = new Date(+parts[2], +parts[1]-1, +parts[0]);
+        else d = new Date(+parts[0], +parts[1]-1, +parts[2]);
+        if (!isNaN(d) && d < new Date()) {
+          if (!ws[fvRef]) ws[fvRef] = {v:r.Fin_Validite,t:'s'};
+          ws[fvRef].s = colorStyle('FECDD3', '9F1239', true, true);
+        }
+      } catch(e) {}
+    }
+  }
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Contrats actifs');
+
+  // ── Feuille 2 : Résiliés ────────────────────────────────────────────────
+  let resilies = [];
+  try { resilies = JSON.parse(localStorage.getItem('gestion_contrats_resilies') || '[]'); } catch(e) {}
+
+  const resilieHeaders = ['Installation','Client','Ville','Type Contrat','Technicien','Résilié le','Résilié par'];
+  const resilieRows = resilies.map(r => [
+    r.Installation  || '',
+    r.Client        || '',
+    r.Ville         || '',
+    r.Type_Contrat  || '',
+    r.Technicien    || '',
+    r._resilieAt ? new Date(r._resilieAt).toLocaleDateString('fr-FR') : '',
+    r._resilieBy    || '',
+  ]);
+
+  const wsResilies = XLSX.utils.aoa_to_sheet([resilieHeaders, ...resilieRows]);
+  wsResilies['!cols'] = [{wch:35},{wch:25},{wch:18},{wch:12},{wch:20},{wch:14},{wch:20}];
+  resilieHeaders.forEach((_, ci) => {
+    const cellRef = XLSX.utils.encode_cell({r:0, c:ci});
+    if (!wsResilies[cellRef]) return;
+    wsResilies[cellRef].s = {
+      font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
+      fill: { fgColor: { rgb: '9F1239' } },
+      alignment: { horizontal: 'center' }
+    };
+  });
+  XLSX.utils.book_append_sheet(wb, wsResilies, 'Résiliés');
+
+  // ── Feuille 3 : Techniciens ─────────────────────────────────────────────
+  const techHeaders = ['Nom','Prénom','Login','Agence','Service','Email','Tél'];
+  const techRows = techFiches.map(f => [
+    f.nom    || '',
+    f.prenom || '',
+    f.login  || '',
+    f.agence || '',
+    f.service|| '',
+    f.mail   || '',
+    f.tel    || '',
+  ]);
+  const wsTechs = XLSX.utils.aoa_to_sheet([techHeaders, ...techRows]);
+  wsTechs['!cols'] = [{wch:18},{wch:16},{wch:14},{wch:12},{wch:14},{wch:28},{wch:14}];
+  techHeaders.forEach((_, ci) => {
+    const cellRef = XLSX.utils.encode_cell({r:0, c:ci});
+    if (!wsTechs[cellRef]) return;
+    wsTechs[cellRef].s = {
+      font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
+      fill: { fgColor: { rgb: '065F46' } },
+      alignment: { horizontal: 'center' }
+    };
+  });
+  XLSX.utils.book_append_sheet(wb, wsTechs, 'Techniciens');
+
+  // ── Téléchargement ──────────────────────────────────────────────────────
+  const fileName = `ACF_Contrats_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}.xlsx`;
+  XLSX.writeFile(wb, fileName, { bookType: 'xlsx', type: 'binary', cellStyles: true });
+
+  toast(`📊 Export Excel : ${db.length} contrats + ${resilies.length} résiliés`, 'success');
+}
+
+/* ═══════════════════════════════════════════════
    MODALE D'ENVOI MAILS — évite le blocage popup
 ═══════════════════════════════════════════════ */
 function _showMailQueue(mails, onAllSent) {
@@ -9258,6 +9525,7 @@ function applyAccessLevel() {
     if (oc.includes('openAdd()'))        btn.style.display = hasPerm('edit')        ? '' : 'none';
     if (oc.includes('openImport()'))     btn.style.display = (isAdmin || hasPerm('importExport')) ? '' : 'none';
     if (oc.includes('exportJSON()'))     btn.style.display = (isAdmin || hasPerm('importExport')) ? '' : 'none';
+    if (oc.includes('exportExcel()'))    btn.style.display = isAdmin ? '' : 'none';
     if (oc.includes('openTechFiches()')) btn.style.display = hasPerm('manageTech')    ? '' : 'none';
     if (oc.includes('openOptionsModal()')) btn.style.display = (isAdmin || hasPerm('manageOptions')) ? '' : 'none';
     if (oc.includes('openFamilleMat()'))   btn.style.display = (isAdmin || hasPerm('ajoutMateriel')) ? '' : 'none';
