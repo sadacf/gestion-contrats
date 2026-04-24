@@ -1191,16 +1191,10 @@ function loadSheetJS(callback) {
         <button class="dash-nav-item" onclick="openImport()" style="padding-left:20px">
           <span class="nav-icon">📥</span> IMPORTER
         </button>
-        <div style="margin:4px 10px 2px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:7px 10px;font-size:10.5px;color:rgba(255,255,255,.85);line-height:1.55">
-          <strong style="color:#fff">💾 Export JSON = sauvegarde 100%</strong><br>
-          Contrats · Résiliés · Techniciens<br>
-          Permissions · Couleurs VE<br>
-          <span style="opacity:.75">→ Enregistrer dans OneDrive<br>→ Réimporter via 📥 en cas de perte</span>
-        </div>
         <button class="dash-nav-item" onclick="exportJSON()" style="padding-left:20px" title="Sauvegarde complète 100% — à faire chaque semaine">
           <span class="nav-icon">💾</span> EXPORTER JSON
         </button>
-        <button class="dash-nav-item" onclick="exportExcel()" style="padding-left:20px" title="Exporter les contrats au format Excel (.xlsx)">
+        <button class="dash-nav-item" onclick="exportExcel()" style="padding-left:20px;display:none" title="Exporter les contrats au format Excel (.xlsx) — admin uniquement">
           <span class="nav-icon">📊</span> EXPORTER EXCEL
         </button>
       </div>
@@ -2123,7 +2117,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/24-04-26-18:37';
+const APP_VERSION = 'V1/24-04-26-18:47';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
