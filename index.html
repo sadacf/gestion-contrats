@@ -1066,7 +1066,7 @@ function loadSheetJS(callback) {
           </th>
           <th style="width:75px;min-width:75px;max-width:75px;vertical-align:middle;white-space:normal" ondblclick="_saveBeforeFilter();document.getElementById('fMoisVE1').value='__S1__';_commitFilter();applyFilters()" title="Double-clic : filtre Semestre 1">
             <select class="fsel th-fsel" id="fMoisVE1" onfocus="_saveBeforeFilter()" onchange="_commitFilter();sortCol='';sortDir=1;applyFilters()" title="Filtrer par mois VE1 — double-clic sur l'en-tête : semestre 1">
-              <option value="">↕ VE1</option>
+              <option value="">↕ S1</option>
               <option value="__S1__">── Semestre 1 ──</option>
               <option value="Janvier">Janvier</option>
               <option value="Fevrier">Février</option>
@@ -1079,7 +1079,7 @@ function loadSheetJS(callback) {
           </th>
           <th style="width:75px;min-width:75px;max-width:75px;vertical-align:middle;white-space:normal" ondblclick="_saveBeforeFilter();document.getElementById('fMoisVE2').value='__S2__';_commitFilter();applyFilters()" title="Double-clic : filtre Semestre 2">
             <select class="fsel th-fsel" id="fMoisVE2" onfocus="_saveBeforeFilter()" onchange="_commitFilter();sortCol='';sortDir=1;applyFilters()" title="Filtrer par mois VE2 — double-clic sur l'en-tête : semestre 2">
-              <option value="">↕ VE2</option>
+              <option value="">↕ S2</option>
               <option value="__S2__">── Semestre 2 ──</option>
               <option value="Juillet">Juillet</option>
               <option value="Aout">Août</option>
@@ -1912,7 +1912,7 @@ function loadSheetJS(callback) {
 
           <!-- Ligne 2 : VE1 + VE2 côte à côte -->
           <div class="fg">
-            <label>Date VE1</label>
+            <label>Semestre 1</label>
             <select id="f_VE1">
               <option value="">–</option>
               <option>Janvier</option><option>Fevrier</option><option>Mars</option>
@@ -1921,7 +1921,7 @@ function loadSheetJS(callback) {
             </select>
           </div>
           <div class="fg">
-            <label>Date VE2</label>
+            <label>Semestre 2</label>
             <select id="f_VE2">
               <option value="">–</option>
               <option>Juillet</option><option>Aout</option><option>Septembre</option>
@@ -2117,7 +2117,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/24-04-26-18:47';
+const APP_VERSION = 'V1/24-04-26-19:07';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5225,7 +5225,18 @@ function openEditById(id) {
       if (hiddenEl) hiddenEl.value = val;
       return;
     }
-    const el = document.getElementById('f_'+f); if(el) el.value = r[f] ?? '';
+    const el = document.getElementById('f_'+f); if(el) {
+      const rawVal = r[f] ?? '';
+      el.value = rawVal;
+      // Si le select n'a pas accepté la valeur (option inexistante), ajouter dynamiquement
+      if (el.tagName === 'SELECT' && el.value !== rawVal && rawVal !== '') {
+        const opt = document.createElement('option');
+        opt.value = rawVal; opt.textContent = rawVal;
+        opt.style.color = '#e11d48'; // rouge = valeur non standard
+        el.appendChild(opt);
+        el.value = rawVal;
+      }
+    }
   });
   NUM_FIELDS.forEach(f  => { const el = document.getElementById('f_'+f); if(el) el.value = r[f] ?? ''; });
   // Pré-remplir le champ total détecteurs
@@ -5318,8 +5329,34 @@ function saveContract() {
   const client = document.getElementById('f_Client').value.trim();
   if (!installation || !client) { toast('Installation et Client sont obligatoires', 'warning'); return; }
 
+  // Vérification anti-perte VE : si l'original avait VE1/VE2 et les selects sont vides, avertir
+  if (editingId) {
+    const _orig = db.find(x => x._id === editingId);
+    const _ve1El = document.getElementById('f_VE1');
+    const _ve2El = document.getElementById('f_VE2');
+    const _ve1Lost = _orig?.VE1 && !_ve1El?.value;
+    const _ve2Lost = _orig?.VE2 && !_ve2El?.value;
+    if (_ve1Lost || _ve2Lost) {
+      const msg = `⚠️ Attention — la sauvegarde va effacer ${[_ve1Lost?'VE1 ('+_orig.VE1+')':'', _ve2Lost?'VE2 ('+_orig.VE2+')':''].filter(Boolean).join(' et ')}. Continuer quand même ?`;
+      if (!confirm(msg)) return;
+    }
+  }
+
   const record = { _id: editingId || genId() };
-  TEXT_FIELDS.forEach(f => { const el = document.getElementById('f_'+f); record[f] = el ? (el.value.trim() || null) : null; });
+  // Snapshot des valeurs originales pour détecter les pertes de données
+  const _origRecord = editingId ? db.find(x => x._id === editingId) : null;
+
+  TEXT_FIELDS.forEach(f => {
+    const el = document.getElementById('f_'+f);
+    if (!el) { record[f] = null; return; }
+    const val = el.value.trim() || null;
+    // Sécurité anti-perte : si le select revient vide mais l'original avait une valeur → préserver
+    if (!val && _origRecord && _origRecord[f] && el.tagName === 'SELECT') {
+      record[f] = _origRecord[f]; // préserver la valeur existante plutôt que d'effacer
+    } else {
+      record[f] = val;
+    }
+  });
   NUM_FIELDS.forEach(f  => { const el = document.getElementById('f_'+f); record[f] = el && el.value !== '' ? parseFloat(el.value) : null; });
   BOOL_FIELDS.forEach(f => {
     const el = document.getElementById('f_opt_'+f); record[f] = el ? el.checked : false;
