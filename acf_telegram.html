@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ACF Messagerie</title>
+<style>
+  :root {
+    --navy:#1a2744;--orange:#e05a1e;--tg:#2ca5e0;
+    --bg:#f0f2f5;--card:#fff;--line:#e5e7eb;--sub:#6b7280;
+    --green:#22c55e;--sent:#dcf8c6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+  .hdr{background:var(--navy);padding:0 16px;height:54px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+  .hdr-logo{font-size:13px;font-weight:800;color:#fff}
+  .hdr-logo span{color:var(--orange)}
+  .hdr-title{color:#fff;font-size:14px;font-weight:800;flex:1;text-align:center}
+  .hdr-status{font-size:10px;color:rgba(255,255,255,.5)}
+  .online-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;margin-right:4px}
+  .layout{display:flex;flex:1;overflow:hidden}
+  .sidebar{width:280px;flex-shrink:0;background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column}
+  .sidebar-hdr{padding:12px 14px 10px;border-bottom:1px solid var(--line)}
+  .sidebar-hdr h2{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:8px}
+  .search-box{display:flex;align-items:center;gap:6px;background:var(--bg);border-radius:8px;padding:6px 10px}
+  .search-box input{border:none;background:none;outline:none;font-size:12px;width:100%;font-family:inherit;color:var(--navy)}
+  .contacts{flex:1;overflow-y:auto}
+  .contact{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #f9fafb;transition:background .1s}
+  .contact:hover{background:#f0f9ff}
+  .contact.active{background:#eff6ff;border-left:3px solid var(--tg)}
+  .avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;position:relative}
+  .badge{position:absolute;top:-2px;right:-2px;background:var(--tg);color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .c-info{flex:1;min-width:0}
+  .c-name{font-size:12px;font-weight:700;color:var(--navy)}
+  .c-preview{font-size:10px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+  .c-time{font-size:9px;color:var(--sub);flex-shrink:0}
+  .broadcast-btn{margin:10px 12px;padding:9px;background:var(--orange);color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+  .chat-area{flex:1;display:flex;flex-direction:column;background:var(--bg)}
+  .chat-placeholder{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--sub)}
+  .chat-hdr{background:var(--card);padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .chat-hdr-name{font-size:14px;font-weight:800;color:var(--navy)}
+  .chat-hdr-sub{font-size:10px;color:var(--sub)}
+  .chat-hdr-actions{margin-left:auto}
+  .action-btn{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--navy);font-weight:600}
+  .messages{flex:1;overflow-y:auto;padding:16px 12px;display:flex;flex-direction:column;gap:6px}
+  .msg{max-width:75%;display:flex;flex-direction:column}
+  .msg.sent{align-self:flex-end}
+  .msg.recv{align-self:flex-start}
+  .msg-bubble{padding:8px 12px;border-radius:12px;font-size:12px;line-height:1.5}
+  .msg.sent .msg-bubble{background:var(--sent);border-bottom-right-radius:3px;color:#111}
+  .msg.recv .msg-bubble{background:var(--card);border-bottom-left-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.08);color:#111}
+  .msg-meta{font-size:9px;color:var(--sub);margin-top:2px}
+  .msg.sent .msg-meta{text-align:right}
+  .msg-sender{font-size:10px;font-weight:700;color:var(--tg);margin-bottom:2px}
+  .msg.sent .msg-sender{display:none}
+  .chat-input{background:var(--card);padding:10px 14px;border-top:1px solid var(--line);display:flex;align-items:flex-end;gap:8px;flex-shrink:0}
+  .input-wrap{flex:1;background:var(--bg);border-radius:20px;padding:8px 14px;border:1.5px solid transparent;transition:border-color .15s}
+  .input-wrap:focus-within{border-color:var(--tg)}
+  .input-wrap textarea{width:100%;border:none;background:none;outline:none;font-size:13px;font-family:inherit;resize:none;max-height:100px;line-height:1.4;color:var(--navy)}
+  .send-btn{width:40px;height:40px;border-radius:50%;background:var(--tg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .send-btn svg{fill:#fff}
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100}
+  .overlay.on{display:flex;align-items:center;justify-content:center}
+  .modal{background:#fff;border-radius:14px;width:min(500px,95vw);max-height:85vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.2)}
+  .modal-hdr{background:var(--orange);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-radius:14px 14px 0 0;flex-shrink:0}
+  .modal-hdr h3{color:#fff;font-size:14px;font-weight:800}
+  .modal-close{background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12px;font-family:inherit}
+  .modal-body{padding:16px 18px;overflow-y:auto;flex:1}
+  .group-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .group-btn{padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:inherit}
+  .tech-list{max-height:180px;overflow-y:auto;border:1.5px solid var(--line);border-radius:8px;padding:6px;margin-bottom:12px}
+  .tech-item{display:flex;align-items:center;gap:8px;padding:5px;border-radius:6px;cursor:pointer}
+  .tech-item:hover{background:#f9fafb}
+  .modal-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;font-size:13px;resize:vertical;min-height:80px;outline:none}
+  .modal-textarea:focus{border-color:var(--tg)}
+  .modal-footer{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+  .btn-send{padding:9px 20px;background:var(--tg);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn-cancel{padding:9px 16px;border:1.5px solid var(--line);background:#fff;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+  .date-sep{text-align:center;font-size:10px;color:var(--sub);font-weight:700;margin:8px 0}
+  .date-sep span{background:var(--bg);padding:2px 10px;border-radius:10px}
+  .loading{text-align:center;padding:20px;color:var(--sub);font-size:12px}
+  .spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--line);border-top-color:var(--tg);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  ::-webkit-scrollbar{width:5px}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">🔥 Planning <span>ACF</span></div>
+  <div class="hdr-title">✈️ Messagerie Telegram</div>
+  <div id="botStatus" class="hdr-status"><span class="spinner"></span>Connexion...</div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <button class="broadcast-btn" onclick="openBroadcast()">📢 Message groupé</button>
+    <div class="sidebar-hdr">
+      <h2>Conversations</h2>
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="searchContact" placeholder="Rechercher..." oninput="filterContacts()">
+      </div>
+    </div>
+    <div class="contacts" id="contactList"><div class="loading"><span class="spinner"></span>Chargement...</div></div>
+  </div>
+
+  <div class="chat-area" id="chatArea">
+    <div class="chat-placeholder" id="chatPlaceholder">
+      <div style="font-size:48px">✈️</div>
+      <p style="font-size:13px;font-weight:600">Sélectionnez un technicien</p>
+    </div>
+    <div id="chatContent" style="display:none;flex:1;flex-direction:column">
+      <div class="chat-hdr">
+        <div class="avatar" id="chatAvatar" style="width:36px;height:36px;font-size:12px"></div>
+        <div><div class="chat-hdr-name" id="chatName"></div><div class="chat-hdr-sub" id="chatSub"></div></div>
+        <div class="chat-hdr-actions">
+          <button class="action-btn" onclick="pollUpdates()">🔄 Actualiser</button>
+        </div>
+      </div>
+      <div class="messages" id="messageList"></div>
+      <div class="chat-input">
+        <div class="input-wrap">
+          <textarea id="msgInput" rows="1" placeholder="Tapez votre message..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        </div>
+        <button class="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Broadcast Modal -->
+<div class="overlay" id="broadcastOverlay" onclick="if(event.target===this)closeBroadcast()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>📢 Message groupé</h3>
+      <button class="modal-close" onclick="closeBroadcast()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="group-btns" id="broadcastGroupBtns"></div>
+      <div class="tech-list" id="broadcastTechList"></div>
+      <label style="font-size:11px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Message</label>
+      <textarea class="modal-textarea" id="broadcastMsg" placeholder="Votre message..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeBroadcast()">Annuler</button>
+      <button class="btn-send" onclick="sendBroadcast()">📤 Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, query, orderBy, addDoc, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const FB = {
+  apiKey:"AIzaSyAaySxLt8gyFiFjBzc2q9CrXvloaSU8DPU",
+  authDomain:"gestion-contrats-acf.firebaseapp.com",
+  projectId:"gestion-contrats-acf",
+  storageBucket:"gestion-contrats-acf.firebasestorage.app",
+  messagingSenderId:"55233673058",
+  appId:"1:55233673058:web:0c6c51ca4c324e12305e3b"
+};
+
+const app = initializeApp(FB);
+const db = getFirestore(app);
+
+// ── Charger config depuis Firebase ───────────────────────────────
+async function loadConfig() {
+  const snap = await getDocs(collection(db, 'planning_resources'));
+  const docs = snap.docs.map(d => d.data());
+  // Token Telegram
+  const tgDoc = docs.find(d => d._telegramToken);
+  if (tgDoc?.token) window.BOT_TOKEN = tgDoc.token;
+  // Ressources
+  const resDoc = docs.find(d => d._resConfig);
+  if (resDoc?.resources) window.RESOURCES = resDoc.resources;
+}
+
+// ── Sauvegarder message dans Firebase ────────────────────────────
+async function saveMessageToFirebase(chatId, techName, text, sent) {
+  try {
+    await addDoc(collection(db, 'telegram_messages'), {
+      chatId, techName, text, sent,
+      ts: serverTimestamp(),
+      createdAt: new Date().toISOString()
+    });
+  } catch(e) { console.warn('Firebase save msg:', e); }
+}
+
+// ── Charger historique Firebase ───────────────────────────────────
+async function loadMessagesFromFirebase() {
+  try {
+    const snap = await getDocs(query(collection(db, 'telegram_messages'), orderBy('ts','asc')));
+    snap.docs.forEach(d => {
+      const m = d.data();
+      if (!m.chatId) return;
+      if (!window._allMessages[m.chatId]) window._allMessages[m.chatId] = [];
+      if (!window._allMessages[m.chatId].find(x => x.fsId === d.id)) {
+        window._allMessages[m.chatId].push({
+          id: d.id, fsId: d.id,
+          text: m.text, fromName: m.techName,
+          ts: m.ts?.toMillis() || Date.parse(m.createdAt),
+          sent: m.sent
+        });
+      }
+    });
+  } catch(e) { console.warn('Firebase load msgs:', e); }
+}
+
+// Exposer pour le code global
+window._saveMessageToFirebase = saveMessageToFirebase;
+window._loadMessagesFromFirebase = loadMessagesFromFirebase;
+window._loadConfig = loadConfig;
+
+// Démarrer
+loadConfig().then(() => {
+  loadMessagesFromFirebase().then(() => {
+    window.appReady = true;
+    if (window.onAppReady) window.onAppReady();
+  });
+});
+</script>
+
+<script>
+// ═══ ÉTAT GLOBAL ═══
+window.BOT_TOKEN = '';
+window.RESOURCES = [];
+window._allMessages = {};
+window._currentChatId = null;
+window._currentTech = null;
+window._unread = {};
+window._updateOffset = 0;
+window.appReady = false;
+
+// ═══ INIT ═══
+window.onAppReady = async function() {
+  if (!BOT_TOKEN) {
+    document.getElementById('botStatus').textContent = '❌ Token manquant';
+    document.getElementById('contactList').innerHTML =
+      '<div class="loading" style="color:#dc2626">Token Telegram non configuré.<br>Configurez-le dans Planning → Config → États.</div>';
+    return;
+  }
+  try {
+    const r = await tgApi('getMe');
+    if (r.ok) {
+      document.getElementById('botStatus').innerHTML =
+        '<span class="online-dot"></span>@' + r.result.username;
+    } else throw new Error();
+  } catch(e) {
+    document.getElementById('botStatus').textContent = '❌ Bot inaccessible';
+  }
+  renderContacts();
+  startPolling();
+};
+
+// ═══ API TELEGRAM ═══
+async function tgApi(method, params={}) {
+  const url = `https://api.telegram.org/bot${BOT_TOKEN}/${method}`;
+  const opts = Object.keys(params).length
+    ? { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(params) }
+    : {};
+  const r = await fetch(url, opts);
+  return r.json();
+}
+
+// ═══ POLLING ═══
+async function pollUpdates() {
+  if (!BOT_TOKEN) return;
+  try {
+    const r = await tgApi('getUpdates', { offset: _updateOffset, limit: 100 });
+    if (!r.ok) return;
+    let hasNew = false;
+    for (const update of r.result) {
+      _updateOffset = Math.max(_updateOffset, update.update_id + 1);
+      const msg = update.message;
+      if (!msg?.text) continue;
+      const chatId = String(msg.chat.id);
+      const from = msg.from || {};
+      const fromName = [from.first_name, from.last_name].filter(Boolean).join(' ') || from.username || '?';
+      if (!_allMessages[chatId]) _allMessages[chatId] = [];
+      const exists = _allMessages[chatId].find(m => m.tgId === msg.message_id);
+      if (!exists) {
+        const entry = { id: update.update_id, tgId: msg.message_id, text: msg.text, fromName, ts: msg.date * 1000, sent: false };
+        _allMessages[chatId].push(entry);
+        _allMessages[chatId].sort((a,b) => a.ts - b.ts);
+        // Sauvegarder dans Firebase pour les autres utilisateurs
+        _saveMessageToFirebase(chatId, fromName, msg.text, false);
+        if (chatId !== _currentChatId) _unread[chatId] = (_unread[chatId]||0)+1;
+        // Auto-enregistrer contact inconnu
+        autoRegisterContact(chatId, fromName, from);
+        hasNew = true;
+      }
+    }
+    if (hasNew) { renderContacts(); if (_currentChatId) renderMessages(); }
+  } catch(e) {}
+}
+
+function startPolling() {
+  pollUpdates();
+  setInterval(pollUpdates, 3000);
+}
+
+function autoRegisterContact(chatId, name, from) {
+  if (!RESOURCES.find(r => String(r.telegramId||r.telegram||'') === chatId)) {
+    if (!RESOURCES.find(r => r._chatId === chatId)) {
+      RESOURCES.push({ name, color: randomColor(), telegramId: chatId, _unknown: true });
+    }
+  }
+}
+
+function randomColor() {
+  const colors = ['#2563eb','#16a34a','#dc2626','#7c3aed','#ea580c','#0891b2'];
+  return colors[Math.floor(Math.random()*colors.length)];
+}
+
+// ═══ CONTACTS ═══
+function getTechs() {
+  const seen = new Set();
+  const all = [];
+  RESOURCES.forEach(r => {
+    const tid = String(r.telegramId||r.telegram||'');
+    if (tid && !seen.has(tid)) { seen.add(tid); all.push({...r, _chatId:tid}); }
+  });
+  Object.keys(_allMessages).forEach(chatId => {
+    if (!seen.has(chatId)) {
+      const msgs = _allMessages[chatId];
+      const name = msgs[msgs.length-1]?.fromName || chatId;
+      all.push({ name, color:'#6b7280', _chatId:chatId, _unknown:true });
+    }
+  });
+  return all;
+}
+
+function ini(name) { return name.trim().split(/\s+/).map(p=>p[0]).join('').slice(0,2).toUpperCase(); }
+function fmtTime(ts) {
+  const d = new Date(ts), now = new Date();
+  if (d.toDateString()===now.toDateString()) return d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+}
+
+function renderContacts() {
+  const q = document.getElementById('searchContact')?.value.toLowerCase()||'';
+  const techs = getTechs().filter(t => !q || t.name.toLowerCase().includes(q));
+  const list = document.getElementById('contactList');
+  if (!techs.length) { list.innerHTML = '<div class="loading">Aucun contact Telegram<br><small style="color:#9ca3af">Configurez les IDs dans Ressources</small></div>'; return; }
+  list.innerHTML = techs.map(t => {
+    const msgs = _allMessages[t._chatId]||[];
+    const last = msgs[msgs.length-1];
+    const unread = _unread[t._chatId]||0;
+    return `<div class="contact${t._chatId===_currentChatId?' active':''}${unread?' has-unread':''}" onclick="openChat('${t._chatId}')">
+      <div class="avatar" style="background:${t.color}">${ini(t.name)}${unread?`<div class="badge">${unread}</div>`:''}</div>
+      <div class="c-info">
+        <div class="c-name" style="${unread?'font-weight:800':''}">${t.name}${t._unknown?' <span style="font-size:9px;color:#9ca3af">(nouveau)</span>':''}</div>
+        <div class="c-preview">${last?(last.sent?'✓ ':'')+last.text.slice(0,35):'Pas de messages'}</div>
+      </div>
+      ${last?`<div class="c-time">${fmtTime(last.ts)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function filterContacts() { renderContacts(); }
+
+// ═══ CHAT ═══
+function openChat(chatId) {
+  _currentChatId = chatId;
+  _currentTech = getTechs().find(t => t._chatId===chatId);
+  _unread[chatId] = 0;
+  document.getElementById('chatPlaceholder').style.display = 'none';
+  const cc = document.getElementById('chatContent');
+  cc.style.display = 'flex'; cc.style.flexDirection = 'column';
+  document.getElementById('chatAvatar').textContent = ini(_currentTech?.name||'?');
+  document.getElementById('chatAvatar').style.background = _currentTech?.color||'#6b7280';
+  document.getElementById('chatName').textContent = _currentTech?.name||chatId;
+  document.getElementById('chatSub').textContent = `ID: ${chatId}${_currentTech?.agence?' · '+_currentTech.agence:''}`;
+  renderMessages();
+  renderContacts();
+  document.getElementById('msgInput').focus();
+}
+
+function renderMessages() {
+  if (!_currentChatId) return;
+  const msgs = _allMessages[_currentChatId]||[];
+  const list = document.getElementById('messageList');
+  if (!msgs.length) { list.innerHTML = '<div class="loading">Aucun message — envoyez le premier !</div>'; return; }
+  let html='', lastDate='';
+  msgs.forEach(m => {
+    const d = new Date(m.ts);
+    const ds = d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    if (ds!==lastDate) { html+=`<div class="date-sep"><span>${ds}</span></div>`; lastDate=ds; }
+    const ts = d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    html+=`<div class="msg ${m.sent?'sent':'recv'}">
+      ${!m.sent?`<div class="msg-sender">${m.fromName}</div>`:''}
+      <div class="msg-bubble">${m.text.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>
+      <div class="msg-meta">${ts}${m.sent?' ✓✓':''}</div>
+    </div>`;
+  });
+  list.innerHTML = html;
+  list.scrollTop = list.scrollHeight;
+}
+
+async function sendMessage() {
+  if (!_currentChatId) return;
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = ''; input.style.height = '';
+  if (!_allMessages[_currentChatId]) _allMessages[_currentChatId] = [];
+  _allMessages[_currentChatId].push({ id: Date.now(), text, fromName:'ACF', ts:Date.now(), sent:true });
+  renderMessages();
+  const r = await tgApi('sendMessage', { chat_id:_currentChatId, text });
+  if (!r.ok) alert('Erreur: ' + r.description);
+  else _saveMessageToFirebase(_currentChatId, 'ACF', text, true);
+}
+
+function handleKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} }
+function autoResize(el) { el.style.height=''; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+
+// ═══ BROADCAST ═══
+let _broadcastSel = new Set();
+
+function openBroadcast() {
+  _broadcastSel = new Set();
+  document.getElementById('broadcastMsg').value = '';
+  renderBroadcastModal();
+  document.getElementById('broadcastOverlay').classList.add('on');
+}
+function closeBroadcast() { document.getElementById('broadcastOverlay').classList.remove('on'); }
+
+function renderBroadcastModal() {
+  const techs = getTechs();
+  const agences = [...new Set(techs.map(t=>t.agence).filter(Boolean))];
+  document.getElementById('broadcastGroupBtns').innerHTML =
+    `<button class="group-btn" onclick="bcastAll()" style="background:#fff7ed;color:#e05a1e;border-color:#fed7aa">Tous</button>`+
+    agences.map(ag=>`<button class="group-btn" onclick="bcastAg('${ag}')" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe">${ag}</button>`).join('');
+  document.getElementById('broadcastTechList').innerHTML = techs.map(t=>`
+    <div class="tech-item" onclick="bcastToggle('${t._chatId}')">
+      <input type="checkbox" ${_broadcastSel.has(t._chatId)?'checked':''} style="accent-color:#2ca5e0;width:14px;height:14px" onclick="event.stopPropagation()">
+      <div class="avatar" style="width:26px;height:26px;font-size:10px;background:${t.color}">${ini(t.name)}</div>
+      <div style="font-size:12px;font-weight:600">${t.name}</div>
+      ${t.agence?`<span style="font-size:10px;color:#9ca3af;margin-left:auto">${t.agence}</span>`:''}
+    </div>`).join('');
+}
+
+function bcastToggle(id) { _broadcastSel.has(id)?_broadcastSel.delete(id):_broadcastSel.add(id); renderBroadcastModal(); }
+function bcastAll() { getTechs().forEach(t=>_broadcastSel.add(t._chatId)); renderBroadcastModal(); }
+function bcastAg(ag) { getTechs().filter(t=>t.agence===ag).forEach(t=>_broadcastSel.add(t._chatId)); renderBroadcastModal(); }
+
+async function sendBroadcast() {
+  const msg = document.getElementById('broadcastMsg').value.trim();
+  if (!msg) { alert('Entrez un message'); return; }
+  if (!_broadcastSel.size) { alert('Sélectionnez des destinataires'); return; }
+  const btn = document.querySelector('.btn-send');
+  btn.textContent = '⏳...'; btn.disabled = true;
+  let sent = 0;
+  for (const chatId of _broadcastSel) {
+    const r = await tgApi('sendMessage', { chat_id:chatId, text:msg });
+    if (r.ok) {
+      sent++;
+      if (!_allMessages[chatId]) _allMessages[chatId] = [];
+      _allMessages[chatId].push({ id:Date.now()+sent, text:msg, fromName:'ACF', ts:Date.now(), sent:true });
+      _saveMessageToFirebase(chatId, 'ACF', msg, true);
+    }
+    await new Promise(res=>setTimeout(res,150));
+  }
+  btn.textContent='📤 Envoyer'; btn.disabled=false;
+  closeBroadcast(); renderContacts();
+  alert(`✅ Envoyé à ${sent}/${_broadcastSel.size} technicien(s)`);
+}
+</script>
+</body>
+</html>
