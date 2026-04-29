@@ -878,7 +878,9 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
     </div>
     <!-- Contenu principal -->
     <div style="margin-left:200px;height:100vh;overflow-y:auto;background:#f1f3f9">
-      <div style="max-width:1100px;margin:0 auto;padding:18px 20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;height:100%;max-width:100%">
+        <div style="overflow-y:auto;padding:18px 16px;border-right:1px solid #e5e7eb">
+        <div style="max-width:560px">
         <!-- Titre page -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
           <div>
@@ -934,7 +936,37 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
             <div id="dashBacklog" style="max-height:220px;overflow-y:auto"></div>
           </div>
         </div>
-      </div>
+        </div><!-- fin max-width -->
+        </div><!-- fin col gauche -->
+
+        <!-- COLONNE DROITE: Gestion des appels -->
+        <div style="overflow-y:auto;padding:18px 16px;background:#fafbfc">
+          <!-- Header appels -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div>
+              <div style="font-size:16px;font-weight:900;color:#1a2744">📞 Gestion des appels</div>
+              <div style="font-size:11px;color:#6b7280;margin-top:2px">Suivi des demandes clients</div>
+            </div>
+            <button onclick="openQuickAppel()" style="padding:8px 16px;background:#7c3aed;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">
+              + Nouvel appel
+            </button>
+          </div>
+
+          <!-- Onglets -->
+          <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid #e5e7eb">
+            <button id="dashAppelTabOpen" onclick="dashSwitchAppelTab('open')" style="padding:8px 16px;background:none;border:none;border-bottom:3px solid #7c3aed;margin-bottom:-2px;font-size:12px;font-weight:700;color:#7c3aed;cursor:pointer;font-family:inherit">
+              📋 En cours <span id="dashAppelCountOpen" style="background:#7c3aed;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;margin-left:4px"></span>
+            </button>
+            <button id="dashAppelTabClosed" onclick="dashSwitchAppelTab('closed')" style="padding:8px 16px;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;font-size:12px;font-weight:700;color:#9ca3af;cursor:pointer;font-family:inherit">
+              ✅ Soldés <span id="dashAppelCountClosed" style="background:#e5e7eb;color:#6b7280;border-radius:10px;padding:1px 7px;font-size:10px;margin-left:4px"></span>
+            </button>
+          </div>
+
+          <!-- Liste des appels -->
+          <div id="dashAppelsList" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div><!-- fin col droite -->
+
+      </div><!-- fin grid -->
     </div>
   </div>
   <!-- Modal Vue par client -->
@@ -1016,7 +1048,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
         <label style="font-size:10px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Statut</label>
         <select id="qaSuivi" style="flex:1;padding:7px 10px;border:1.5px solid #d1d5db;border-radius:7px;font-size:12px;font-family:inherit;background:#fff">
           <option value="nouveau">🔴 Nouveau</option>
-          <option value="en_cours">🔵 En cours</option>
+          <option value="transmis">📤 Transmis</option>
           <option value="attente">🟡 En attente</option>
           <option value="resolu">🟢 Résolu</option>
         </select>
@@ -1123,8 +1155,8 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
     <div class="hdr-sep"></div>
     <button class="hbtn" onclick="openDashboard()" title="Tableau de bord">🏠</button>
     <button class="hbtn" onclick="openClientView()" title="Rechercher un client" style="display:flex;align-items:center;gap:5px;font-weight:700;color:#ea580c;border-color:#ea580c">🔍 Client</button>
-    <button class="hbtn" onclick="openQuickAppel()" title="Enregistrer un appel client" style="display:flex;align-items:center;gap:5px;font-weight:700;color:#7c3aed;border-color:#7c3aed">📞 Appel</button>
-    <button id="btnTelegram" class="hbtn" onclick="openTelegramApp()" title="Messagerie Telegram" style="display:flex;align-items:center;gap:5px;font-weight:700;color:#2ca5e0;border-color:#2ca5e0">✈️ Messages</button>
+    <button class="hbtn" onclick="openQuickAppel()" title="Enregistrer un appel client" style="display:flex;align-items:center;gap:5px;font-weight:700;color:#7c3aed;border-color:#7c3aed">📞 Nouvel appel</button>
+
     <button class="hbtn" onclick="window.open('gestion_contrats_v2.html','_blank')">📋 Contrats</button>
     <div style="flex:1"></div>
     <div class="conn" style="gap:8px">
@@ -6365,7 +6397,7 @@ async function gevResizeEnd(evt){
 function gevResizeStart(evt,el){} // conservé pour compatibilité
 
 window.addEventListener('resize',()=>{ adjustViewTop(); setTimeout(()=>{ if(_view!=='month'&&_view!=='res') render(); },150); });
-Object.assign(window,{toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail,openFicheInst,closeFicheInst,switchFiTab,ctxOpenFiche,ctxOpenContrat,fiBtnNouveauRdv,fiBtnEnCours,fiBtnAppel,cfgAddGroup,cfgRemoveGroup,cfgDropGroup,cfgDropTypeInGroup,cfgRemoveTypeFromGroup,openPlanningPMEImport,closePlanningPMEImport,handlePPMFile,doPPMImport,updatePPMPreview,ppmConnect,ppmImportJson,openDashboard,goPlanning,renderDashboard,dashGoEv,clearAllFiltersNow,updClearFiltersBtn,applyEvFont,saveEvFont,renderPpmMapping,ppmAddMapRule,savePpmMapping,ppmSwitchTab,renderPpmStatusMap,ppmUpdateStatusCode,ppmAddStatusRule,renderPpmFieldMap,selectResGroup,openClientView,closeClientView,filterClientSearch,openClientDetail,openQuickAppel,closeQuickAppel,qaSearchClient,qaSelectClient,qaOpenFiche,qaOpenTeams,qaOpenTeams_name,qaOpenPlanner,saveQuickAppel,cvNewRdv,openSolderModal,closeSolderModal,confirmSolder,getTechContact,openTelegramApp,saveTelegramToken,testTelegramBot,getTelegramUpdates,copyTelegramId,sendTelegram,openDepanDispatch,closeDepanDispatch,depanSelectAll,depanSelectAgence,depanToggleTech,sendDepanDispatch});
+Object.assign(window,{toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail,openFicheInst,closeFicheInst,switchFiTab,ctxOpenFiche,ctxOpenContrat,fiBtnNouveauRdv,fiBtnEnCours,fiBtnAppel,cfgAddGroup,cfgRemoveGroup,cfgDropGroup,cfgDropTypeInGroup,cfgRemoveTypeFromGroup,openPlanningPMEImport,closePlanningPMEImport,handlePPMFile,doPPMImport,updatePPMPreview,ppmConnect,ppmImportJson,openDashboard,goPlanning,renderDashboard,dashGoEv,clearAllFiltersNow,updClearFiltersBtn,applyEvFont,saveEvFont,renderPpmMapping,ppmAddMapRule,savePpmMapping,ppmSwitchTab,renderPpmStatusMap,ppmUpdateStatusCode,ppmAddStatusRule,renderPpmFieldMap,selectResGroup,openClientView,closeClientView,filterClientSearch,openClientDetail,openQuickAppel,closeQuickAppel,qaSearchClient,qaSelectClient,qaOpenFiche,qaOpenTeams,qaOpenTeams_name,qaOpenPlanner,saveQuickAppel,cvNewRdv,openSolderModal,closeSolderModal,confirmSolder,dashSwitchAppelTab,loadDashAppels,renderDashAppels,addAppelComment,solderAppelDash,deleteAppelDash,updateAppelSuivi,startTgPolling,tgPollOnce,getTechContact,openTelegramApp,saveTelegramToken,testTelegramBot,getTelegramUpdates,copyTelegramId,sendTelegram,openDepanDispatch,closeDepanDispatch,depanSelectAll,depanSelectAgence,depanToggleTech,sendDepanDispatch});
 // ── SÉLECTION MULTI-JOURS PAR GLISSER-SOURIS ───────────────────────────────
 let _gdSel=null;
 
@@ -7691,7 +7723,7 @@ async function importFromPlanner(){
   }catch(e){
     st.textContent='❌ '+e.message;
   }
-}
+
 
 function importPlannerTask(due, title, plan){
   if(due) document.getElementById('appelsDate').value=due;
@@ -9492,7 +9524,7 @@ function openDashboard(){
   const cfgNav=document.getElementById('dashCfgNav');
   if(cfgNav) cfgNav.style.display=isAdmin?'block':'none';
   renderDashboard();
-}
+  if(_telegramBotToken) startTgPolling();
 
 function goPlanning(type){
   const d=document.getElementById('dashboard');
@@ -9628,6 +9660,9 @@ function renderDashboard(){
         </div>`;
       }).join('')+(bItems.length>20?`<div style="padding:8px;text-align:center;font-size:10px;color:#9ca3af">+${bItems.length-20} autres</div>`:'')}
   }
+
+  // Charger appels pour la colonne droite
+  loadDashAppels();
 
   // Appels (chargement async)
   if(appelsEl){
@@ -10379,6 +10414,13 @@ function copyTelegramId(id, name){
   navigator.clipboard?.writeText(id).then(()=>toast(`ID ${name} copié : ${id}`,'ok'));
 }
 
+async function tgApi(method, params={}){
+  const url=`https://api.telegram.org/bot${_telegramBotToken}/${method}`;
+  const opts=Object.keys(params).length?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(params)}:{};
+  const r=await fetch(url,opts);
+  return r.json();
+}
+
 async function sendTelegram(chatId, message){
   if(!_telegramBotToken) return false;
   try{
@@ -10395,6 +10437,191 @@ async function sendTelegram(chatId, message){
 function openTelegramApp(){
   // La messagerie charge tout depuis Firebase directement
   window.open('acf_telegram.html','_blank');
+}
+
+// ═══════════════════════════
+// DASHBOARD APPELS
+// ═══════════════════════════
+let _dashAppelTab='open';
+let _dashAppels=[];
+
+function dashSwitchAppelTab(tab){
+  _dashAppelTab=tab;
+  const btnO=document.getElementById('dashAppelTabOpen');
+  const btnC=document.getElementById('dashAppelTabClosed');
+  if(btnO){btnO.style.borderBottomColor=tab==='open'?'#7c3aed':'transparent';btnO.style.color=tab==='open'?'#7c3aed':'#9ca3af';}
+  if(btnC){btnC.style.borderBottomColor=tab==='closed'?'#16a34a':'transparent';btnC.style.color=tab==='closed'?'#16a34a':'#9ca3af';}
+  renderDashAppels();
+}
+
+async function loadDashAppels(){
+  try{
+    _dashAppels=(await getAll('planning_appels')).filter(a=>!a.deleted);
+    renderDashAppels();
+  }catch(e){}
+}
+
+function renderDashAppels(){
+  const list=document.getElementById('dashAppelsList');
+  if(!list) return;
+  const isClosed=_dashAppelTab==='closed';
+  const items=_dashAppels.filter(a=>isClosed?(a.suivi==='termine'||a.suivi==='resolu'):!(a.suivi==='termine'||a.suivi==='resolu'));
+  items.sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  const cntO=document.getElementById('dashAppelCountOpen');
+  const cntC=document.getElementById('dashAppelCountClosed');
+  const nO=_dashAppels.filter(a=>!(a.suivi==='termine'||a.suivi==='resolu')).length;
+  const nC=_dashAppels.filter(a=>(a.suivi==='termine'||a.suivi==='resolu')).length;
+  if(cntO)cntO.textContent=nO;
+  if(cntC)cntC.textContent=nC;
+  if(!items.length){list.innerHTML=`<div style="text-align:center;padding:32px;color:#9ca3af;font-size:12px">${isClosed?'Aucun appel soldé':'Aucun appel en cours<br><br><button onclick="openQuickAppel()" style="padding:8px 16px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">+ Nouvel appel</button>'}</div>`;return;}
+  const SUIVI_COLOR={nouveau:'#dc2626',transmis:'#2563eb',en_cours:'#2563eb',attente:'#d97706',resolu:'#16a34a',termine:'#16a34a'};
+  const NATURES={info:'ℹ️',depannage:'🔧',planification:'📅',reclamation:'⚠️',devis:'💼',urgence:'🚨',suivi:'🔄',autre:'📌'};
+  list.innerHTML=items.map(a=>{
+    const sc=SUIVI_COLOR[a.suivi]||'#6b7280';
+    const nat=NATURES[a.category]||'📌';
+    const dt=a.createdAt?new Date(a.createdAt).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+    const msgs=(a.messages||[]);
+    return`<div style="background:#fff;border-radius:12px;border:1.5px solid ${isClosed?'#e5e7eb':'#ddd6fe'};overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)" data-apid="${a._fsId||''}">
+      <!-- Header appel -->
+      <div style="padding:10px 14px;display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid #f5f3ff">
+        <span style="font-size:16px;flex-shrink:0">${nat}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:800;color:#1a2744;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.hcInst||a.instName||'Client non précisé')}</div>
+          <div style="font-size:10px;color:#6b7280;margin-top:1px">${esc(a.objet||a.category||'')} · ${dt}</div>
+        </div>
+        <span style="background:${sc}22;color:${sc};border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;flex-shrink:0">${a.suivi||'nouveau'}</span>
+      </div>
+      <!-- Note -->
+      ${a.note?`<div style="padding:8px 14px;font-size:11px;color:#374151;border-bottom:1px solid #f5f3ff;font-style:italic">${esc(a.note.slice(0,120))}${a.note.length>120?'…':''}</div>`:''}
+      <!-- Messages échangés (Telegram + commentaires) -->
+      ${msgs.length?`<div style="padding:8px 14px;max-height:130px;overflow-y:auto;border-bottom:1px solid #f5f3ff">${msgs.slice(-5).map(m=>`
+        <div style="display:flex;gap:8px;margin:4px 0;align-items:flex-start;${m.sent?'flex-direction:row-reverse':''}">
+          <div style="width:24px;height:24px;border-radius:50%;background:${m.sent?'#7c3aed':'#2563eb'};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;flex-shrink:0">${m.sent?'ACF':esc((m.from||'?').slice(0,2).toUpperCase())}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:9px;font-weight:700;color:${m.sent?'#7c3aed':'#2563eb'};margin-bottom:2px;${m.sent?'text-align:right':''}">${m.sent?'ACF Incendie':esc(m.from||'Technicien')}${m.fromTelegram?' ✈️':''}</div>
+            <div style="background:${m.sent?'#ede9fe':'#f1f5f9'};padding:5px 8px;border-radius:8px;font-size:11px;color:#374151;word-break:break-word;${m.sent?'border-bottom-right-radius:3px':'border-bottom-left-radius:3px'}">${esc(m.text)}</div>
+          </div>
+        </div>`).join('')}</div>`:''}
+      <!-- Zone saisie commentaire/réponse -->
+      <div style="padding:8px 14px;border-top:1px solid #f5f3ff;display:flex;gap:6px;align-items:center">
+        <input type="text" placeholder="Ajouter un commentaire ou répondre…"
+          style="flex:1;padding:6px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:11px;font-family:inherit;outline:none"
+          id="apComment-${a._fsId||''}"
+          onkeydown="if(event.key==='Enter'){addAppelComment('${a._fsId||''}');event.preventDefault();}">
+        <button onclick="addAppelComment('${a._fsId||''}')" style="padding:5px 10px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;flex-shrink:0">Envoyer</button>
+      </div>
+      <!-- Actions -->
+      ${!isClosed?`<div style="padding:6px 14px;border-top:1px solid #f5f3ff;display:flex;gap:6px;align-items:center">
+        <select onchange="updateAppelSuivi('${a._fsId||''}',this.value)" style="flex:1;padding:5px 8px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:11px;font-family:inherit;background:#fff;cursor:pointer">
+          <option value="nouveau" ${(a.suivi||'nouveau')==='nouveau'?'selected':''}>🔴 Nouveau</option>
+          <option value="transmis" ${a.suivi==='transmis'?'selected':''}>📤 Transmis</option>
+          <option value="attente" ${a.suivi==='attente'?'selected':''}>🟡 Attente réponse</option>
+          <option value="resolu" ${(a.suivi==='resolu'||a.suivi==='en_cours')?'':''}>✅ Soldé</option>
+        </select>
+        <button onclick="deleteAppelDash('${a._fsId||''}')" title="Supprimer" style="width:30px;height:30px;background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;border-radius:7px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">🗑</button>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function addAppelComment(appelId){
+  const inp=document.getElementById('apComment-'+appelId);
+  if(!inp) return;
+  const text=inp.value.trim();
+  if(!text) return;
+  inp.value='';
+  const a=_dashAppels.find(x=>x._fsId===appelId);
+  if(!a) return;
+  const msgs=a.messages||[];
+  msgs.push({text,sent:true,from:'ACF',ts:new Date().toISOString()});
+  try{
+    await fsSet('planning_appels',appelId,{messages:msgs,updatedAt:new Date().toISOString()});
+    a.messages=msgs;
+    renderDashAppels();
+    toast('Commentaire ajouté','ok');
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+
+async function solderAppelDash(appelId){
+  try{
+    await fsSet('planning_appels',appelId,{suivi:'resolu',dateCloture:dk(new Date()),updatedAt:new Date().toISOString()});
+    const a=_dashAppels.find(x=>x._fsId===appelId);
+    if(a){a.suivi='resolu';a.dateCloture=dk(new Date());}
+    renderDashAppels();
+    toast('✅ Appel soldé','ok');
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+
+async function deleteAppelDash(appelId){
+  if(!confirm('Supprimer cet appel ?')) return;
+  try{
+    // Supprimer de Firebase (utiliser fsDelete si disponible ou mettre deleted:true)
+    await fsSet('planning_appels',appelId,{deleted:true,updatedAt:new Date().toISOString()});
+    _dashAppels=_dashAppels.filter(x=>x._fsId!==appelId);
+    renderDashAppels();
+    toast('Appel supprimé','ok');
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+
+async function updateAppelSuivi(appelId,val){
+  if(val==='resolu'){solderAppelDash(appelId);return;}
+  try{
+    await fsSet('planning_appels',appelId,{suivi:val,updatedAt:new Date().toISOString()});
+    const a=_dashAppels.find(x=>x._fsId===appelId);
+    if(a) a.suivi=val;
+    renderDashAppels();
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+
+// ═══════════════════════════
+// POLLING TELEGRAM → APPELS
+// ═══════════════════════════
+let _tgPollOffset=0;
+let _tgPollTimer=null;
+
+async function startTgPolling(){
+  if(!_telegramBotToken) return;
+  if(_tgPollTimer) clearInterval(_tgPollTimer);
+  await tgPollOnce();
+  _tgPollTimer=setInterval(tgPollOnce, 4000);
+}
+
+async function tgPollOnce(){
+  if(!_telegramBotToken) return;
+  try{
+    const r=await fetch(`https://api.telegram.org/bot${_telegramBotToken}/getUpdates?offset=${_tgPollOffset}&limit=50&timeout=0`);
+    const d=await r.json();
+    if(!d.ok) return;
+    let hasNew=false;
+    for(const upd of d.result){
+      _tgPollOffset=Math.max(_tgPollOffset, upd.update_id+1);
+      const msg=upd.message;
+      if(!msg?.text||msg.text==='/start') continue;
+      const chatId=String(msg.chat.id);
+      const fromName=[msg.from?.first_name,msg.from?.last_name].filter(Boolean).join(' ')||msg.from?.username||'Technicien';
+      const text=msg.text;
+      // Trouver quel appel correspond à ce technicien (dernier appel transmis à ce tech)
+      const tech=_resources.find(r=>String(r.telegramId||r.telegram||'')===chatId);
+      if(!tech) continue;
+      // Chercher l'appel ouvert le plus récent pour ce tech ou sans tech assigné
+      const openAppels=_dashAppels.filter(a=>!(a.suivi==='resolu'||a.suivi==='termine'||a.deleted));
+      const targetAppel=openAppels.find(a=>(a.assignedTo===tech.name)||a.suivi==='transmis')||openAppels[0];
+      if(!targetAppel) continue;
+      // Ajouter le message à cet appel
+      const msgs=targetAppel.messages||[];
+      if(!msgs.find(m=>m.tgMsgId===msg.message_id)){
+        msgs.push({text,sent:false,from:fromName,fromTelegram:true,tgMsgId:msg.message_id,ts:new Date(msg.date*1000).toISOString()});
+        targetAppel.messages=msgs;
+        // Sauvegarder dans Firebase
+        try{await fsSet('planning_appels',targetAppel._fsId,{messages:msgs,updatedAt:new Date().toISOString()});}catch(e){}
+        hasNew=true;
+      }
+    }
+    if(hasNew){
+      renderDashAppels();
+      toast('💬 Nouvelle réponse Telegram','ok');
+    }
+  }catch(e){}
 }
 
 boot();
