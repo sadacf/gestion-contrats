@@ -3350,6 +3350,14 @@ function renderCfgRes(){
       </label>
       <button onclick="rmR(${gi})" title="Supprimer"
         style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 4px;flex-shrink:0;opacity:.7" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">✕</button>
+    </div>
+    <div style="display:flex;gap:6px;padding:0 14px 8px 56px;flex-wrap:wrap">
+      <input type="email" value="${esc(r.email||r.mail||'')}" placeholder="📧 Email" oninput="updR(${gi},'email',this.value)"
+        style="flex:1;min-width:160px;padding:5px 9px;border:1.5px solid var(--line);border-radius:7px;font-size:11px;font-family:inherit;background:#f8fafc">
+      <input type="tel" value="${esc(r.phone||r.tel||r.mobile||'')}" placeholder="📱 Téléphone" oninput="updR(${gi},'phone',this.value)"
+        style="width:130px;padding:5px 9px;border:1.5px solid var(--line);border-radius:7px;font-size:11px;font-family:inherit;background:#f8fafc">
+      <input type="text" value="${esc(r.telegramId||r.telegram||'')}" placeholder="✈️ Telegram ID" oninput="updR(${gi},'telegramId',this.value)"
+        style="width:130px;padding:5px 9px;border:1.5px solid #bae6fd;border-radius:7px;font-size:11px;font-family:inherit;background:#f0f9ff">
     </div>`;
   }).join('');
 }
