@@ -2117,7 +2117,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/29-04-26-14:08';
+const APP_VERSION = 'V1/29-04-26-14:25';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2512,7 +2512,7 @@ const SP = (() => {
     },
 
     async getPresences() {
-      const TIMEOUT = 15 * 60 * 1000; // 15 minutes
+      const TIMEOUT = 8 * 60 * 1000; // 8 minutes (2 heartbeats manqués = hors ligne)
       const now = Date.now();
 
       // Lire le localStorage d'abord (toujours dispo)
@@ -10586,18 +10586,17 @@ async function refreshPresencePanel() {
         const time = formatRelativeTime(p.ts);
         const isMe = _currentUser && p.login === _currentUser.login;
         const age        = (Date.now() - p.ts) / 60000;
-        const isActive   = age < 6;
-        const isRecent   = age >= 6 && age < 20;
-        const isInactive = age >= 20;
-        const dotColor   = isActive ? '#22c55e' : isRecent ? '#eab308' : '#94a3b8';
-        const dotTitle   = isActive ? 'En ligne' : isRecent ? 'Récemment actif' : 'Hors ligne';
-        const rowBg      = isMe ? '#f0f9ff' : isActive ? '#f0fdf4' : isInactive ? '#f8fafc' : '#fffbeb';
-        const rowBorder  = isMe ? '#bae6fd' : isActive ? '#bbf7d0' : isInactive ? '#e2e8f0' : '#fde68a';
-        const nameColor  = isInactive ? '#94a3b8' : '#0f172a';
-        const opacity    = isInactive ? '0.6' : '1';
+        const isActive   = age < 5;   // actif < 5 min
+        const isRecent   = age >= 5 && age < 8; // récent entre 5 et 8 min
+        // Ne pas afficher les utilisateurs hors ligne (> 8 min = non visible dans getPresences de toute façon)
+        const dotColor   = isActive ? '#22c55e' : '#eab308';
+        const dotTitle   = isActive ? 'En ligne' : 'Récemment actif';
+        const rowBg      = isMe ? '#f0f9ff' : isActive ? '#f0fdf4' : '#fffbeb';
+        const rowBorder  = isMe ? '#bae6fd' : isActive ? '#bbf7d0' : '#fde68a';
+        const nameColor  = '#0f172a';
+        const opacity    = '1';
         const statusText = isActive ? '<span style="color:#16a34a;font-weight:700;font-size:10px">● En ligne</span>' 
-                         : isRecent ? '<span style="color:#ca8a04;font-weight:700;font-size:10px">◐ Récemment actif</span>'
-                         : '<span style="color:#94a3b8;font-weight:600;font-size:10px">○ Hors ligne</span>';
+                         : '<span style="color:#ca8a04;font-weight:700;font-size:10px">◐ Récemment actif</span>';
         return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:6px;background:${rowBg};border:1px solid ${rowBorder};opacity:${opacity}">
           <div style="position:relative;flex-shrink:0">
             <div style="width:36px;height:36px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">
