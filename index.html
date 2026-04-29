@@ -2117,7 +2117,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/24-04-26-19:07';
+const APP_VERSION = 'V1/29-04-26-14:08';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2492,11 +2492,15 @@ const SP = (() => {
     async updatePresence(user) {
       const key = 'presence_' + user.login;
       const val = { login: user.login, prenom: user.prenom||'', nom: user.nom||'', niveau: user.niveau, ts: Date.now() };
+      // Toujours écrire en localStorage (fallback si Firebase KO)
       localStorage.setItem('gestion_contrats_' + key, JSON.stringify(val));
+      // Tentative Firebase — ne pas bloquer si échec
       try {
         await initFirebase();
         await fsSet('presence', user.login, val);
-      } catch(e) {}
+      } catch(e) {
+        console.warn('[Présence] Firebase indisponible, localStorage utilisé:', e?.message || e);
+      }
     },
 
     async removePresence(login) {
@@ -2508,36 +2512,51 @@ const SP = (() => {
     },
 
     async getPresences() {
-      const TIMEOUT = 5 * 60 * 1000; // 5 minutes
+      const TIMEOUT = 15 * 60 * 1000; // 15 minutes
       const now = Date.now();
+
+      // Lire le localStorage d'abord (toujours dispo)
+      const localMap = {};
+      for (let k in localStorage) {
+        if (k.startsWith('gestion_contrats_presence_')) {
+          try {
+            const p = JSON.parse(localStorage.getItem(k));
+            if (p && p.login) {
+              if ((now - p.ts) < TIMEOUT) localMap[p.login] = p;
+              else localStorage.removeItem(k);
+            }
+          } catch {}
+        }
+      }
+
+      // Fusionner avec Firebase (prendre le plus récent)
       try {
         await initFirebase();
         const items = await fsGetAll('presence');
-        // Sépare les actifs et les expirés
-        const actifs   = items.filter(p => p && (now - p.ts) < TIMEOUT);
-        const expires  = items.filter(p => p && (now - p.ts) >= TIMEOUT);
-        // Supprime les expirés de Firebase
+        const expires = [];
+        items.forEach(p => {
+          if (!p || !p.login) return;
+          if ((now - p.ts) < TIMEOUT) {
+            // Firebase plus récent que local → prendre Firebase
+            if (!localMap[p.login] || p.ts > localMap[p.login].ts) {
+              localMap[p.login] = p;
+            }
+          } else {
+            expires.push(p);
+          }
+        });
+        // Nettoyer Firebase
         if (expires.length > 0) {
           await Promise.all(expires.map(p => {
             const id = p._fsId || p.login;
             return id ? fsDelete('presence', id) : Promise.resolve();
           }));
         }
-        return actifs.sort((a,b) => b.ts - a.ts);
       } catch(e) {
-        // Fallback localStorage
-        const presences = [];
-        for (let k in localStorage) {
-          if (k.startsWith('gestion_contrats_presence_')) {
-            try {
-              const p = JSON.parse(localStorage.getItem(k));
-              if (p && (now - p.ts) < TIMEOUT) presences.push(p);
-              else if (p) localStorage.removeItem(k); // nettoie aussi le local
-            } catch {}
-          }
-        }
-        return presences.sort((a,b) => b.ts - a.ts);
+        console.warn('[Présence] Firebase indisponible, affichage local uniquement');
       }
+
+      return Object.values(localMap).sort((a,b) => b.ts - a.ts);
     },
 
     // ── Snapshots / historique ─────────────────────────────────────────────
@@ -3142,6 +3161,15 @@ function saveDB(modifiedContract = null) {
   setStatus('saving', 'Sauvegarde…');
   window._fsLocalWrite = true; // bloquer le snapshot pendant notre propre écriture
   clearTimeout(saveTimeout);
+  // Sécurité : si la sauvegarde dure plus de 15s, forcer le retour à 'loaded'
+  clearTimeout(window._saveTimeoutSafety);
+  window._saveTimeoutSafety = setTimeout(() => {
+    if (window._isSaving) {
+      setStatus('loaded', `${db.length} contrats`);
+      console.warn('[saveDB] Timeout sécurité — le voyant était bloqué sur saving');
+    }
+  }, 15000);
+
   saveTimeout = setTimeout(async () => {
     try {
       if (modifiedContract) {
@@ -3163,6 +3191,7 @@ function saveDB(modifiedContract = null) {
       setStatus('loaded', 'Erreur sauvegarde!');
       toast('Erreur de sauvegarde – ' + (SP.isOnSharePoint ? 'SharePoint inaccessible ?' : 'localStorage plein ?'), 'error');
     } finally {
+      clearTimeout(window._saveTimeoutSafety);
       setTimeout(() => { window._fsLocalWrite = false; }, 1500);
     }
   }, 400);
@@ -9651,43 +9680,66 @@ function snapshotKeyToLabel(key) {
 
 async function saveDailySnapshotIfNeeded() {
   if (!db || db.length === 0) return;
-  // Snapshot quotidien — une fois par jour à la première connexion
   const now = new Date();
   const dayKey = 'gestion_contrats_snap_day_' + now.getFullYear()
     + '_' + String(now.getMonth()+1).padStart(2,'0')
     + '_' + String(now.getDate()).padStart(2,'0');
-  if (localStorage.getItem(dayKey + '_done')) return; // déjà fait aujourd'hui
+  if (localStorage.getItem(dayKey + '_done')) return;
+
+  // Purge agressive AVANT d'écrire : garder seulement 7 jours (pas 30)
+  // pour éviter le dépassement de quota localStorage (5-10 Mo selon navigateur)
+  const allDayKeys = Object.keys(localStorage)
+    .filter(k => k.startsWith('gestion_contrats_snap_day_') && !k.endsWith('_done'))
+    .sort();
+  allDayKeys.slice(0, Math.max(0, allDayKeys.length - 7))
+    .forEach(k => { localStorage.removeItem(k); localStorage.removeItem(k + '_done'); });
+
   try {
-    // Snapshot complet : tous les champs (le localStorage le supporte)
-    const ESSENTIAL = ['_id','_fsId','Installation','Client','Ville','Type_Contrat','Type_Materiel',
+    // Snapshot allégé : champs essentiels uniquement (réduit la taille ~50%)
+    const ESSENTIAL = ['_id','Installation','Client','Ville','Type_Contrat',
       'Technicien','Binome','VE1','VE2','VE1_statut','VE2_statut','Fin_Validite',
-      'Commentaire','Lien_Dossier','Dossier_Dept','Dossier_SousRep','Reconditionnement',
-      'Q7','Q7_VE1_tech','Q7_VE2_tech','_suspension'];
+      'Q7','Q7_VE1_tech','Q7_VE2_tech','_suspension','_createdAt'];
     const slim = db.map(r => {
       const s = {};
-      ESSENTIAL.forEach(k => { if (r[k] !== undefined && r[k] !== null) s[k] = r[k]; });
+      ESSENTIAL.forEach(k => { if (r[k] != null && r[k] !== '') s[k] = r[k]; });
       return s;
     });
-    // Inclure les résiliés
+    // Résiliés (allégés)
     let _resiliesSnap = [];
-    try { _resiliesSnap = JSON.parse(localStorage.getItem(RESILIE_KEY) || '[]'); } catch(e) {}
-    localStorage.setItem(dayKey, JSON.stringify({
-      contracts: slim,
-      resilies:  _resiliesSnap,
-      savedAt:   now.toISOString(),
-      count:     db.length
-    }));
+    try {
+      const raw = JSON.parse(localStorage.getItem(RESILIE_KEY) || '[]');
+      _resiliesSnap = raw.map(r => ({
+        Installation: r.Installation, Client: r.Client,
+        _resilieAt: r._resilieAt, _resilieBy: r._resilieBy,
+        Type_Contrat: r.Type_Contrat, Technicien: r.Technicien
+      }));
+    } catch(e) {}
+
+    const payload = JSON.stringify({
+      contracts: slim, resilies: _resiliesSnap,
+      savedAt: now.toISOString(), count: db.length
+    });
+
+    // Vérifier la taille avant d'écrire (~2Mo max par snapshot)
+    if (payload.length > 2 * 1024 * 1024) {
+      console.warn(`[Snapshot] Trop volumineux (${Math.round(payload.length/1024)}Ko) — ignoré`);
+      localStorage.setItem(dayKey + '_done', '1'); // marquer quand même pour ne pas réessayer
+      return;
+    }
+
+    localStorage.setItem(dayKey, payload);
     localStorage.setItem(dayKey + '_done', '1');
-    // Purge : garder seulement les 30 derniers jours
-    const allDayKeys = Object.keys(localStorage)
-      .filter(k => k.startsWith('gestion_contrats_snap_day_') && !k.endsWith('_done'))
-      .sort();
-    allDayKeys.slice(0, Math.max(0, allDayKeys.length - 30))
-      .forEach(k => { localStorage.removeItem(k); localStorage.removeItem(k + '_done'); });
-    console.log(`✅ Snapshot quotidien : ${slim.length} contrats + ${_resiliesSnap.length} résiliés`);
+    console.log(`✅ Snapshot quotidien : ${slim.length} contrats + ${_resiliesSnap.length} résiliés (${Math.round(payload.length/1024)}Ko)`);
     toast('📸 Snapshot quotidien créé', 'success');
   } catch(e) {
     console.warn('Snapshot quotidien non enregistré:', e);
+    // Si quota dépassé, purger encore plus agressivement
+    if (e.name === 'QuotaExceededError') {
+      Object.keys(localStorage)
+        .filter(k => k.startsWith('gestion_contrats_snap_day_'))
+        .forEach(k => localStorage.removeItem(k));
+      toast('⚠️ Mémoire locale pleine — anciens snapshots supprimés', 'warning');
+    }
   }
 }
 
@@ -10489,13 +10541,13 @@ function showUpdatePopup(newVersion) {
 
 async function startPresence() {
   if (!_currentUser) return;
-  // Enregistrer la présence
-  try { await SP.updatePresence(_currentUser); } catch(e) {}
-  // Mettre à jour le badge
-  await refreshPresenceBadge();
-  // Montrer le bouton
+  // Montrer le bouton IMMÉDIATEMENT (avant tout async)
   const btn = document.getElementById('btnPresence');
   if (btn) btn.style.display = 'inline-flex';
+  // Enregistrer la présence (ne bloque pas si Firebase KO)
+  try { await SP.updatePresence(_currentUser); } catch(e) { console.warn('[Présence] updatePresence:', e?.message); }
+  // Mettre à jour le badge (ne bloque pas si Firebase KO)
+  try { await refreshPresenceBadge(); } catch(e) { console.warn('[Présence] refreshBadge:', e?.message); }
   // Heartbeat toutes les 5 min
   if (window._presenceInterval) clearInterval(window._presenceInterval);
   window._presenceInterval = setInterval(async () => {
@@ -10503,7 +10555,7 @@ async function startPresence() {
       try { await SP.updatePresence(_currentUser); } catch(e) {}
       await refreshPresenceBadge();
     }
-  }, 2 * 60 * 1000); // heartbeat toutes les 2 min
+  }, 4 * 60 * 1000); // heartbeat toutes les 4 min
 }
 
 async function refreshPresenceBadge() {
