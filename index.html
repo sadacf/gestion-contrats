@@ -1262,6 +1262,9 @@ function loadSheetJS(callback) {
     <div class="synth-section" style="margin-top:10px">Répartition Matériel</div>
     <div id="indicMatSection" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin-bottom:10px"></div>
 
+    <!-- Barre de progression générale du mois en cours -->
+    <div id="globalProgContainer" style="margin-bottom:10px"></div>
+
     <!-- ⚠️ Section retards — layout repensé -->
     <div style="margin-top:12px;margin-bottom:10px;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:10px;overflow:hidden">
 
@@ -2117,7 +2120,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/30-04-26-22:40';
+const APP_VERSION = 'V1/30-04-26-22:58';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -7891,6 +7894,8 @@ function updateSynthese() {
     const gridEl = document.getElementById('indicBadgeGroups');
     if (gridEl) {
       if (myCards.length > 0) {
+        const gpc2 = document.getElementById('globalProgContainer');
+        if (gpc2) gpc2.innerHTML = globalProgHtml;
         gridEl.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:12px">${myCards.map(buildTechCardHtml).join('')}</div>`;
         // Clic sur une carte → filtrer sur ce technicien uniquement
         gridEl.querySelectorAll('.tech-badge-card').forEach(card => {
@@ -7984,7 +7989,11 @@ function updateSynthese() {
     html += mkRow(label, '#64748b', '#64748b', adminDirBadges);
   }
 
-  container.innerHTML = globalProgHtml + html;
+  // Barre globale → dans son propre conteneur au-dessus des aléas
+  const gpc = document.getElementById('globalProgContainer');
+  if (gpc) gpc.innerHTML = globalProgHtml;
+
+  container.innerHTML = html;
 
   const totEl = document.getElementById('indicTechTotal');
   if (totEl) { totEl.style.display = 'flex'; totEl.innerHTML = totalHtml; }
