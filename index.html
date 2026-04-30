@@ -2117,7 +2117,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/29-04-26-14:25';
+const APP_VERSION = 'V1/30-04-26-22:40';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4417,6 +4417,38 @@ function filterFromIndic(type) {
   sortCol = ''; sortDir = 1;
   switchTab('contrats');
   applyFilters();
+}
+
+function filterByCurrentMonthVe() {
+  // Filtre vers les contrats ayant une VE planifiée ce mois
+  const now = new Date();
+  const moisMap = [
+    ['Janvier'],['Fevrier','Février'],['Mars'],['Avril'],['Mai'],['Juin'],
+    ['Juillet'],['Aout','Août'],['Septembre'],['Octobre'],['Novembre'],['Decembre','Décembre']
+  ];
+  const variants = (moisMap[now.getMonth()] || []).map(v => v.toLowerCase());
+  // Utiliser le premier variant comme filtre
+  const moisLabel = (moisMap[now.getMonth()] || [''])[0];
+  const selVE1 = document.getElementById('fMoisVE1');
+  const selVE2 = document.getElementById('fMoisVE2');
+  // Réinitialiser les filtres
+  ['searchBox','fType','fTech1','fTech2','fVille','fOption','fTechService','fClient','fMat','fService'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  activeQuickFilter = 'all';
+  activeVeColorFilter = null;
+  activeRetardTech = null;
+  // Appliquer filtre mois VE1 ou VE2
+  if (selVE1) {
+    const opt = [...selVE1.options].find(o => variants.includes(o.value.trim().toLowerCase()));
+    if (opt) selVE1.value = opt.value;
+  }
+  if (selVE2) {
+    const opt = [...selVE2.options].find(o => variants.includes(o.value.trim().toLowerCase()));
+    if (opt) selVE2.value = opt.value;
+  }
+  applyFilters();
+  switchTab('contrats');
 }
 
 function filterByVeColor(color) {
@@ -7605,6 +7637,38 @@ function updateSynthese() {
     }
   });
 
+  // ── Calcul avancement mois en cours ────────────────────────────────────────
+  const _curMonthIdx = new Date().getMonth(); // 0=Jan, 11=Dec
+  const _MOIS_FR = ['Janvier','Février','Fevrier','Mars','Avril','Mai','Juin','Juillet','Août','Aout','Septembre','Octobre','Novembre','Décembre','Decembre'];
+  const _curMoisVariants = []; // toutes les variantes du nom du mois courant
+  // Construire les variantes acceptées pour le mois courant
+  const _moisMap = [
+    ['Janvier'],['Février','Fevrier'],['Mars'],['Avril'],['Mai'],['Juin'],
+    ['Juillet'],['Août','Aout'],['Septembre'],['Octobre'],['Novembre'],['Décembre','Decembre']
+  ];
+  (_moisMap[_curMonthIdx] || []).forEach(v => _curMoisVariants.push(v.toLowerCase()));
+
+  // Pour chaque tech : compter VEs ce mois, VEs faites (bleu+vert), calculer %
+  const _progressByTech = {}; // name → { total, done }
+  let _globalVeTotal = 0, _globalVeDone = 0;
+
+  _srcBadges.forEach(r => {
+    const t = r.Technicien ? resolveTechName(r.Technicien) : null;
+    if (!t) return;
+    ['ve1','ve2'].forEach(field => {
+      const val = (field === 've1' ? r.VE1 : r.VE2) || '';
+      if (!_curMoisVariants.includes(val.trim().toLowerCase())) return;
+      if (!_progressByTech[t]) _progressByTech[t] = { total: 0, done: 0 };
+      _progressByTech[t].total++;
+      _globalVeTotal++;
+      const color = getVeColorForRecord(r, field);
+      if (color === '00B0F0' || color === '92D050') { // archivé ou réalisé = fait
+        _progressByTech[t].done++;
+        _globalVeDone++;
+      }
+    });
+  });
+
   // Inclure TOUS les techs des fiches, même sans contrats
   // Pour un technicien connecté : uniquement lui + ses liés
   let allFicheNames = sortTechFichesForDropdown(techFiches.filter(f => getTechFullName(f))).map(getTechFullName);
@@ -7722,6 +7786,26 @@ function updateSynthese() {
         ${nbQ7Attente > 0 ? `<div onclick="event.stopPropagation();filterQ7AttenteForTech('${escJs(name)}');" style="display:flex;align-items:center;gap:3px;background:#fef3c7;border:1px solid #fde68a;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px;font-weight:700;color:#d97706">⏳ ${nbQ7Attente}${progTag(nbQ7Attente,prev?.q7Attente||0)}</div>` : ''}
       </div>` : '';
 
+    // Barre de progression mois en cours
+    const _prog = _progressByTech[name] || { total: 0, done: 0 };
+    const _pct  = _prog.total > 0 ? Math.round(_prog.done / _prog.total * 100) : -1;
+    const _progColor = _pct < 0 ? '#e2e8f0' : _pct < 50 ? '#ef4444' : _pct < 80 ? '#f97316' : _pct < 100 ? '#eab308' : '#22c55e';
+    const _curMoisName = (_moisMap[_curMonthIdx] || ['?'])[0];
+    const _progBarHtml = _prog.total > 0 ? `
+      <div onclick="event.stopPropagation();filterTechMois('${escJs(name)}','${escJs(_curMoisName)}','all')"
+           style="margin:6px 8px 0;cursor:pointer" title="Cliquer pour voir les VEs de ${_curMoisName} — ${_prog.done}/${_prog.total} faites">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <span style="font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px">📅 ${_curMoisName}</span>
+          <span style="font-size:9px;font-weight:800;color:${_progColor}">${_prog.done}/${_prog.total} (${_pct}%)</span>
+        </div>
+        <div style="height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${_pct}%;background:${_progColor};border-radius:3px;transition:width .4s ease"></div>
+        </div>
+      </div>` : `
+      <div style="margin:6px 8px 0;padding:3px 0">
+        <span style="font-size:9px;color:#cbd5e1;font-style:italic">Aucune VE prévue en ${_curMoisName}</span>
+      </div>`;
+
     const mailDejaEnvoye = isMailTechDejaEnvoye(name);
     const mailBtnHtml = (nbRetard > 0 || nbSansRapport > 0 || nbQ7Attente > 0)
       ? `<button onclick="event.stopPropagation();envoyerMailTechnicien('${escJs(name)}');" style="margin-top:8px;width:100%;background:#a855f7;color:#fff;border:none;padding:5px 8px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;letter-spacing:.3px" title="Envoyer un mail récapitulatif à ${esc(name)}">
@@ -7755,12 +7839,33 @@ function updateSynthese() {
         ${detTotal ? `<div class="tech-stat"><span class="tech-stat-val tsi-det">${detTotal}</span><span class="tech-stat-lbl">Détect.</span></div>` : ''}
       </div>
       ${totalHtml}
+      ${_progBarHtml}
       ${parMoisHtml}
       </div>
       ${mailBtnHtml}
     </div>`;
   };
   const gridHtml = techs.map(([name, v]) => buildBadgeHtml(name, v)).join('');
+
+  // Barre de progression globale
+  const _gPct = _globalVeTotal > 0 ? Math.round(_globalVeDone / _globalVeTotal * 100) : -1;
+  const _gColor = _gPct < 0 ? '#e2e8f0' : _gPct < 50 ? '#ef4444' : _gPct < 80 ? '#f97316' : _gPct < 100 ? '#eab308' : '#22c55e';
+  const _curMoisNameGlobal = (_moisMap[_curMonthIdx] || ['?'])[0];
+  const globalProgHtml = _globalVeTotal > 0 ? `
+    <div onclick="filterByCurrentMonthVe()"
+         style="margin:6px 0 10px;padding:10px 16px;background:#fff;border-radius:10px;box-shadow:var(--shadow);cursor:pointer;border-left:4px solid ${_gColor}"
+         title="Cliquer pour voir toutes les VEs de ${_curMoisNameGlobal}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div>
+          <span style="font-size:12px;font-weight:800;color:var(--navy)">📅 Avancement ${_curMoisNameGlobal} — tous techniciens</span>
+          <span style="font-size:11px;color:var(--sub);margin-left:8px">${_globalVeDone} VEs faites sur ${_globalVeTotal} prévues</span>
+        </div>
+        <span style="font-size:15px;font-weight:800;color:${_gColor}">${_gPct}%</span>
+      </div>
+      <div style="height:10px;background:#e2e8f0;border-radius:5px;overflow:hidden">
+        <div style="height:100%;width:${_gPct}%;background:${_gColor};border-radius:5px;transition:width .5s ease"></div>
+      </div>
+    </div>` : '';
 
   const totalHtml = `
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sub);margin-right:4px">TOTAL</span>
@@ -7879,7 +7984,7 @@ function updateSynthese() {
     html += mkRow(label, '#64748b', '#64748b', adminDirBadges);
   }
 
-  container.innerHTML = html;
+  container.innerHTML = globalProgHtml + html;
 
   const totEl = document.getElementById('indicTechTotal');
   if (totEl) { totEl.style.display = 'flex'; totEl.innerHTML = totalHtml; }
