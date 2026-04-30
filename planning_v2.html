@@ -878,9 +878,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
     </div>
     <!-- Contenu principal -->
     <div style="margin-left:200px;height:100vh;overflow-y:auto;background:#f1f3f9">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;height:100%;max-width:100%">
-        <div style="overflow-y:auto;padding:18px 16px;border-right:1px solid #e5e7eb">
-        <div style="max-width:560px">
+      <div style="max-width:1100px;margin:0 auto;padding:18px 20px">
         <!-- Titre page -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
           <div>
@@ -936,37 +934,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
             <div id="dashBacklog" style="max-height:220px;overflow-y:auto"></div>
           </div>
         </div>
-        </div><!-- fin max-width -->
-        </div><!-- fin col gauche -->
 
-        <!-- COLONNE DROITE: Gestion des appels -->
-        <div style="overflow-y:auto;padding:18px 16px;background:#fafbfc">
-          <!-- Header appels -->
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-            <div>
-              <div style="font-size:16px;font-weight:900;color:#1a2744">📞 Gestion des appels</div>
-              <div style="font-size:11px;color:#6b7280;margin-top:2px">Suivi des demandes clients</div>
-            </div>
-            <button onclick="openQuickAppel()" style="padding:8px 16px;background:#7c3aed;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">
-              + Nouvel appel
-            </button>
-          </div>
-
-          <!-- Onglets -->
-          <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid #e5e7eb">
-            <button id="dashAppelTabOpen" onclick="dashSwitchAppelTab('open')" style="padding:8px 16px;background:none;border:none;border-bottom:3px solid #7c3aed;margin-bottom:-2px;font-size:12px;font-weight:700;color:#7c3aed;cursor:pointer;font-family:inherit">
-              📋 En cours <span id="dashAppelCountOpen" style="background:#7c3aed;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;margin-left:4px"></span>
-            </button>
-            <button id="dashAppelTabClosed" onclick="dashSwitchAppelTab('closed')" style="padding:8px 16px;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;font-size:12px;font-weight:700;color:#9ca3af;cursor:pointer;font-family:inherit">
-              ✅ Soldés <span id="dashAppelCountClosed" style="background:#e5e7eb;color:#6b7280;border-radius:10px;padding:1px 7px;font-size:10px;margin-left:4px"></span>
-            </button>
-          </div>
-
-          <!-- Liste des appels -->
-          <div id="dashAppelsList" style="display:flex;flex-direction:column;gap:10px"></div>
-        </div><!-- fin col droite -->
-
-      </div><!-- fin grid -->
     </div>
   </div>
   <!-- Modal Vue par client -->
@@ -2790,17 +2758,6 @@ function ppmAddMapRule(){
   renderPpmMapping();
 }
 
-async function savePpmMapping(){
-  try{
-    const cfg=await getAll('planning_resources');
-    const doc=cfg.find(x=>x._ppmTypeMap);
-    const data={_ppmTypeMap:true,map:_ppmTypeMap,updatedAt:new Date().toISOString()};
-    if(doc?._fsId) await fsSet('planning_resources',doc._fsId,data);
-    else await fsAdd('planning_resources',data);
-    toast('✅ Mapping sauvegardé','ok');
-  }catch(e){toast('❌ '+e.message,'err');}
-}
-
 function ppmDetectType(label, tooltip){
   const lbl2=(label||'').toLowerCase().trim();
   const tip=(tooltip||'').toLowerCase();
@@ -4425,40 +4382,9 @@ function tlSpanResizeStart(evt,handle){
 
   let curEndDate=spanDays[spanDays.length-1];
 
-  function onMove(e){
-    const dx=e.clientX-startX;
-    const extraDays=Math.round(dx/dayW);
-    // Indice du dernier jour actuel
-    const lastIdx=visibleDates.indexOf(spanDays[spanDays.length-1]);
-    const newLastIdx=Math.max(visibleDates.indexOf(spanDays[0]),Math.min(visibleDates.length-1,lastIdx+extraDays));
-    curEndDate=visibleDates[newLastIdx];
-    // Mettre à jour visuellement la largeur
-    const firstX=parseInt(band.style.left)||0;
-    const endX=(newLastIdx+1)*dayW; // approximatif
-    const newW=Math.max(dayW,(newLastIdx-visibleDates.indexOf(spanDays[0])+1)*dayW);
-    band.style.width=newW+'px';
-    const l=document.getElementById('tlSpanResizeLbl');
-    if(l) l.textContent='Fin: '+curEndDate;
-  }
+  
 
-  async function onUp(){
-    document.removeEventListener('mousemove',onMove);
-    document.body.style.cursor='';
-    document.body.style.userSelect='';
-    const l=document.getElementById('tlSpanResizeLbl');
-    if(l) l.remove();
-    if(!curEndDate) return;
-    // Sauvegarder la nouvelle dateEnd
-    const baseId=evId.split('__')[0];
-    const evObj=_events.find(e=>e._fsId===baseId||e._id===baseId);
-    if(!evObj){ toast('Événement introuvable','warn'); renderTimeline(); return; }
-    try{
-      const upd={...evObj,dateEnd:(curEndDate&&curEndDate>evObj.date?curEndDate:''),updatedAt:new Date().toISOString()};
-      delete upd._fsId;
-      await fsSet('planning_events',evObj._fsId,upd,'Extension multi-jours');
-      toast('RDV étendu jusqu au '+curEndDate,'ok');
-    }catch(e){ toast('❌ '+e.message,'err'); renderTimeline(); }
-  }
+  
 
   document.addEventListener('mousemove',onMove,{passive:true});
   document.addEventListener('mouseup',onUp,{once:true});
@@ -5984,18 +5910,6 @@ async function ctxDelete(){
   catch(e){ toast('❌ '+e.message,'err'); }
 }
 
-function ctxEmail(){
-  if(!_ctxId){ closeCtx(); return; }
-  const ev=buildEvs().find(x=>x._id===_ctxId);
-  closeCtx();
-  if(!ev) return;
-  const fiche=_fiches.find(f=>[f.prenom,f.nom].filter(Boolean).join(' ')===ev.tech);
-  const mail=fiche?.mail||'';
-  const subject=encodeURIComponent(`RDV - ${ev.title} le ${ev.rawDate||ev.date}`);
-  const body=encodeURIComponent(`Bonjour ${ev.tech},\n\nVotre intervention est planifiée :\n• Site : ${ev.title}${ev.ville?' ('+ev.ville+')':''}\n• Date : ${ev.rawDate||ev.date}\n• Type : ${TM[ev.type]?.label||ev.type}\n\nCordialement`);
-  window.open(`mailto:${mail}?subject=${subject}&body=${body}`,'_blank');
-}
-
 // Fermer le menu au clic extérieur
 document.addEventListener('click',()=>closeCtx());
 document.addEventListener('contextmenu',e=>{
@@ -6470,9 +6384,6 @@ function gdSelEnd(evt){
   openNewEvent(d1,tech,d1===d2?null:d2);
 }
 // gdCellClick conservé pour compatibilité (plus utilisé directement sur <td>)
-function gdCellClick(evt,td){
-  if(evt.target===td||(evt.target.dataset&&evt.target.dataset.newev))openNewEvent(td.dataset.date,td.dataset.tech);
-}
 
 // ── INFOBULLE MULTI-RESSOURCE & RÉCURRENCE ──────────────────────────────────
 function _mDiff(d1,d2){
