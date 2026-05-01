@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Planning ACF v2 - Build 20260501-064921 -->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -9436,6 +9437,7 @@ function openDashboard(){
   if(cfgNav) cfgNav.style.display=isAdmin?'block':'none';
   renderDashboard();
   if(_telegramBotToken) startTgPolling();
+}
 
 function goPlanning(type){
   const d=document.getElementById('dashboard');
@@ -10370,6 +10372,18 @@ async function loadDashAppels(){
     _dashAppels=(await getAll('planning_appels')).filter(a=>!a.deleted);
     renderDashAppels();
   }catch(e){}
+}
+
+function _renderMsgs(msgs){
+  return '<div style="padding:8px 14px;max-height:130px;overflow-y:auto;border-bottom:1px solid #f5f3ff">'+
+    msgs.slice(-5).map(function(m){
+      return '<div style="display:flex;gap:8px;margin:4px 0;align-items:flex-start;'+(m.sent?'flex-direction:row-reverse':'')+'">'
+        +'<div style="width:24px;height:24px;border-radius:50%;background:'+(m.sent?'#7c3aed':'#2563eb')+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;flex-shrink:0">'+(m.sent?'ACF':esc((m.from||'?').slice(0,2).toUpperCase()))+'</div>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:9px;font-weight:700;color:'+(m.sent?'#7c3aed':'#2563eb')+';margin-bottom:2px;'+(m.sent?'text-align:right':'')+'">'+( m.sent?'ACF':esc(m.from||'Tech'))+'</div>'
+        +'<div style="background:'+(m.sent?'#ede9fe':'#f1f5f9')+';padding:5px 8px;border-radius:8px;font-size:11px;color:#374151">'+esc((m.text||'').slice(0,100))+'</div>'
+        +'</div></div>';
+    }).join('')+'</div>';
 }
 
 function renderDashAppels(){
