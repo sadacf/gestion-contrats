@@ -2897,14 +2897,9 @@ function ss(u){
   const isAdmin=u.niveau==='admin'||u.niveau==='administrateur';
   document.querySelectorAll('[onclick="openConfig()"]').forEach(el=>el.style.display=isAdmin?'':'none');
   buildTypeOpts();buildChips();buildLegend();buildTechSel();buildDL();updWEbtn();buildFilters();
-  // Attendre que le navigateur calcule les dimensions
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      adjustViewTop();
-      render();
-      setTimeout(_attachScrollSave,500);
-    });
-  });
+  adjustViewTop();
+  switchView(_view);
+  setTimeout(_attachScrollSave,500);
 }
 function doLogout(){_user=null;localStorage.removeItem('pu');document.getElementById('app').classList.add('hidden');document.getElementById('loginWrap').style.display='flex';}
 async function boot(){msg('Connexion Firebase…');try{await initFB();}catch(e){msg('❌ Firebase : '+e.message);return;}msg('Chargement…');try{const[c,f,ev,cfg]=await Promise.all([getContratsMin(),getAll('techniciens'),getAll('planning_events'),getAll('planning_resources')]);_contrats=c;_fiches=f;_events=ev;const rc=cfg.find(x=>x._resConfig);if(rc&&rc.resources)_resources=rc.resources;const fc=cfg.find(x=>x._ferieConfig);if(fc&&fc.customFeries)_customFeries=fc.customFeries;const sc=cfg.find(x=>x._settings);if(sc)_showWE=sc.showWeekend!==false;
