@@ -3541,7 +3541,9 @@ function render(){
 }
 function toggleWE(){_showWE=!_showWE;updWEbtn();render();saveSett();}
 function updWEbtn(){} // button removed - handled by config modal
-function renderMonth(){const y=_cursor.getFullYear(),mo=_cursor.getMonth();const MO=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];document.getElementById('periodLbl').innerHTML=`<span style='font-size:15px;font-weight:800'>${MO[mo]}</span><span style='font-size:12px;opacity:.7'>${y}</span>`;const cols=_showWE?7:5;const grid=document.getElementById('calGrid');grid.style.gridTemplateColumns=`18px repeat(${cols},1fr)`;const evs=filtEvs(),bd=byDay(evs);const today=new Date();today.setHours(0,0,0,0);const DHW=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],DH5=['Lun','Mar','Mer','Jeu','Ven'];let h='<div class="week-num-hdr">S.</div>'+(_showWE?DHW:DH5).map(d=>`<div class="chdr">${d}</div>`).join('');let dow=new Date(y,mo,1).getDay();if(dow===0)dow=7;dow--;const dim=new Date(y,mo+1,0).getDate();// Cellules de début de mois (jours du mois précédent) + numéro de semaine première ligne
+function renderMonth(){const y=_cursor.getFullYear(),mo=_cursor.getMonth();const MO=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];console.log('[ACF] CP1-periodLbl');
+  document.getElementById('periodLbl').innerHTML=`<span style='font-size:15px;font-weight:800'>${MO[mo]}</span><span style='font-size:12px;opacity:.7'>${y}</span>`;const cols=_showWE?7:5;const grid=document.getElementById('calGrid');grid.style.gridTemplateColumns=`18px repeat(${cols},1fr)`;console.log('[ACF] CP3-filtEvs');
+  const evs=filtEvs(),bd=byDay(evs);const today=new Date();today.setHours(0,0,0,0);const DHW=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],DH5=['Lun','Mar','Mer','Jeu','Ven'];let h='<div class="week-num-hdr">S.</div>'+(_showWE?DHW:DH5).map(d=>`<div class="chdr">${d}</div>`).join('');let dow=new Date(y,mo,1).getDay();if(dow===0)dow=7;dow--;const dim=new Date(y,mo+1,0).getDate();// Cellules de début de mois (jours du mois précédent) + numéro de semaine première ligne
 let lastWeekNum=-1;
 for(let i=0;i<dow;i++){
   const d=new Date(y,mo,1-dow+i);
@@ -3604,6 +3606,7 @@ function renderMonthGantt(){
   });
   h+='</tr></thead><tbody>';
 
+  console.log('[ACF] CP4-grpsForEach');
   grps.forEach(({agence,service,res})=>{
     if(!res.length) return;
     h+=`<tr class="ggrp"><td colspan="${days.length+1}">${agence?'🏢 '+esc(agence)+' – ':''}${esc(service||'Sans service')}</td></tr>`;
@@ -3650,6 +3653,7 @@ function renderMonthGantt(){
     });
   });
 
+  console.log('[ACF] CP5-noGrps');
   if(!grps.length||grps.every(g=>!g.res.length))
     h+=`<tr><td colspan="${days.length+1}" style="padding:40px;text-align:center;color:var(--sub)">Aucune ressource active</td></tr>`;
   h+='</tbody>';
@@ -3932,6 +3936,7 @@ function renderTimeline(){
 
   // Calculer HOUR_W pour que tout tienne sans scroll horizontal
   const wrap=document.getElementById('ganttWrap');
+  console.log('[ACF] CP2-availW');
   const availW=Math.max(400,(wrap?wrap.clientWidth:window.innerWidth)-RES_W-20);
   const HOUR_W=Math.floor(availW/(days.length*nHours));
   const DAY_W=HOUR_W*nHours;
@@ -4235,6 +4240,7 @@ function renderTimeline(){
   }
 
   h+=`</div></div>`;
+  console.log('[ACF] CP6-saveScroll');
   _saveScroll();
   wrap.innerHTML=h;
   console.log('[ACF] tlWrap inséré, wrap.children='+wrap.children.length+', wrap.scrollHeight='+wrap.scrollHeight+', viewWeek.style.top='+(document.getElementById('viewWeek')?.style.top)+', viewWeek.classList='+(document.getElementById('viewWeek')?.className));
