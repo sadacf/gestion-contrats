@@ -1165,8 +1165,8 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
     <div class="view-select-wrap" style="margin:0 4px">
       <select class="view-select" id="viewSelect" onchange="switchView(this.value)">
         <option value="day">📆 Journalier</option>
-        <option value="week" selected>📅 Semaine</option>
-        <option value="twoweeks">📊 2 Semaines</option>
+        <option value="week">📅 Semaine</option>
+        <option value="twoweeks" selected>📊 2 Semaines</option>
         <option value="month4">📅 Mois (4 sem.)</option>
         <option value="bimonth">📊 Bi-mensuel</option>
         <option value="quarter">📊 Trimestriel</option>
@@ -3929,8 +3929,9 @@ function renderTimeline(){
 
   // Calculer HOUR_W pour que tout tienne sans scroll horizontal
   const wrap=document.getElementById('ganttWrap');
-  const availW=Math.max(400,(wrap?wrap.clientWidth:window.innerWidth)-RES_W-20);
-  const HOUR_W=Math.floor(availW/(days.length*nHours));
+  const _cw = wrap ? (wrap.clientWidth || wrap.getBoundingClientRect().width || window.innerWidth - 200) : window.innerWidth - 200;
+  const availW=Math.max(400, _cw - RES_W - 20);
+  const HOUR_W=Math.max(30, Math.floor(availW/(days.length*nHours)));
   const DAY_W=HOUR_W*nHours;
   const totalW=days.length*DAY_W;
 
