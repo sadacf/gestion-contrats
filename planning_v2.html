@@ -4237,6 +4237,7 @@ function renderTimeline(){
   h+=`</div></div>`;
   _saveScroll();
   wrap.innerHTML=h;
+  console.log('[ACF] tlWrap inséré, wrap.children='+wrap.children.length+', wrap.scrollHeight='+wrap.scrollHeight+', viewWeek.style.top='+(document.getElementById('viewWeek')?.style.top)+', viewWeek.classList='+(document.getElementById('viewWeek')?.className));
   setTimeout(()=>{const gw=document.getElementById('ganttWrap');if(gw&&_scrollSave.top){gw.scrollTop=_scrollSave.top;gw.scrollLeft=_scrollSave.left;}},0);
 }
 
