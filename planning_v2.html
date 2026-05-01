@@ -2892,14 +2892,15 @@ function ss(u){
   localStorage.setItem('pu',JSON.stringify(u));
   document.getElementById('loginWrap').style.display='none';
   document.getElementById('app').classList.remove('hidden');
-  console.log('[ACF] ss() appelé, user='+u.login);
   document.getElementById('userLbl').textContent=[u.prenom,u.nom].filter(Boolean).join(' ')||u.login;
   const isAdmin=u.niveau==='admin'||u.niveau==='administrateur';
   document.querySelectorAll('[onclick="openConfig()"]').forEach(el=>el.style.display=isAdmin?'':'none');
   buildTypeOpts();buildChips();buildLegend();buildTechSel();buildDL();updWEbtn();buildFilters();
-  setTimeout(adjustViewTop,50);
-  switchView(_view);  // affiche la bonne vue ET appelle render()
-  setTimeout(_attachScrollSave,500);
+  // Différer le rendu pour que le navigateur calcule les dimensions
+  setTimeout(()=>{
+    switchView(_view);
+    setTimeout(_attachScrollSave,500);
+  }, 100);
 }
 function doLogout(){_user=null;localStorage.removeItem('pu');document.getElementById('app').classList.add('hidden');document.getElementById('loginWrap').style.display='flex';}
 async function boot(){msg('Connexion Firebase…');try{await initFB();}catch(e){msg('❌ Firebase : '+e.message);return;}msg('Chargement…');try{const[c,f,ev,cfg]=await Promise.all([getContratsMin(),getAll('techniciens'),getAll('planning_events'),getAll('planning_resources')]);_contrats=c;_fiches=f;_events=ev;const rc=cfg.find(x=>x._resConfig);if(rc&&rc.resources)_resources=rc.resources;const fc=cfg.find(x=>x._ferieConfig);if(fc&&fc.customFeries)_customFeries=fc.customFeries;const sc=cfg.find(x=>x._settings);if(sc)_showWE=sc.showWeekend!==false;
@@ -2919,7 +2920,7 @@ await loadVacSco();
 const sy=cfg.find(x=>x._syncOpts);if(sy){_syncOpts.planningToContrats=sy.planningToContrats===true;_syncOpts.contratsToPlanning=sy.contratsToPlanning===true;}
     const tc=cfg.find(x=>x._typesConfig);if(tc&&tc.customTypes){tc.customTypes.forEach(t=>{const lbl=(t.label||'').toLowerCase();let icon=t.icon||'📌';if(!t.icon||t.icon==='📌'){if(lbl.includes('agence')||lbl.includes('bureau'))icon='🏢';else if(lbl.includes('cong'))icon='🌴';}TM[t.id]={label:t.label,icon,color:t.color||'#64748b',bg:t.bg||'#f1f5f9'};});if(tc.typeOrder)_typeOrder=tc.typeOrder;if(tc.typeGroups&&tc.typeGroups.length)_typeGroups=tc.typeGroups;}}catch(e){msg('❌ Chargement : '+e.message);return;}watchEv();setLastSync();hideLoad();loadBacklog().catch(()=>{});updateDemOuvertesBadge().catch(()=>{});const sv=JSON.parse(localStorage.getItem('pu')||'null');if(sv)ss(sv);else{document.getElementById('loginWrap').style.display='flex';document.getElementById('loginU').focus();}}
 function msg(t){document.getElementById('loadMsg').textContent=t;}
-function hideLoad(){console.log('[ACF] hideLoad appelé');const s=document.getElementById('loading');s.classList.add('hide');setTimeout(()=>s.style.display='none',450);}
+function hideLoad(){const s=document.getElementById('loading');s.classList.add('hide');setTimeout(()=>s.style.display='none',450);}
 const MOIS={'janvier':0,'février':1,'fevrier':1,'mars':2,'avril':3,'mai':4,'juin':5,'juillet':6,'août':7,'aout':7,'septembre':8,'octobre':9,'novembre':10,'décembre':11,'decembre':11,'jan':0,'fév':1,'fev':1,'mar':2,'avr':3,'jun':5,'jul':6,'aoû':7,'sep':8,'oct':9,'nov':10,'déc':11,'dec':11};
 function pd(v){if(!v)return null;v=String(v).trim();let m;m=v.match(/^(\d{2})\/(\d{2})\/(\d{2})$/);if(m){const y=+m[3];return new Date(y<50?2000+y:1900+y,+m[2]-1,+m[1]);}m=v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);m=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);m=v.match(/^(\d{1,2})\/(\d{4})$/);if(m)return new Date(+m[2],+m[1]-1,1);m=v.match(/^(\d{1,2})\/(\d{2})$/);if(m){const y=+m[2];return new Date(y<50?2000+y:1900+y,+m[1]-1,1);}m=v.match(/^([a-záàâäéèêëîïôùûü]+)\s+(\d{4})$/i);if(m){const mo=MOIS[m[1].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')];if(mo!==undefined)return new Date(+m[2],mo,1);}if(/^\d{5}(\.\d+)?$/.test(v))return new Date(Math.round((parseFloat(v)-25569)*86400*1000));return null;}
 function dk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -3531,7 +3532,6 @@ function _restoreScroll(){
   _attachScrollSave();
 }
 function render(){
-  console.log('[ACF] render(), view='+_view+', res='+_resources.length+', evs='+_events.length);
   if(_view==='month')renderMonth();
   else if(_view==='monthgantt')renderMonthGantt();
   else if(_view!=='res')renderWeek();
@@ -3541,8 +3541,8 @@ function render(){
 }
 function toggleWE(){_showWE=!_showWE;updWEbtn();render();saveSett();}
 function updWEbtn(){} // button removed - handled by config modal
-function renderMonth(){const y=_cursor.getFullYear(),mo=_cursor.getMonth();const MO=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];console.log('[ACF] CP1-periodLbl');
-  document.getElementById('periodLbl').innerHTML=`<span style='font-size:15px;font-weight:800'>${MO[mo]}</span><span style='font-size:12px;opacity:.7'>${y}</span>`;const cols=_showWE?7:5;const grid=document.getElementById('calGrid');grid.style.gridTemplateColumns=`18px repeat(${cols},1fr)`;console.log('[ACF] CP3-filtEvs');
+function renderMonth(){const y=_cursor.getFullYear(),mo=_cursor.getMonth();const MO=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  document.getElementById('periodLbl').innerHTML=`<span style='font-size:15px;font-weight:800'>${MO[mo]}</span><span style='font-size:12px;opacity:.7'>${y}</span>`;const cols=_showWE?7:5;const grid=document.getElementById('calGrid');grid.style.gridTemplateColumns=`18px repeat(${cols},1fr)`;
   const evs=filtEvs(),bd=byDay(evs);const today=new Date();today.setHours(0,0,0,0);const DHW=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],DH5=['Lun','Mar','Mer','Jeu','Ven'];let h='<div class="week-num-hdr">S.</div>'+(_showWE?DHW:DH5).map(d=>`<div class="chdr">${d}</div>`).join('');let dow=new Date(y,mo,1).getDay();if(dow===0)dow=7;dow--;const dim=new Date(y,mo+1,0).getDate();// Cellules de début de mois (jours du mois précédent) + numéro de semaine première ligne
 let lastWeekNum=-1;
 for(let i=0;i<dow;i++){
@@ -3605,8 +3605,6 @@ function renderMonthGantt(){
     </th>`;
   });
   h+='</tr></thead><tbody>';
-
-  console.log('[ACF] CP4-grpsForEach');
   grps.forEach(({agence,service,res})=>{
     if(!res.length) return;
     h+=`<tr class="ggrp"><td colspan="${days.length+1}">${agence?'🏢 '+esc(agence)+' – ':''}${esc(service||'Sans service')}</td></tr>`;
@@ -3652,8 +3650,6 @@ function renderMonthGantt(){
       h+='</tr>';
     });
   });
-
-  console.log('[ACF] CP5-noGrps');
   if(!grps.length||grps.every(g=>!g.res.length))
     h+=`<tr><td colspan="${days.length+1}" style="padding:40px;text-align:center;color:var(--sub)">Aucune ressource active</td></tr>`;
   h+='</tbody>';
@@ -3914,7 +3910,6 @@ days.forEach((d,di)=>{const key=dk(d),isT=d.getTime()===today.getTime(),isWE=d.g
 
 // ── TIMELINE HEBDOMADAIRE ────────────────────────────────────────────────────
 function renderTimeline(){
-  console.log('[ACF] renderTimeline(), grps='+grpRes().length);
   const H_START=8, H_END=18;
   const nHours=H_END-H_START; // 9 heures
   const RES_W=120;
@@ -3936,13 +3931,12 @@ function renderTimeline(){
 
   // Calculer HOUR_W pour que tout tienne sans scroll horizontal
   const wrap=document.getElementById('ganttWrap');
-  const _wrapW=wrap?wrap.clientWidth:0;
-  console.log('[ACF] CP2: wrapCW='+_wrapW+', winW='+window.innerWidth);
+  if(!wrap||wrap.clientWidth===0){setTimeout(renderTimeline,150);return;}
+  const availW=Math.max(400,(wrap?wrap.clientWidth:window.innerWidth)-RES_W-20);
   const availW=Math.max(400,(wrap?wrap.clientWidth:window.innerWidth)-RES_W-20);
   const HOUR_W=Math.floor(availW/(days.length*nHours));
   const DAY_W=HOUR_W*nHours;
-  console.log('[ACF] HOUR_W='+HOUR_W+', DAY_W='+DAY_W+', days='+days.length+', availW='+availW);
-  if(HOUR_W<=0||!days.length){console.log('[ACF] ABORT: HOUR_W ou days invalide');return;}
+  if(HOUR_W<=0||!days.length){return;}
   const totalW=days.length*DAY_W;
 
   const evs=filtEvs();
@@ -4243,15 +4237,11 @@ function renderTimeline(){
   }
 
   h+=`</div></div>`;
-  console.log('[ACF] CP6-saveScroll');
   _saveScroll();
   wrap.innerHTML=h;
   const _app=document.getElementById('app');
   const _vw=document.getElementById('viewWeek');
   const _gw=document.getElementById('ganttWrap');
-  console.log('[ACF] DIMS: app.hidden='+(_app?.classList.contains('hidden'))+' app.display='+(_app?.style.display)+' app.offsetH='+(_app?.offsetHeight));
-  console.log('[ACF] DIMS: vw.offsetH='+(_vw?.offsetHeight)+' vw.top='+(_vw?.style.top)+' vw.class='+(_vw?.className));
-  console.log('[ACF] DIMS: gw.offsetH='+(_gw?.offsetHeight)+' gw.scrollH='+(_gw?.scrollHeight)+' wrap.scrollH='+wrap.scrollHeight);
   setTimeout(()=>{const gw=document.getElementById('ganttWrap');if(gw&&_scrollSave.top){gw.scrollTop=_scrollSave.top;gw.scrollLeft=_scrollSave.left;}},0);
 }
 
