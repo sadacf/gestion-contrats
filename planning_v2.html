@@ -3930,10 +3930,8 @@ function renderTimeline(){
   // Calculer HOUR_W pour que tout tienne sans scroll horizontal
   const wrap=document.getElementById('ganttWrap');
   const availW=Math.max(400,(wrap?wrap.clientWidth:window.innerWidth)-RES_W-20);
-  const availW=Math.max(400,(wrap?wrap.clientWidth:window.innerWidth)-RES_W-20);
   const HOUR_W=Math.floor(availW/(days.length*nHours));
   const DAY_W=HOUR_W*nHours;
-  if(HOUR_W<=0||!days.length){return;}
   const totalW=days.length*DAY_W;
 
   const evs=filtEvs();
