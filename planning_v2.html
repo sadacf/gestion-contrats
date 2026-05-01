@@ -4246,7 +4246,12 @@ function renderTimeline(){
   console.log('[ACF] CP6-saveScroll');
   _saveScroll();
   wrap.innerHTML=h;
-  console.log('[ACF] tlWrap inséré, wrap.children='+wrap.children.length+', wrap.scrollHeight='+wrap.scrollHeight+', viewWeek.style.top='+(document.getElementById('viewWeek')?.style.top)+', viewWeek.classList='+(document.getElementById('viewWeek')?.className));
+  const _app=document.getElementById('app');
+  const _vw=document.getElementById('viewWeek');
+  const _gw=document.getElementById('ganttWrap');
+  console.log('[ACF] DIMS: app.hidden='+(_app?.classList.contains('hidden'))+' app.display='+(_app?.style.display)+' app.offsetH='+(_app?.offsetHeight));
+  console.log('[ACF] DIMS: vw.offsetH='+(_vw?.offsetHeight)+' vw.top='+(_vw?.style.top)+' vw.class='+(_vw?.className));
+  console.log('[ACF] DIMS: gw.offsetH='+(_gw?.offsetHeight)+' gw.scrollH='+(_gw?.scrollHeight)+' wrap.scrollH='+wrap.scrollHeight);
   setTimeout(()=>{const gw=document.getElementById('ganttWrap');if(gw&&_scrollSave.top){gw.scrollTop=_scrollSave.top;gw.scrollLeft=_scrollSave.left;}},0);
 }
 
