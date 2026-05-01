@@ -2418,7 +2418,7 @@ let _db=null,_lib=null;
 let _contrats=[],_fiches=[],_events=[];
 let _resources=[],_customFeries=[];
 let _syncOpts={planningToContrats:false,contratsToPlanning:false}; // sync désactivée par défaut
-let _user=null,_view='week',_nbDays=7,_cursor=new Date();
+let _user=null,_view='twoweeks',_nbDays=14,_cursor=new Date();
 let _searchHighlightId=null;
 let _backlog=[];
 let _backlogEditId=null;
@@ -2896,11 +2896,9 @@ function ss(u){
   const isAdmin=u.niveau==='admin'||u.niveau==='administrateur';
   document.querySelectorAll('[onclick="openConfig()"]').forEach(el=>el.style.display=isAdmin?'':'none');
   buildTypeOpts();buildChips();buildLegend();buildTechSel();buildDL();updWEbtn();buildFilters();
-  // Différer le rendu pour que le navigateur calcule les dimensions
-  setTimeout(()=>{
-    switchView(_view);
-    setTimeout(_attachScrollSave,500);
-  }, 100);
+  setTimeout(adjustViewTop,50);
+  render();
+  setTimeout(_attachScrollSave,500);
 }
 function doLogout(){_user=null;localStorage.removeItem('pu');document.getElementById('app').classList.add('hidden');document.getElementById('loginWrap').style.display='flex';}
 async function boot(){msg('Connexion Firebase…');try{await initFB();}catch(e){msg('❌ Firebase : '+e.message);return;}msg('Chargement…');try{const[c,f,ev,cfg]=await Promise.all([getContratsMin(),getAll('techniciens'),getAll('planning_events'),getAll('planning_resources')]);_contrats=c;_fiches=f;_events=ev;const rc=cfg.find(x=>x._resConfig);if(rc&&rc.resources)_resources=rc.resources;const fc=cfg.find(x=>x._ferieConfig);if(fc&&fc.customFeries)_customFeries=fc.customFeries;const sc=cfg.find(x=>x._settings);if(sc)_showWE=sc.showWeekend!==false;
@@ -3931,7 +3929,6 @@ function renderTimeline(){
 
   // Calculer HOUR_W pour que tout tienne sans scroll horizontal
   const wrap=document.getElementById('ganttWrap');
-  if(!wrap||wrap.clientWidth===0){setTimeout(renderTimeline,150);return;}
   const availW=Math.max(400,(wrap?wrap.clientWidth:window.innerWidth)-RES_W-20);
   const availW=Math.max(400,(wrap?wrap.clientWidth:window.innerWidth)-RES_W-20);
   const HOUR_W=Math.floor(availW/(days.length*nHours));
