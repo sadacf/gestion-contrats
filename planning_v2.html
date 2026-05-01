@@ -489,6 +489,8 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
   left:0; right:0; bottom:0;
   overflow:hidden;
   background:var(--bg);
+  width:100vw;
+  height:calc(100vh - 128px);
 }
 #ganttWrap{
   position:absolute;
@@ -1117,7 +1119,8 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
       <button onclick="confirmSolder()" style="padding:8px 20px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">✅ Confirmer la clôture</button>
     </div>
   </div>
-  <!-- ═══ FIN DASHBOARD ═══════════════════════════════════════════════════ -->
+  </div><!-- div manquant dashboard -->
+<!-- ═══ FIN DASHBOARD ═══════════════════════════════════════════════════ -->
 
   <header class="hdr">
     <div class="hdr-logo"><div class="hdr-logo-icon">🔥</div>Planning <span>ACF</span></div>
@@ -2897,6 +2900,19 @@ function ss(u){
   const isAdmin=u.niveau==='admin'||u.niveau==='administrateur';
   document.querySelectorAll('[onclick="openConfig()"]').forEach(el=>el.style.display=isAdmin?'':'none');
   buildTypeOpts();buildChips();buildLegend();buildTechSel();buildDL();updWEbtn();buildFilters();
+  // Forcer les dimensions de viewWeek
+  const vw = document.getElementById('viewWeek');
+  if(vw){
+    vw.style.position='fixed';
+    vw.style.top='82px';
+    vw.style.left='0';
+    vw.style.right='0';
+    vw.style.bottom='0';
+    vw.style.width='100vw';
+    vw.style.height='calc(100vh - 82px)';
+    vw.style.display='block';
+    vw.style.overflow='hidden';
+  }
   adjustViewTop();
   switchView(_view);
   setTimeout(_attachScrollSave,500);
