@@ -2480,6 +2480,7 @@ let _backlogEditId=null;
 let _showWE=true,_fTechs=new Set(),_fTypes=new Set();
 let _editId=null,_popId=null,_drag=null;
 let _cursorIsToday=false;
+let _hlEvId=null; // ID de l'événement à highlighter
 let _cursorBeforeMonth=null; // Sauvegarde curseur avant vue mois
 
 async function initFB(){const{initializeApp,getApps}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');const lib=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');const app=getApps().length?getApps()[0]:initializeApp(FB);_db=lib.getFirestore(app);_lib=lib;}
@@ -3707,6 +3708,17 @@ function _restoreScroll(){
   gw._scrollListening=false;
   _attachScrollSave();
 }
+function _applyEvHL(){
+  if(!_hlEvId) return;
+  document.querySelectorAll('.gd-open-hl').forEach(el=>el.classList.remove('gd-open-hl'));
+  document.querySelectorAll('[data-evid]').forEach(el=>{
+    const eeid=el.dataset.evid?.split('__')[0];
+    if(eeid===_hlEvId){
+      el.classList.add('gd-open-hl');
+      if(el.tagName==='TD') el.querySelectorAll('.gev,.gev-span').forEach(g=>g.classList.add('gd-open-hl'));
+    }
+  });
+}
 function render(){
   if(_view==='month')renderMonth();
   else if(_view==='monthgantt')renderMonthGantt();
@@ -3714,6 +3726,7 @@ function render(){
   adjustViewTop();
   _attachScrollSave();
   setTimeout(_syncPeriodCompact,10);
+  setTimeout(_applyEvHL,30);
 }
 function toggleWE(){_showWE=!_showWE;updWEbtn();render();saveSett();}
 function updWEbtn(){} // button removed - handled by config modal
@@ -5156,7 +5169,8 @@ function openNewEvent(ds,tech,dateEnd,_srcEl=null){
   _evTechs=tech?[tech]:[];
   buildEvTechTags(); buildTechSel();
   setInstFilter('');updTimeRange();buildTypeOpts();
-  // Mettre en évidence la cellule cliquée
+  // Mettre en évidence la cellule cliquée (nouveau RDV)
+  _hlEvId=null;
   document.querySelectorAll('.gd-open-hl').forEach(el=>el.classList.remove('gd-open-hl'));
   const _hlCell = _srcEl?.closest('td') || (_srcEl?.tagName==='TD'?_srcEl:null);
   if(_hlCell) _hlCell.classList.add('gd-open-hl');
@@ -5217,25 +5231,14 @@ function openEditEv(ev){
   // Highlight universel : tous les éléments portant data-evid correspondant
   document.querySelectorAll('.gd-open-hl').forEach(el=>el.classList.remove('gd-open-hl'));
   const _eid = (src._fsId||src._id||ev._fsId||ev._id||'').split('__')[0];
-  // Appliquer le highlight après un court délai (le DOM peut être réécrit)
-  const _eidToHL = _eid;
-  setTimeout(()=>{
-    document.querySelectorAll('.gd-open-hl').forEach(el=>el.classList.remove('gd-open-hl'));
-    if(!_eidToHL) return;
-    let found=0;
-    document.querySelectorAll('[data-evid]').forEach(el=>{
-      const eeid=el.dataset.evid?.split('__')[0];
-      if(eeid===_eidToHL){
-        el.classList.add('gd-open-hl');
-        if(el.tagName==='TD') el.querySelectorAll('.gev,.gev-span').forEach(g=>g.classList.add('gd-open-hl'));
-        found++;
-      }
-    });
-  }, 50);
+  // Stocker l'ID pour que _applyEvHL() le retrouve après chaque render
+  _hlEvId = _eid;
+  _applyEvHL();
   document.getElementById('evOverlay').classList.add('on');
   document.getElementById('evPage').classList.add('on');
 }
 function closeModal(){
+  _hlEvId=null;
   document.querySelectorAll('.gd-open-hl').forEach(el=>el.classList.remove('gd-open-hl'));document.getElementById('evPage').classList.remove('on');document.getElementById('evOverlay').classList.remove('on');_editId=null;}
 async function saveEv(){
   if(!_db){alert('Firebase non initialisé — rechargez la page');return;}
