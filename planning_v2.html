@@ -390,21 +390,34 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .recur-cancel:hover{background:var(--bg);}
 /* ── SÉLECTION MULTI-JOURS GANTT ─────────── */
 .gantt td.gd-open-hl{
-  outline:3px solid #3b5bdb!important;
-  outline-offset:1px;
-  box-shadow:0 0 0 3px rgba(59,91,219,.4)!important;
+  box-shadow:inset 0 0 0 3px #3b5bdb!important;
   animation:pulseCell .8s ease-in-out 3;
   z-index:10!important;
   position:relative;
 }
+.gev.gd-open-hl{
+  box-shadow:inset 0 0 0 3px #3b5bdb!important;
+  animation:pulseCell .8s ease-in-out 3;
+  z-index:10!important;
+}
+.tl-ev.gd-open-hl{
+  outline:3px solid #3b5bdb!important;
+  outline-offset:2px;
+  box-shadow:0 0 6px 2px rgba(59,91,219,.4)!important;
+  animation:pulseCell .8s ease-in-out 3;
+}
+.gev-span.gd-open-hl{
+  box-shadow:inset 0 0 0 3px #3b5bdb!important;
+  animation:pulseCell .8s ease-in-out 3;
+  z-index:10!important;
+}
 td.gd-open-hl{
-  background:rgba(59,91,219,.15)!important;
-  border:3px solid #3b5bdb!important;
-  box-shadow:inset 0 0 0 2px rgba(59,91,219,.4)!important;
-  outline:none!important;
+  background:rgba(59,91,219,.08)!important;
 }
 @keyframes pulseCell{
-  0%,100%{outline-color:rgba(59,91,219,.5);}
+  0%,100%{box-shadow:inset 0 0 0 3px #3b5bdb!important;}
+  50%{box-shadow:inset 0 0 0 4px #3b5bdb, inset 0 0 8px rgba(59,91,219,.4)!important;}
+}
   50%{outline-color:#3b5bdb;outline-width:5px;}
 }
 @keyframes pulseCell{
@@ -1782,6 +1795,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
 
     <div class="evp-foot">
     <button class="evp-btn save" onclick="saveEv()">💾 Enregistrer</button>
+    <button class="evp-btn" onclick="if(_editId)sendEvToPlanner(_editId)" title="Créer une tâche dans Microsoft Planner" style="background:#0078d4;color:#fff;padding:5px 10px;font-size:11px">📋 → Planner</button>
     <button class="evp-btn" id="evEmailBtn" onclick="openEmailModal()" style="background:#eff6ff;color:var(--blue);border:1.5px solid #c7d2fe">📧 Email</button>
     <button class="evp-btn del hidden" id="evDelBtn" onclick="deleteEv()">🗑 Supprimer</button>
     <button class="evp-btn" id="evCopy6mBtn" onclick="copyEv6months()" style="background:#f0fdf4;color:#16a34a;border:1.5px solid #86efac">📅 +6 mois</button>
@@ -1853,7 +1867,8 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
       <button class="evp-tab on" id="cfgtab-gen" onclick="switchCfgTab('gen')" style="font-size:11px">⚙️ Général</button>
       <button class="evp-tab" id="cfgtab-types" onclick="switchCfgTab('types')" style="font-size:11px">🏷 Types</button>
       <button class="evp-tab" id="cfgtab-res" onclick="switchCfgTab('res')" style="font-size:11px">👥 Ressources</button>
-      <button class="evp-tab" id="cfgtab-states" onclick="switchCfgTab('states')" style="font-size:11px">🎨 États</button>
+      <button class="evp-tab" id="cfgtab-states" onclick="switchCfgTab('states')" style="font-size:11px">🖥️ Affichage</button>
+      <button class="evp-tab" id="cfgtab-integ" onclick="switchCfgTab('integ')" style="font-size:11px">🔗 Intégrations</button>
       <button class="evp-tab" id="cfgtab-astr" onclick="switchCfgTab('astr')" style="font-size:11px">⚡ Astreintes</button>
     </div>
     <!-- Général -->
@@ -1947,12 +1962,7 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
         <div id="cfgSyncWrap"></div>
       </div>
     </div>
-    <div class="mfoot" style="margin-top:12px">
-      <button class="mfb ok" onclick="closeConfig()">Fermer</button>
-    </div>
-  
-    <!-- Panel États RDV -->
-    <div id="cfgbody-states" class="hidden" style="flex:1;overflow-y:auto;padding:16px 20px">
+    <div class="mfoot" style="margin-id="cfgbody-states" class="hidden" style="flex:1;overflow-y:auto;padding:16px 20px">
       <!-- Police des RDV -->
       <div style="background:#f8fafc;border-radius:10px;padding:14px 16px;margin-bottom:18px;border:1px solid var(--line)">
         <div style="font-size:12px;font-weight:800;color:var(--navy);margin-bottom:10px">🔤 Police des RDV</div>
@@ -2001,7 +2011,27 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
           </div>
           <div style="font-size:9px;color:#6b7280;margin-top:6px">Laisser la couleur par défaut = couleur du type d'intervention</div>
         </div>
-<div style="background:#f0f9ff;border-radius:10px;padding:14px 16px;margin-bottom:18px;border:1px solid #bae6fd">
+
+    
+necteurs → Webhook entrant → Copier l'URL
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- Astreintes -->
+        <div id="cfgbody-integ" class="hidden" style="flex:1;overflow-y:auto;padding:16px 20px">
+        <div style="background:#e8f4fd;border-radius:10px;padding:14px 16px;margin-bottom:18px;border:1px solid #90cdf4">
+          <div style="font-size:11px;font-weight:800;color:#1a56a0;margin-bottom:8px">📋 Microsoft Planner</div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:10px">Synchronisation automatique au démarrage • Polling toutes les minutes</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="syncPlannerAuto(true)" style="padding:7px 14px;background:#0078d4;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔄 Synchroniser maintenant</button>
+            <button onclick="startPlannerPolling()" style="padding:7px 14px;background:#e8f4fd;color:#0078d4;border:1.5px solid #90cdf4;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">▶️ Démarrer polling</button>
+            <button onclick="stopPlannerPolling()" style="padding:7px 14px;background:#e8f4fd;color:#64748b;border:1.5px solid #e5e7eb;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⏹️ Arrêter</button>
+          </div>
+          <div style="font-size:10px;color:#6b7280;margin-top:8px">Nouveau RDV → bouton <b>📋 → Planner</b> dans le formulaire</div>
+        </div>
+        <div style="background:#f0f9ff;border-radius:10px;padding:14px 16px;margin-bottom:18px;border:1px solid #bae6fd">
         <div style="font-size:12px;font-weight:800;color:#0c4a6e;margin-bottom:8px">✈️ Bot Telegram</div>
         <div style="font-size:11px;color:#6b7280;margin-bottom:8px">Token du bot créé via <b>@BotFather</b></div>
         <div style="display:flex;gap:8px;align-items:center">
@@ -2013,10 +2043,26 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
         <button onclick="getTelegramUpdates()" style="margin-top:8px;padding:5px 12px;background:#eff6ff;color:var(--blue);border:1.5px solid #bfdbfe;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📋 Récupérer les IDs</button>
         <div id="telegramUpdatesList" style="margin-top:8px;font-size:11px"></div>
       </div>
+        <div style="background:#f3f2ff;border-radius:10px;padding:14px 16px;margin-bottom:18px;border:1px solid #c4b5fd">
+          <div style="font-size:11px;font-weight:800;color:#0c4a6e;margin-bottom:8px">🟣 Microsoft Teams</div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:8px">URL Webhook entrant (Incoming Webhook) créé dans un canal Teams</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <input id="teamsWebhookInput" type="text" placeholder="https://xxx.webhook.office.com/..." style="flex:1;padding:7px 10px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit">
+            <button onclick="saveTeamsWebhook()" style="padding:7px 14px;background:#6264a7;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">💾 Sauvegarder</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="testTeamsWebhook()" style="padding:6px 12px;background:#f3f2ff;color:#6264a7;border:1.5px solid #c4b5fd;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🔔 Tester</button>
+          </div>
+          <div style="font-size:10px;color:#6b7280;margin-top:8px;line-height:1.5">
+            Dans Teams : canal → ⋯ → Connecteurs → Webhook entrant → Copier l'URL
+          </div>
+        </div>
 
       </div>
     </div>
     <!-- Astreintes -->
+    <div 
+    </div>
     <div id="cfgbody-astr" class="hidden" style="flex:1;overflow-y:auto;padding:16px 20px">
       <div style="display:flex;flex-direction:column;gap:12px">
         <div style="background:#fef9ee;border:1.5px solid #fcd34d;border-radius:10px;padding:14px 16px">
@@ -2441,6 +2487,7 @@ const VE_TO_PLANNING={'FFFF00':'non_confirme','FFC000':'confirme','92D050':'real
 
 let _evFont='system-ui,-apple-system,sans-serif'; // Police des RDV
 let _telegramBotToken=''; // Chargé depuis Firebase
+let _teamsWebhookUrl=''; // URL webhook Teams - chargé depuis Firebase
 let _colorInstallation=''; // Couleur fond RDV Installation (vide = couleur du type)
 let _colorIntervention=''; // Couleur fond RDV Intervention hors contrat (Config → Telegram)
 // Mapping PlanningPME label → type ACF (sauvegardé en Firebase)
@@ -3035,6 +3082,8 @@ function closeTypeColorModal(){
 async function boot(){msg('Connexion Firebase…');try{await initFB();}catch(e){msg('❌ Firebase : '+e.message);return;}msg('Chargement…');try{const[c,f,ev,cfg]=await Promise.all([getContratsMin(),getAll('techniciens'),getAll('planning_events'),getAll('planning_resources')]);_contrats=c;_fiches=f;_events=ev;const rc=cfg.find(x=>x._resConfig);if(rc&&rc.resources)_resources=rc.resources;const fc=cfg.find(x=>x._ferieConfig);if(fc&&fc.customFeries)_customFeries=fc.customFeries;const sc=cfg.find(x=>x._settings);if(sc)_showWE=sc.showWeekend!==false;
     const fc2=cfg.find(x=>x._evFont);if(fc2)_applyEvFont(fc2);
     const tgCfg=cfg.find(x=>x._telegramToken);
+    const teamsCfg=cfg.find(x=>x._teamsWebhook);
+    if(teamsCfg?.url){ _teamsWebhookUrl=teamsCfg.url; const ti=document.getElementById('teamsWebhookInput'); if(ti) ti.value=_teamsWebhookUrl; }
     if(tgCfg?.token){
       _telegramBotToken=tgCfg.token;
       const inp=document.getElementById('telegramTokenInput');
@@ -3050,7 +3099,9 @@ const vc=cfg.find(x=>x._version);if(vc)_applyVersion({num:vc.num||'1.0',date:vc.
 const sc2=cfg.find(x=>x._stateColors);if(sc2?.colors)_applyStateColors(sc2.colors);
 await loadVacSco();
 const sy=cfg.find(x=>x._syncOpts);if(sy){_syncOpts.planningToContrats=sy.planningToContrats===true;_syncOpts.contratsToPlanning=sy.contratsToPlanning===true;}
-    const tc=cfg.find(x=>x._typesConfig);if(tc&&tc.customTypes){tc.customTypes.forEach(t=>{const lbl=(t.label||'').toLowerCase();let icon=t.icon||'📌';if(!t.icon||t.icon==='📌'){if(lbl.includes('agence')||lbl.includes('bureau'))icon='🏢';else if(lbl.includes('cong'))icon='🌴';}TM[t.id]={label:t.label,icon,color:t.color||'#64748b',bg:t.bg||'#f1f5f9'};});if(tc.typeOrder)_typeOrder=tc.typeOrder;if(tc.typeGroups&&tc.typeGroups.length)_typeGroups=tc.typeGroups;}}catch(e){msg('❌ Chargement : '+e.message);return;}watchEv();setLastSync();hideLoad();loadBacklog().catch(()=>{});updateDemOuvertesBadge().catch(()=>{});const sv=JSON.parse(localStorage.getItem('pu')||'null');if(sv)ss(sv);else{document.getElementById('loginWrap').style.display='flex';document.getElementById('loginU').focus();}}
+    const tc=cfg.find(x=>x._typesConfig);if(tc&&tc.customTypes){tc.customTypes.forEach(t=>{const lbl=(t.label||'').toLowerCase();let icon=t.icon||'📌';if(!t.icon||t.icon==='📌'){if(lbl.includes('agence')||lbl.includes('bureau'))icon='🏢';else if(lbl.includes('cong'))icon='🌴';}TM[t.id]={label:t.label,icon,color:t.color||'#64748b',bg:t.bg||'#f1f5f9'};});if(tc.typeOrder)_typeOrder=tc.typeOrder;if(tc.typeGroups&&tc.typeGroups.length)_typeGroups=tc.typeGroups;}}catch(e){msg('❌ Chargement : '+e.message);return;}watchEv();setLastSync();hideLoad();
+  // Démarrer le sync Planner si connecté
+  try{ if(_msalApp&&_msalApp.getAllAccounts()?.length) startPlannerPolling(); }catch(_){}loadBacklog().catch(()=>{});updateDemOuvertesBadge().catch(()=>{});const sv=JSON.parse(localStorage.getItem('pu')||'null');if(sv)ss(sv);else{document.getElementById('loginWrap').style.display='flex';document.getElementById('loginU').focus();}}
 function msg(t){document.getElementById('loadMsg').textContent=t;}
 function hideLoad(){const s=document.getElementById('loading');s.classList.add('hide');setTimeout(()=>s.style.display='none',450);}
 const MOIS={'janvier':0,'février':1,'fevrier':1,'mars':2,'avril':3,'mai':4,'juin':5,'juillet':6,'août':7,'aout':7,'septembre':8,'octobre':9,'novembre':10,'décembre':11,'decembre':11,'jan':0,'fév':1,'fev':1,'mar':2,'avr':3,'jun':5,'jul':6,'aoû':7,'sep':8,'oct':9,'nov':10,'déc':11,'dec':11};
@@ -3471,7 +3522,7 @@ function closeConfig(){ document.getElementById('cfgOverlay').classList.remove('
 function cfgToggleWE(v){ _showWE=v; render(); saveSett(); }
 
 function switchCfgTab(t){
-  ['gen','types','res','states','astr'].forEach(x=>{
+  ['gen','types','res','states','integ','astr'].forEach(x=>{
     document.getElementById('cfgtab-'+x)?.classList.toggle('on',x===t);
     document.getElementById('cfgbody-'+x)?.classList.toggle('hidden',x!==t);
   });
@@ -3708,15 +3759,57 @@ function _restoreScroll(){
   gw._scrollListening=false;
   _attachScrollSave();
 }
+function _positionEvPage(refEl=null){
+  const page = document.getElementById('evPage');
+  if(!page) return;
+  const vw = window.innerWidth;
+  const ph = Math.min(window.innerHeight * 0.9, 700); // hauteur estimée du panel
+  
+  // Trouver l'élément de référence (cellule ou event cliqué)
+  const ref = refEl || document.querySelector('.gd-open-hl');
+  
+  if(!ref){
+    // Pas de référence : centrer
+    page.style.right = '20px';
+    page.style.left = 'auto';
+    page.style.top = '50%';
+    page.style.transform = 'translateY(-50%)';
+    return;
+  }
+  
+  const rect = ref.getBoundingClientRect();
+  const cellCenterX = rect.left + rect.width / 2;
+  const cellCenterY = rect.top + rect.height / 2;
+  const panelW = Math.min(560, vw * 0.9);
+  const margin = 12;
+  
+  // Positionner à gauche ou à droite selon où est la cellule
+  if(cellCenterX > vw / 2){
+    // Cellule à droite → panel à gauche
+    page.style.left = margin + 'px';
+    page.style.right = 'auto';
+  } else {
+    // Cellule à gauche → panel à droite
+    page.style.right = margin + 'px';
+    page.style.left = 'auto';
+  }
+  
+  // Centrer verticalement sur la cellule, sans dépasser l'écran
+  let top = cellCenterY - ph / 2;
+  top = Math.max(10, Math.min(top, window.innerHeight - ph - 10));
+  page.style.top = top + 'px';
+  page.style.transform = 'none';
+  page.style.width = panelW + 'px';
+}
+
 function _applyEvHL(){
   if(!_hlEvId) return;
   document.querySelectorAll('.gd-open-hl').forEach(el=>el.classList.remove('gd-open-hl'));
-  document.querySelectorAll('[data-evid]').forEach(el=>{
+  // Cibler uniquement les divs RDV: .tl-ev (semaine), .gev, .gev-span (gantt)
+  // Pas les TD (cellules entières)
+  document.querySelectorAll('.tl-ev[data-evid], .gev[data-evid], .gev-span[data-evid]').forEach(el=>{
     const eeid=el.dataset.evid?.split('__')[0];
-    if(eeid===_hlEvId){
-      el.classList.add('gd-open-hl');
-      if(el.tagName==='TD') el.querySelectorAll('.gev,.gev-span').forEach(g=>g.classList.add('gd-open-hl'));
-    }
+    if(eeid===_hlEvId) el.classList.add('gd-open-hl');
   });
 }
 function render(){
@@ -4400,7 +4493,7 @@ function renderTimeline(){
           const _tlTypesSpan=(e.types&&e.types.length>1)?e.types.map(t=>(TM[t]||TM.autre).label).join('+'):(tm.label);
           const _tlSpanIsConge=(e.types?e.types.some(t=>(TM[t]||TM.autre).label.toLowerCase().includes('cong')):tm.label.toLowerCase().includes('cong'));
           const _tlSpanHatch=_tlSpanIsConge?'background-color:#dcfce7;background-image:repeating-linear-gradient(-45deg,rgba(134,239,172,.55) 0px,rgba(134,239,172,.55) 5px,rgba(220,252,231,.3) 5px,rgba(220,252,231,.3) 10px);':'';
-          h+=`<div data-evid="${eid3}" data-span-id="${bid}" data-span-days="${esc(JSON.stringify(info.days))}" data-day-w="${DAY_W}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" ondblclick="event.stopPropagation();tlEvDblClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" style="position:absolute;left:${xStart}px;top:${top}px;width:${spanW}px;height:${_spanH}px;background:${bg3};color:#000;border-top:3px solid ${bd3};${isFirstVis?'border-left:3px solid '+bd3+';':''}${isLastVis?'border-right:2px solid '+bd3+';':''}border-radius:${br};padding:3px 6px;overflow:hidden;cursor:grab;font-size:9px;z-index:3;box-shadow:0 1px 3px rgba(0,0,0,.1);${_tlSpanHatch}">${arrowL}`;
+          h+=`<div class="tl-ev" data-evid="${eid3}" data-span-id="${bid}" data-span-days="${esc(JSON.stringify(info.days))}" data-day-w="${DAY_W}" onclick="event.stopPropagation();evClick(event,this)" ondblclick="event.stopPropagation();evDblClick(event,this)" ondblclick="event.stopPropagation();tlEvDblClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();evRClick(event,this)" style="position:absolute;left:${xStart}px;top:${top}px;width:${spanW}px;height:${_spanH}px;background:${bg3};color:#000;border-top:3px solid ${bd3};${isFirstVis?'border-left:3px solid '+bd3+';':''}${isLastVis?'border-right:2px solid '+bd3+';':''}border-radius:${br};padding:3px 6px;overflow:hidden;cursor:grab;font-size:9px;z-index:3;box-shadow:0 1px 3px rgba(0,0,0,.1);${_tlSpanHatch}">${arrowL}`;
           h+=`<div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;line-height:1.35">${esc(e.title||'')}</div>`;
           h+=`<div style="font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85;display:flex;align-items:center;gap:3px"><span style="background:rgba(0,0,0,.12);border-radius:3px;padding:0 3px;font-weight:800;flex-shrink:0">${_tlTypesSpan}</span><span>${_trSpan}</span>${e._origDates?`<span style="background:rgba(0,0,0,.15);border-radius:8px;padding:0 4px;font-size:8px;margin-left:2px">${visibleDays.filter(d=>{const dt=new Date(d);return dt.getDay()!==0&&dt.getDay()!==6&&!isFer(d);}).length}/${workDaysLabel(e._origDates)}</span>`:''}</div>`;
           if(e.hcInst) h+=`<div style="font-size:10px;color:#555;padding:0 2px;font-style:italic;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">🏗️ ${esc(e.hcInst)}</div>`;
@@ -5174,6 +5267,7 @@ function openNewEvent(ds,tech,dateEnd,_srcEl=null){
   document.querySelectorAll('.gd-open-hl').forEach(el=>el.classList.remove('gd-open-hl'));
   const _hlCell = _srcEl?.closest('td') || (_srcEl?.tagName==='TD'?_srcEl:null);
   if(_hlCell) _hlCell.classList.add('gd-open-hl');
+  _positionEvPage(_hlCell);
   if(ds && tech){
     // Chercher par data-date et data-tech (matching partiel si nécessaire)
     let cell = document.querySelector('td[data-date="'+ds+'"][data-tech="'+tech+'"]');
@@ -5185,6 +5279,7 @@ function openNewEvent(ds,tech,dateEnd,_srcEl=null){
     }
     if(cell) cell.classList.add('gd-open-hl');
   }
+  _positionEvPage(_hlCell);
   document.getElementById('evOverlay').classList.add('on');
   document.getElementById('evPage').classList.add('on');
   setTimeout(()=>document.getElementById('evInst').focus(),100);
@@ -5234,6 +5329,7 @@ function openEditEv(ev){
   // Stocker l'ID pour que _applyEvHL() le retrouve après chaque render
   _hlEvId = _eid;
   _applyEvHL();
+  _positionEvPage();
   document.getElementById('evOverlay').classList.add('on');
   document.getElementById('evPage').classList.add('on');
 }
@@ -6681,7 +6777,7 @@ async function gevResizeEnd(evt){
 function gevResizeStart(evt,el){} // conservé pour compatibilité
 
 window.addEventListener('resize',()=>{ adjustViewTop(); setTimeout(()=>{ if(_view!=='month'&&_view!=='res') render(); },150); });
-Object.assign(window,{toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,gdSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail,openFicheInst,closeFicheInst,switchFiTab,ctxOpenFiche,ctxOpenContrat,fiBtnNouveauRdv,fiBtnEnCours,fiBtnAppel,cfgAddGroup,cfgRemoveGroup,cfgDropGroup,cfgDropTypeInGroup,cfgRemoveTypeFromGroup,openPlanningPMEImport,closePlanningPMEImport,handlePPMFile,doPPMImport,updatePPMPreview,ppmConnect,ppmImportJson,openDashboard,goPlanning,renderDashboard,dashGoEv,clearAllFiltersNow,updClearFiltersBtn,applyEvFont,saveEvFont,renderPpmMapping,ppmAddMapRule,savePpmMapping,ppmSwitchTab,renderPpmStatusMap,ppmUpdateStatusCode,ppmAddStatusRule,renderPpmFieldMap,selectResGroup,openClientView,closeClientView,filterClientSearch,openClientDetail,openQuickAppel,closeQuickAppel,qaSearchClient,qaSelectClient,qaOpenFiche,qaOpenTeams,qaOpenTeams_name,qaOpenPlanner,saveQuickAppel,cvNewRdv,openSolderModal,closeSolderModal,confirmSolder,dashSwitchAppelTab,loadDashAppels,renderDashAppels,handleAppelAction,addAppelComment,solderAppelDash,deleteAppelDash,updateAppelSuivi,startTgPolling,tgPollOnce,getTechContact,openTelegramApp,saveTelegramToken,testTelegramBot,getTelegramUpdates,copyTelegramId,sendTelegram,openDepanDispatch,closeDepanDispatch,depanSelectAll,depanSelectAgence,depanToggleTech,sendDepanDispatch});
+Object.assign(window,{toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,gdSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail,openFicheInst,closeFicheInst,switchFiTab,ctxOpenFiche,ctxOpenContrat,fiBtnNouveauRdv,fiBtnEnCours,fiBtnAppel,cfgAddGroup,cfgRemoveGroup,cfgDropGroup,cfgDropTypeInGroup,cfgRemoveTypeFromGroup,openPlanningPMEImport,closePlanningPMEImport,handlePPMFile,doPPMImport,updatePPMPreview,ppmConnect,ppmImportJson,openDashboard,goPlanning,renderDashboard,dashGoEv,clearAllFiltersNow,updClearFiltersBtn,applyEvFont,saveEvFont,renderPpmMapping,ppmAddMapRule,savePpmMapping,ppmSwitchTab,renderPpmStatusMap,ppmUpdateStatusCode,ppmAddStatusRule,renderPpmFieldMap,selectResGroup,openClientView,closeClientView,filterClientSearch,openClientDetail,createPlannerTask,sendEvToPlanner,syncPlannerAuto,startPlannerPolling,stopPlannerPolling,openQuickAppel,closeQuickAppel,qaSearchClient,qaSelectClient,qaOpenFiche,qaOpenTeams,qaOpenTeams_name,qaOpenPlanner,saveQuickAppel,cvNewRdv,openSolderModal,closeSolderModal,confirmSolder,dashSwitchAppelTab,loadDashAppels,renderDashAppels,handleAppelAction,addAppelComment,solderAppelDash,deleteAppelDash,updateAppelSuivi,startTgPolling,tgPollOnce,getTechContact,openTelegramApp,saveTelegramToken,testTelegramBot,getTelegramUpdates,copyTelegramId,sendTelegram,openDepanDispatch,closeDepanDispatch,depanSelectAll,depanSelectAgence,depanToggleTech,sendDepanDispatch});
 // ── SÉLECTION MULTI-JOURS PAR GLISSER-SOURIS ───────────────────────────────
 let _gdSel=null;
 
@@ -7117,7 +7213,7 @@ function planifyBacklog(id){
 
 // ── MICROSOFT PLANNER INTEGRATION ───────────────────────────────────────────
 let _msalApp=null, _msalToken=null, _plannerPlanId=null;
-const MS_SCOPES=['User.Read','Tasks.Read','Group.Read.All'];
+const MS_SCOPES=['User.Read','Tasks.Read','Tasks.ReadWrite','Group.Read.All','GroupMember.Read.All'];
 
 function _getMsConfig(){
   const cId=(localStorage.getItem('ms_clientId')||document.getElementById('msClientId')?.value||'').trim();
@@ -7958,6 +8054,139 @@ function importTeamsMsg(date, from, body){
   document.getElementById('msImportList').style.display='none';
   document.getElementById('msImportStatus').textContent='✅ Message importé — complétez et enregistrez.';
   note.focus();
+}
+
+// ── PLANNER : SYNC AUTO ET ENVOI ──────────────────────────────────────────────
+let _plannerPollTimer = null;
+let _plannerLastSync = null;
+let _plannerKnownTaskIds = new Set();
+const PLANNER_POLL_INTERVAL = 60000; // 1 minute
+
+async function createPlannerTask(title, dueDate, notes, assignees=[]){
+  // Crée une tâche dans le premier plan Planner disponible
+  const token = await _ensureMsToken();
+  if(!token){ toast('Connexion Microsoft requise','warn'); return null; }
+  try{
+    const plans = await msGraph('/me/planner/plans');
+    if(!plans.value?.length){ toast('Aucun plan Planner trouvé','warn'); return null; }
+    // Chercher le plan configuré ou prendre le premier
+    const cfg = await getAll('planning_resources');
+    const planCfg = cfg.find(x=>x._plannerConfig);
+    const planId = planCfg?.planId || plans.value[0].id;
+    const planTitle = plans.value.find(p=>p.id===planId)?.title || plans.value[0].title;
+    
+    // Créer la tâche via Graph API
+    const body = {
+      planId,
+      title: title || 'Tâche planning ACF',
+      ...(dueDate ? {dueDateTime: dueDate+'T00:00:00Z'} : {})
+    };
+    
+    const token2 = await _ensureMsToken();
+    const resp = await fetch('https://graph.microsoft.com/v1.0/planner/tasks', {
+      method: 'POST',
+      headers: { Authorization:'Bearer '+token2, 'Content-Type':'application/json' },
+      body: JSON.stringify(body)
+    });
+    if(!resp.ok){ const e=await resp.json(); throw new Error(e.error?.message||resp.status); }
+    const task = await resp.json();
+    
+    // Ajouter les détails (notes) si fournis
+    if(notes && task.id){
+      try{
+        // Récupérer l'eTag pour le PATCH
+        const detResp = await fetch(`https://graph.microsoft.com/v1.0/planner/tasks/${task.id}/details`, {
+          headers: { Authorization:'Bearer '+token2 }
+        });
+        if(detResp.ok){
+          const det = await detResp.json();
+          await fetch(`https://graph.microsoft.com/v1.0/planner/tasks/${task.id}/details`, {
+            method: 'PATCH',
+            headers: { Authorization:'Bearer '+token2, 'Content-Type':'application/json', 'If-Match': det['@odata.etag'] },
+            body: JSON.stringify({ description: notes })
+          });
+        }
+      }catch(_){}
+    }
+    
+    toast(`✅ Tâche créée dans ${planTitle}`, 'ok');
+    return task;
+  }catch(e){
+    toast('❌ Planner: '+e.message, 'err');
+    return null;
+  }
+}
+
+async function sendEvToPlanner(evId){
+  // Envoie un RDV comme tâche Planner
+  const ev = buildEvs().find(x=>x._id===evId || x._fsId===evId);
+  if(!ev){ toast('RDV introuvable','warn'); return; }
+  const title = (ev.title||ev.hcInst||'Sans titre') + (ev.tech ? ' — '+ev.tech : '');
+  const notes = [
+    ev.title ? '📋 Installation: '+ev.title : '',
+    ev.hcInst ? '🔧 Intervention: '+ev.hcInst : '',
+    ev.note ? '📌 Note: '+ev.note : '',
+    ev.startTime ? '⏰ Horaire: '+ev.startTime+(ev.endTime?'–'+ev.endTime:'') : '',
+    ev.tech ? '👤 Technicien: '+ev.tech : '',
+  ].filter(Boolean).join('\n');
+  await createPlannerTask(title, ev.date, notes);
+}
+
+async function syncPlannerAuto(showToast=false){
+  // Import auto depuis Planner — cherche les nouvelles tâches
+  if(!_msalApp) return;
+  const accounts = _msalApp.getAllAccounts();
+  if(!accounts.length) return;
+  try{
+    const token = await _ensureMsToken();
+    if(!token) return;
+    const plans = await msGraph('/me/planner/plans');
+    if(!plans.value?.length) return;
+    
+    let newTasks = [];
+    for(const plan of plans.value.slice(0,5)){
+      try{
+        const tasks = await msGraph('/planner/plans/'+plan.id+'/tasks');
+        for(const t of (tasks.value||[])){
+          if(!_plannerKnownTaskIds.has(t.id) && t.percentComplete < 100){
+            if(_plannerLastSync !== null){
+              // Nouvelle tâche depuis la dernière sync
+              newTasks.push({...t, _planTitle: plan.title});
+            }
+            _plannerKnownTaskIds.add(t.id);
+          }
+        }
+      }catch(_){}
+    }
+    
+    _plannerLastSync = new Date().toISOString();
+    
+    if(newTasks.length > 0){
+      // Notifier les nouvelles tâches
+      newTasks.forEach(t=>{
+        const due = (t.dueDateTime||'').slice(0,10);
+        const df = d => d ? d.split('-').reverse().join('/') : '';
+        toast(`📋 Planner: ${t.title}${due?' ('+df(due)+')':''}`, 'info', 6000);
+      });
+      // Mettre à jour le badge
+      const badge = document.getElementById('plannerBadge');
+      if(badge){ badge.textContent = newTasks.length; badge.style.display='inline'; }
+    }
+    
+    if(showToast) toast('✅ Planner synchronisé', 'ok');
+  }catch(e){
+    if(showToast) toast('Planner: '+e.message,'warn');
+  }
+}
+
+function startPlannerPolling(){
+  if(_plannerPollTimer) clearInterval(_plannerPollTimer);
+  syncPlannerAuto(false); // sync initiale silencieuse
+  _plannerPollTimer = setInterval(()=>syncPlannerAuto(false), PLANNER_POLL_INTERVAL);
+}
+
+function stopPlannerPolling(){
+  if(_plannerPollTimer){ clearInterval(_plannerPollTimer); _plannerPollTimer=null; }
 }
 
 async function importFromPlanner(){
@@ -10266,8 +10495,12 @@ function renderClientDetail(name){
 let _qaSelectedClient=null;
 
 function openQuickAppel(prefillName){
-  document.getElementById('quickAppelOverlay').style.display='block';
-  document.getElementById('quickAppelModal').style.display='block';
+  console.log('[QA] openQuickAppel called', prefillName);
+  const ov = document.getElementById('quickAppelOverlay');
+  const mo = document.getElementById('quickAppelModal');
+  console.log('[QA] overlay:', ov, 'modal:', mo);
+  if(ov) ov.style.display='block';
+  if(mo) mo.style.display='block';
   document.getElementById('qaClientSearch').value=prefillName||'';
   document.getElementById('qaNote').value='';
   document.getElementById('qaSuivi').value='nouveau';
@@ -10705,6 +10938,46 @@ async function tgApi(method, params={}){
   const opts=Object.keys(params).length?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(params)}:{};
   const r=await fetch(url,opts);
   return r.json();
+}
+
+async function sendTeams(message){
+  if(!_teamsWebhookUrl) return false;
+  try{
+    const r=await fetch(_teamsWebhookUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        "@type":"MessageCard",
+        "@context":"http://schema.org/extensions",
+        "themeColor":"0078d4",
+        "summary":message,
+        "sections":[{"activityText":message}]
+      })
+    });
+    return r.ok;
+  }catch(e){return false;}
+}
+
+async function saveTeamsWebhook(){
+  const url=document.getElementById('teamsWebhookInput')?.value.trim();
+  if(!url){toast('Entrez l\'URL du webhook','warn');return;}
+  if(!url.startsWith('https://')){toast('URL invalide','warn');return;}
+  _teamsWebhookUrl=url;
+  try{
+    const cfg=await getAll('planning_resources');
+    const doc=cfg.find(x=>x._teamsWebhook);
+    const data={_teamsWebhook:true,url,updatedAt:new Date().toISOString()};
+    if(doc?._fsId) await fsSet('planning_resources',doc._fsId,data);
+    else await fsAdd('planning_resources',data);
+    toast('✅ Webhook Teams sauvegardé','ok');
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+
+async function testTeamsWebhook(){
+  if(!_teamsWebhookUrl){toast('Entrez d\'abord l\'URL webhook','warn');return;}
+  const ok=await sendTeams('✅ Test Planning ACF — connexion Teams opérationnelle');
+  if(ok) toast('✅ Message envoyé sur Teams','ok');
+  else toast('❌ Echec envoi Teams','err');
 }
 
 async function sendTelegram(chatId, message){
