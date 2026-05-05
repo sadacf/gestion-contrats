@@ -1832,27 +1832,21 @@ function loadSheetJS(callback) {
               ⏱ Durée d'intervention
               <span style="font-size:10px;font-weight:400;color:var(--sub)">(apparaît entre parenthèses)</span>
             </label>
-            <select id="f_Duree_Intervention" style="border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:12px;background:var(--bg);width:100%;box-sizing:border-box">
-              <option value="">– Non renseigné –</option>
-              <optgroup label="Heures">
-                <option value="0.5h">30 min</option>
-                <option value="1h">1 heure</option>
-                <option value="1.5h">1h30</option>
-                <option value="2h">2 heures</option>
-                <option value="3h">3 heures</option>
-                <option value="4h">4 heures</option>
-              </optgroup>
-              <optgroup label="Demi-journées">
-                <option value="0.5j">½ journée</option>
-                <option value="1j">1 journée</option>
-                <option value="1.5j">1 journée + ½</option>
-                <option value="2j">2 journées</option>
-                <option value="2.5j">2 journées + ½</option>
-                <option value="3j">3 journées</option>
-                <option value="4j">4 journées</option>
-                <option value="5j">5 journées (1 semaine)</option>
-              </optgroup>
-            </select>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="number" id="f_Duree_Valeur" min="0.5" max="30" step="0.5" placeholder="ex: 1"
+                style="width:80px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:13px;font-weight:700;text-align:center"
+                oninput="_buildDuree()">
+              <select id="f_Duree_Unite" onchange="_buildDuree()"
+                style="border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:12px;flex:1">
+                <option value="h">heure(s)</option>
+                <option value="j" selected>journée(s)</option>
+                <option value="dj">demi-journée(s)</option>
+              </select>
+              <button type="button" onclick="document.getElementById('f_Duree_Valeur').value='';document.getElementById('f_Duree_Intervention').value='';_buildDuree()"
+                style="border:1px solid #fca5a5;border-radius:6px;padding:6px 8px;font-size:11px;color:#ef4444;background:#fef2f2;cursor:pointer" title="Effacer">✕</button>
+            </div>
+            <input type="hidden" id="f_Duree_Intervention">
+            <div id="f_Duree_Preview" style="font-size:11px;color:#64748b;margin-top:4px;font-style:italic"></div>
           </div>
           <div class="fg" style="grid-column:1/-1">
             <label>📁 Dossier rapports
@@ -2147,7 +2141,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/05-05-26-17:50';
+const APP_VERSION = 'V1/05-05-26-17:57';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4741,8 +4735,8 @@ function renderTable() {
         <div style="display:flex;align-items:center;gap:4px">
           ${typeIcon}
           ${r.Lien_Dossier
-            ? `<div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}${r.Duree_Intervention ? `<span style="font-size:10px;color:#64748b;font-weight:500;margin-left:4px;text-decoration:none">(${esc(r.Duree_Intervention)})</span>` : ''}</div>`
-            : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}${r.Duree_Intervention ? `<span style="font-size:10px;color:#64748b;font-weight:500;margin-left:4px">(${esc(r.Duree_Intervention)})</span>` : ''}</div>`
+            ? `<div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}${r.Duree_Intervention ? `<span style="font-size:10px;color:#fff;font-weight:700;margin-left:5px;background:#64748b;border-radius:4px;padding:1px 6px;white-space:nowrap;text-decoration:none">${_formatDureeLabel(r.Duree_Intervention)}</span>` : ''}</div>`
+            : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}${r.Duree_Intervention ? `<span style="font-size:10px;color:#fff;font-weight:700;margin-left:5px;background:#64748b;border-radius:4px;padding:1px 6px;white-space:nowrap">${_formatDureeLabel(r.Duree_Intervention)}</span>` : ''}</div>`
           }
           ${nouveauBadge}
         </div>
@@ -5038,6 +5032,61 @@ function refreshFamilleSelect() {
 
 // ── DOSSIER PATH ────────────────────────────────────────────────────────────
 
+// ── Durée d'intervention : helpers ──────────────────────────────────────────
+function _buildDuree() {
+  const valEl   = document.getElementById('f_Duree_Valeur');
+  const uniteEl = document.getElementById('f_Duree_Unite');
+  const hidden  = document.getElementById('f_Duree_Intervention');
+  const preview = document.getElementById('f_Duree_Preview');
+  const val = parseFloat(valEl?.value);
+  const unit = uniteEl?.value || 'j';
+  if (!val || isNaN(val) || val <= 0) {
+    if (hidden)  hidden.value = '';
+    if (preview) preview.textContent = '';
+    return;
+  }
+  // Format court pour stockage : "1j", "2h", "0.5dj"
+  const stored = val + unit;
+  if (hidden) hidden.value = stored;
+  // Label lisible pour la prévisualisation et l'affichage
+  const labels = { h: val <= 1 ? 'heure' : 'heures', j: val <= 1 ? 'journée' : 'journées', dj: val <= 1 ? 'demi-journée' : 'demi-journées' };
+  if (preview) preview.textContent = `→ Affichera : (${val} ${labels[unit]})`;
+}
+
+function _formatDureeLabel(val) {
+  if (!val) return '';
+  const m = val.match(/^([0-9.]+)(h|j|dj)$/);
+  if (!m) return val; // valeur legacy
+  const n = parseFloat(m[1]);
+  const u = m[2];
+  const labels = { h: n <= 1 ? 'heure' : 'heures', j: n <= 1 ? 'journée' : 'journées', dj: n <= 1 ? 'demi-journée' : 'demi-journées' };
+  return `${n} ${labels[u]}`;
+}
+
+function _populateDureeFields(dureeStored) {
+  const valEl   = document.getElementById('f_Duree_Valeur');
+  const uniteEl = document.getElementById('f_Duree_Unite');
+  const hidden  = document.getElementById('f_Duree_Intervention');
+  const preview = document.getElementById('f_Duree_Preview');
+  if (!dureeStored) {
+    if (valEl)   valEl.value   = '';
+    if (uniteEl) uniteEl.value = 'j';
+    if (hidden)  hidden.value  = '';
+    if (preview) preview.textContent = '';
+    return;
+  }
+  const m = dureeStored.match(/^([0-9.]+)(h|j|dj)$/);
+  if (m) {
+    if (valEl)   valEl.value   = m[1];
+    if (uniteEl) uniteEl.value = m[2];
+  } else {
+    if (valEl)   valEl.value   = dureeStored.replace(/[a-z]/gi,'');
+    if (uniteEl) uniteEl.value = 'j';
+  }
+  if (hidden) hidden.value = dureeStored;
+  _buildDuree();
+}
+
 function updateInstallCount() {
   const el = document.getElementById('f_Installation');
   const lbl = document.getElementById('f_Installation_count');
@@ -5267,6 +5316,9 @@ function openAdd() {
   refreshFamilleSelect();
   refreshFamilleSelect();
   updateInstallCount();
+  // Réinitialiser durée d'intervention
+  _populateDureeFields('');
+
   // Date d'enregistrement : aujourd'hui par défaut pour un nouveau contrat
   const today = new Date().toISOString().slice(0,10);
   const dateEl = document.getElementById('f_createdAt');
@@ -5358,6 +5410,9 @@ function openEditById(id) {
   syncDept();
   renderOptionsCheckboxes(r);
   updateInstallCount();
+  // Durée d'intervention
+  _populateDureeFields(r.Duree_Intervention || '');
+
   // Date d'enregistrement
   const _createdAtEl = document.getElementById('f_createdAt');
   if (_createdAtEl) {
