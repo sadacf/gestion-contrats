@@ -1827,6 +1827,33 @@ function loadSheetJS(callback) {
             <input type="text" id="f_Installation" required placeholder="Nom de l'installation" maxlength="70" oninput="updateInstallCount()">
             <div style="height:3px;border-radius:2px;background:#e2e8f0;margin-top:3px;overflow:hidden"><div id="f_Installation_bar" style="height:100%;width:0%;border-radius:2px;background:#94a3b8;transition:width .15s,background .15s"></div></div>
           </div>
+          <div class="fg">
+            <label style="display:flex;align-items:center;gap:6px">
+              ⏱ Durée d'intervention
+              <span style="font-size:10px;font-weight:400;color:var(--sub)">(apparaît entre parenthèses)</span>
+            </label>
+            <select id="f_Duree_Intervention" style="border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:12px;background:var(--bg);width:100%;box-sizing:border-box">
+              <option value="">– Non renseigné –</option>
+              <optgroup label="Heures">
+                <option value="0.5h">30 min</option>
+                <option value="1h">1 heure</option>
+                <option value="1.5h">1h30</option>
+                <option value="2h">2 heures</option>
+                <option value="3h">3 heures</option>
+                <option value="4h">4 heures</option>
+              </optgroup>
+              <optgroup label="Demi-journées">
+                <option value="0.5j">½ journée</option>
+                <option value="1j">1 journée</option>
+                <option value="1.5j">1 journée + ½</option>
+                <option value="2j">2 journées</option>
+                <option value="2.5j">2 journées + ½</option>
+                <option value="3j">3 journées</option>
+                <option value="4j">4 journées</option>
+                <option value="5j">5 journées (1 semaine)</option>
+              </optgroup>
+            </select>
+          </div>
           <div class="fg" style="grid-column:1/-1">
             <label>📁 Dossier rapports
               <span style="font-size:10px;font-weight:400;color:#94a3b8;margin-left:6px">Chemin vers le dossier de l'installation</span>
@@ -2120,7 +2147,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/30-04-26-22:58';
+const APP_VERSION = 'V1/05-05-26-17:50';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4714,8 +4741,8 @@ function renderTable() {
         <div style="display:flex;align-items:center;gap:4px">
           ${typeIcon}
           ${r.Lien_Dossier
-            ? `<div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}</div>`
-            : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}</div>`
+            ? `<div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}${r.Duree_Intervention ? `<span style="font-size:10px;color:#64748b;font-weight:500;margin-left:4px;text-decoration:none">(${esc(r.Duree_Intervention)})</span>` : ''}</div>`
+            : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}${r.Duree_Intervention ? `<span style="font-size:10px;color:#64748b;font-weight:500;margin-left:4px">(${esc(r.Duree_Intervention)})</span>` : ''}</div>`
           }
           ${nouveauBadge}
         </div>
@@ -4998,7 +5025,7 @@ function resetOptionsOrder() {
 }
 // BOOL_FIELDS dynamique (cases à cocher uniquement)
 let BOOL_FIELDS = getOptions().filter(o => (o.type||'checkbox')==='checkbox').map(o => o.key);
-const TEXT_FIELDS = ['Installation','Client','Ville','Departement','Type_Contrat','Type_Materiel','VE1','VE2','Technicien','Binome','Fin_Validite','Validite_Statut','Facturation','Q7','Remarques','Lien_Dossier','Dossier_Statut','Dossier_Dept','Dossier_SousRep'];
+const TEXT_FIELDS = ['Installation','Client','Ville','Departement','Type_Contrat','Type_Materiel','VE1','VE2','Technicien','Binome','Fin_Validite','Validite_Statut','Facturation','Q7','Remarques','Lien_Dossier','Dossier_Statut','Dossier_Dept','Dossier_SousRep','Duree_Intervention'];
 const NUM_FIELDS  = ['Detect_Tech1','Detect_Tech2'];
 
 function refreshFamilleSelect() {
