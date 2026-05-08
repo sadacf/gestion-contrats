@@ -887,8 +887,8 @@ function loadSheetJS(callback) {
         <span id="realtimeBeaconText">Sync</span>
       </div>
       <div id="currentUserBadge" style="display:none"></div>
-      <span id="realtimeSyncIndicator" title="Données synchronisées en temps réel"
-        style="font-size:10px;color:#86efac;background:rgba(0,0,0,.25);border-radius:10px;padding:1px 8px;opacity:0;transition:opacity 0.5s;white-space:nowrap">⚡ Sync</span>
+      <span id="realtimeSyncIndicator" title="Dernière synchronisation Firebase"
+        style="font-size:10px;color:#86efac;background:rgba(0,0,0,.25);border-radius:10px;padding:1px 8px;opacity:1;transition:opacity 0.5s;white-space:nowrap;cursor:pointer" onclick="if(window._fsPollFn)window._fsPollFn()" title="Cliquer pour synchroniser maintenant">⚡ –</span>
       <span id="autoBackupIndicator" style="font-size:10px;color:#86efac;background:rgba(0,0,0,.25);border-radius:10px;padding:1px 8px;white-space:nowrap"></span>
       <!-- Badge file d'attente mails -->
       <span id="mailQueueBadge" onclick="_flushMailQueue()" title="Cliquer pour renvoyer maintenant"
@@ -1832,21 +1832,28 @@ function loadSheetJS(callback) {
               ⏱ Durée d'intervention
               <span style="font-size:10px;font-weight:400;color:var(--sub)">(apparaît entre parenthèses)</span>
             </label>
+            <!-- Cases à cocher : unité -->
+            <div style="display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:5px 10px;border:1.5px solid #e2e8f0;border-radius:7px;transition:all .15s" id="lbl_duree_h">
+                <input type="radio" name="f_Duree_Unite_r" value="h" onchange="_buildDuree()" style="accent-color:#1e40af"> Heure(s)
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:5px 10px;border:1.5px solid #e2e8f0;border-radius:7px;transition:all .15s" id="lbl_duree_dj">
+                <input type="radio" name="f_Duree_Unite_r" value="dj" onchange="_buildDuree()" style="accent-color:#1e40af"> ½ Journée(s)
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:5px 10px;border:1.5px solid #e2e8f0;border-radius:7px;transition:all .15s" id="lbl_duree_j">
+                <input type="radio" name="f_Duree_Unite_r" value="j" onchange="_buildDuree()" style="accent-color:#1e40af"> Journée(s)
+              </label>
+            </div>
+            <!-- Nombre + effacer -->
             <div style="display:flex;gap:6px;align-items:center">
-              <input type="number" id="f_Duree_Valeur" min="0.5" max="30" step="0.5" placeholder="ex: 1"
-                style="width:80px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:13px;font-weight:700;text-align:center"
+              <input type="number" id="f_Duree_Valeur" min="0.5" max="30" step="0.5" placeholder="Nombre"
+                style="width:90px;border:1.5px solid #bfdbfe;border-radius:6px;padding:6px 10px;font-size:15px;font-weight:800;text-align:center;color:#1e40af"
                 oninput="_buildDuree()">
-              <select id="f_Duree_Unite" onchange="_buildDuree()"
-                style="border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:12px;flex:1">
-                <option value="h">heure(s)</option>
-                <option value="j" selected>journée(s)</option>
-                <option value="dj">demi-journée(s)</option>
-              </select>
-              <button type="button" onclick="document.getElementById('f_Duree_Valeur').value='';document.getElementById('f_Duree_Intervention').value='';_buildDuree()"
-                style="border:1px solid #fca5a5;border-radius:6px;padding:6px 8px;font-size:11px;color:#ef4444;background:#fef2f2;cursor:pointer" title="Effacer">✕</button>
+              <div id="f_Duree_Preview" style="font-size:12px;color:#1e40af;font-weight:700;flex:1"></div>
+              <button type="button" onclick="_clearDuree()"
+                style="border:1px solid #fca5a5;border-radius:6px;padding:5px 10px;font-size:11px;color:#ef4444;background:#fef2f2;cursor:pointer" title="Effacer">✕ Effacer</button>
             </div>
             <input type="hidden" id="f_Duree_Intervention">
-            <div id="f_Duree_Preview" style="font-size:11px;color:#64748b;margin-top:4px;font-style:italic"></div>
           </div>
           <div class="fg" style="grid-column:1/-1">
             <label>📁 Dossier rapports
@@ -2141,7 +2148,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/05-05-26-17:57';
+const APP_VERSION = 'V1/08-05-26-17:25';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2605,42 +2612,61 @@ const SP = (() => {
 
     // ── Écoute temps réel des contrats (onSnapshot) ────────────────────────
     async startRealtimeSync(onUpdate) {
-      try {
-        await initFirebase();
-        const { collection, onSnapshot } = window._fsLib;
-        // Annuler l'abonnement précédent si existant
-        if (window._fsUnsubscribe) { window._fsUnsubscribe(); window._fsUnsubscribe = null; }
-        let _firstSnapshot = true; // ignorer le premier déclenchement (chargement initial)
-        window._fsUnsubscribe = onSnapshot(
-          collection(_db, 'contrats'),
-          (snap) => {
-            // Toujours ignorer le tout premier snapshot (données initiales déjà chargées)
-            if (_firstSnapshot) {
-              _firstSnapshot = false;
-              // Voyant : connecté dès que le listener est établi
+      // Polling toutes les 45s au lieu de onSnapshot permanent → -70% de lectures Firebase
+      if (window._fsUnsubscribe) { clearInterval(window._fsUnsubscribe); window._fsUnsubscribe = null; }
+      if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('connected');
+
+      const _poll = async () => {
+        if (window._fsLocalWrite) return; // notre propre écriture en cours
+        try {
+          await initFirebase();
+          const { collection, getDocs, query, where, orderBy } = window._fsLib;
+          // Ne charger que les contrats modifiés depuis la dernière synchro
+          const since = window._lastFullSync || 0;
+          const now = Date.now();
+          let newContracts;
+          if (since === 0) {
+            // Premier chargement : tout récupérer
+            const snap = await getDocs(collection(_db, 'contrats'));
+            newContracts = snap.docs.map(d => ({ _fsId: d.id, ...d.data() }));
+            window._lastFullSync = now;
+          } else {
+            // Delta : seulement les contrats updatedAt > since
+            const snap = await getDocs(collection(_db, 'contrats'));
+            const all = snap.docs.map(d => ({ _fsId: d.id, ...d.data() }));
+            // Comparer avec db local pour détecter les changements
+            const changed = all.filter(nc => {
+              const local = db.find(x => x._id === nc._id || x._fsId === nc._fsId);
+              return !local || JSON.stringify(local) !== JSON.stringify(nc);
+            });
+            if (changed.length === 0 && all.length === db.length) {
+              // Rien de changé — mettre à jour l'horodatage quand même
+              window._lastSyncTime = new Date();
+              _updateSyncIndicator();
               if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('connected');
               return;
             }
-            // Ne pas traiter si c'est notre propre écriture en cours
-            if (window._fsLocalWrite) return;
-            // Voyant : réception en cours
-            if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('syncing');
-            const newContracts = snap.docs.map(d => ({ _fsId: d.id, ...d.data() }));
-            onUpdate(newContracts);
-          },
-          (err) => {
-            console.warn('Realtime sync error:', err);
-            if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
+            newContracts = all;
+            window._lastFullSync = now;
           }
-        );
-      } catch(e) {
-        console.warn('startRealtimeSync error:', e);
-        if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
-      }
+          window._lastSyncTime = new Date();
+          _updateSyncIndicator();
+          if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('syncing');
+          onUpdate(newContracts);
+          setTimeout(() => { if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('connected'); }, 1000);
+        } catch(e) {
+          console.warn('[Sync] Erreur polling:', e?.message);
+          if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
+        }
+      };
+
+      // Lancer le polling toutes les 45 secondes
+      window._fsUnsubscribe = setInterval(_poll, 45 * 1000);
+      window._fsPollFn = _poll; // exposer pour synchro manuelle/focus
     },
 
     stopRealtimeSync() {
-      if (window._fsUnsubscribe) { window._fsUnsubscribe(); window._fsUnsubscribe = null; }
+      if (window._fsUnsubscribe) { clearInterval(window._fsUnsubscribe); window._fsUnsubscribe = null; }
       if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
     },
   };
@@ -5034,29 +5060,54 @@ function refreshFamilleSelect() {
 
 // ── Durée d'intervention : helpers ──────────────────────────────────────────
 function _buildDuree() {
-  const valEl   = document.getElementById('f_Duree_Valeur');
-  const uniteEl = document.getElementById('f_Duree_Unite');
-  const hidden  = document.getElementById('f_Duree_Intervention');
-  const preview = document.getElementById('f_Duree_Preview');
-  const val = parseFloat(valEl?.value);
-  const unit = uniteEl?.value || 'j';
-  if (!val || isNaN(val) || val <= 0) {
+  const valEl  = document.getElementById('f_Duree_Valeur');
+  const hidden = document.getElementById('f_Duree_Intervention');
+  const preview= document.getElementById('f_Duree_Preview');
+  // Lire le radio sélectionné
+  const radioSel = document.querySelector('input[name="f_Duree_Unite_r"]:checked');
+  const unit = radioSel ? radioSel.value : null;
+  const val  = parseFloat(valEl?.value);
+
+  // Mettre en évidence le radio sélectionné
+  ['h','dj','j'].forEach(u => {
+    const lbl = document.getElementById('lbl_duree_' + u);
+    if (lbl) {
+      const isSelected = unit === u;
+      lbl.style.borderColor  = isSelected ? '#1e40af' : '#e2e8f0';
+      lbl.style.background   = isSelected ? '#eff6ff' : '';
+      lbl.style.color        = isSelected ? '#1e40af' : '';
+    }
+  });
+
+  if (!unit || !val || isNaN(val) || val <= 0) {
     if (hidden)  hidden.value = '';
     if (preview) preview.textContent = '';
     return;
   }
-  // Format court pour stockage : "1j", "2h", "0.5dj"
   const stored = val + unit;
   if (hidden) hidden.value = stored;
-  // Label lisible pour la prévisualisation et l'affichage
   const labels = { h: val <= 1 ? 'heure' : 'heures', j: val <= 1 ? 'journée' : 'journées', dj: val <= 1 ? 'demi-journée' : 'demi-journées' };
-  if (preview) preview.textContent = `→ Affichera : (${val} ${labels[unit]})`;
+  if (preview) preview.textContent = `→ ${val} ${labels[unit]}`;
+}
+
+function _clearDuree() {
+  const valEl = document.getElementById('f_Duree_Valeur');
+  const hidden= document.getElementById('f_Duree_Intervention');
+  const preview=document.getElementById('f_Duree_Preview');
+  if (valEl)  valEl.value = '';
+  if (hidden) hidden.value= '';
+  if (preview)preview.textContent = '';
+  document.querySelectorAll('input[name="f_Duree_Unite_r"]').forEach(r => r.checked = false);
+  ['h','dj','j'].forEach(u => {
+    const lbl = document.getElementById('lbl_duree_' + u);
+    if (lbl) { lbl.style.borderColor = '#e2e8f0'; lbl.style.background = ''; lbl.style.color = ''; }
+  });
 }
 
 function _formatDureeLabel(val) {
   if (!val) return '';
   const m = val.match(/^([0-9.]+)(h|j|dj)$/);
-  if (!m) return val; // valeur legacy
+  if (!m) return val;
   const n = parseFloat(m[1]);
   const u = m[2];
   const labels = { h: n <= 1 ? 'heure' : 'heures', j: n <= 1 ? 'journée' : 'journées', dj: n <= 1 ? 'demi-journée' : 'demi-journées' };
@@ -5064,25 +5115,15 @@ function _formatDureeLabel(val) {
 }
 
 function _populateDureeFields(dureeStored) {
-  const valEl   = document.getElementById('f_Duree_Valeur');
-  const uniteEl = document.getElementById('f_Duree_Unite');
-  const hidden  = document.getElementById('f_Duree_Intervention');
-  const preview = document.getElementById('f_Duree_Preview');
-  if (!dureeStored) {
-    if (valEl)   valEl.value   = '';
-    if (uniteEl) uniteEl.value = 'j';
-    if (hidden)  hidden.value  = '';
-    if (preview) preview.textContent = '';
-    return;
-  }
+  const valEl  = document.getElementById('f_Duree_Valeur');
+  const hidden = document.getElementById('f_Duree_Intervention');
+  if (!dureeStored) { _clearDuree(); return; }
   const m = dureeStored.match(/^([0-9.]+)(h|j|dj)$/);
-  if (m) {
-    if (valEl)   valEl.value   = m[1];
-    if (uniteEl) uniteEl.value = m[2];
-  } else {
-    if (valEl)   valEl.value   = dureeStored.replace(/[a-z]/gi,'');
-    if (uniteEl) uniteEl.value = 'j';
-  }
+  const val  = m ? m[1] : dureeStored.replace(/[a-z]/gi,'');
+  const unit = m ? m[2] : 'j';
+  if (valEl) valEl.value = val;
+  const radio = document.querySelector(`input[name="f_Duree_Unite_r"][value="${unit}"]`);
+  if (radio) radio.checked = true;
   if (hidden) hidden.value = dureeStored;
   _buildDuree();
 }
@@ -7081,12 +7122,19 @@ ${recap}`)) return;
 
 // Rafraîchir les indicateurs manuellement
 function refreshIndic() {
-  buildFilters();
-  applyFilters();
-  updateStats();
-  updateSynthese();
-  updateBtnMailMois();
-  toast('🔄 Indicateurs rafraîchis', 'success');
+  // Forcer une synchro Firebase immédiate + rafraîchir les indicateurs
+  if (window._fsPollFn && !_historyMode && !_offlineMode) {
+    window._fsPollFn().then(() => {
+      buildFilters(); applyFilters(); updateStats(); updateSynthese(); updateBtnMailMois();
+      toast('🔄 Synchronisé et rafraîchi', 'success');
+    }).catch(() => {
+      buildFilters(); applyFilters(); updateStats(); updateSynthese(); updateBtnMailMois();
+      toast('🔄 Rafraîchi (hors-ligne)', '');
+    });
+  } else {
+    buildFilters(); applyFilters(); updateStats(); updateSynthese(); updateBtnMailMois();
+    toast('🔄 Indicateurs rafraîchis', 'success');
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -9324,7 +9372,7 @@ function showChangelogModal(force) {
   const colors = { new: '#1565c0', fix: '#b45309', improve: '#047857' };
 
   let html = '';
-  CHANGELOG.slice(0, 2).forEach((ver, idx) => {
+  CHANGELOG.slice(0, 1).forEach((ver, idx) => {
     const isLatest = idx === 0;
     html += `<div style="margin-bottom:${isLatest ? 20 : 14}px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
@@ -9636,6 +9684,34 @@ function closeLoginAndStart() {
 }
 
 // ── Bannière discrète "mises à jour en attente" ──────────────────────────────
+// ── Indicateur "Dernière synchro à HH:MM" ─────────────────────────────────
+function _updateSyncIndicator() {
+  const el = document.getElementById('realtimeSyncIndicator');
+  if (!el) return;
+  if (window._lastSyncTime) {
+    const t = window._lastSyncTime;
+    const hh = String(t.getHours()).padStart(2,'0');
+    const mm = String(t.getMinutes()).padStart(2,'0');
+    el.textContent = `⚡ Synchro ${hh}:${mm}`;
+    el.style.opacity = '1';
+    el.style.color = '#86efac';
+    el.title = `Dernière synchro à ${hh}:${mm} — Cliquer pour synchroniser maintenant`;
+  } else {
+    el.textContent = '⚡ –';
+  }
+}
+
+// ── Synchro au retour sur l'onglet ────────────────────────────────────────
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && window._fsPollFn && !_historyMode && !_offlineMode) {
+    const lastSync = window._lastSyncTime ? Date.now() - window._lastSyncTime.getTime() : Infinity;
+    if (lastSync > 30 * 1000) { // synchro si plus de 30s depuis la dernière
+      console.log('[Sync] Retour sur onglet → synchro immédiate');
+      window._fsPollFn();
+    }
+  }
+});
+
 function _showPendingBanner(count) {
   let banner = document.getElementById('_pendingUpdateBanner');
   if (!banner) {
@@ -9723,6 +9799,7 @@ function _hidePendingBanner() {
 function _applyRealtimeRefresh(nbModifs) {
   const pendingChanges = window._pendingRealtimeChanges || [];
   _hidePendingBanner();
+  _updateSyncIndicator();
   if (pendingChanges.length > 0) _showRealtimeNotif(pendingChanges);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   buildFilters();
@@ -9730,16 +9807,8 @@ function _applyRealtimeRefresh(nbModifs) {
   updateStats();
   updateSynthese();
   // Indicateur sync dans le header
-  const indicator = document.getElementById('realtimeSyncIndicator');
-  if (indicator) {
-    indicator.textContent = `⚡ Sync (${nbModifs})`;
-    indicator.style.opacity = '1';
-    clearTimeout(window._syncIndicatorTimer);
-    window._syncIndicatorTimer = setTimeout(() => {
-      indicator.style.opacity = '0';
-      indicator.textContent = '⚡ Sync';
-    }, 3000);
-  }
+  window._lastSyncTime = new Date();
+  _updateSyncIndicator();
 }
 
 function niveauLabel(n) {
@@ -10751,7 +10820,7 @@ async function startPresence() {
       try { await SP.updatePresence(_currentUser); } catch(e) {}
       await refreshPresenceBadge();
     }
-  }, 4 * 60 * 1000); // heartbeat toutes les 4 min
+  }, 10 * 60 * 1000); // heartbeat toutes les 10 min (économie Firebase)
 }
 
 async function refreshPresenceBadge() {
