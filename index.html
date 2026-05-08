@@ -1827,32 +1827,34 @@ function loadSheetJS(callback) {
             <input type="text" id="f_Installation" required placeholder="Nom de l'installation" maxlength="70" oninput="updateInstallCount()">
             <div style="height:3px;border-radius:2px;background:#e2e8f0;margin-top:3px;overflow:hidden"><div id="f_Installation_bar" style="height:100%;width:0%;border-radius:2px;background:#94a3b8;transition:width .15s,background .15s"></div></div>
           </div>
-          <div class="fg">
+          <div class="fg" style="grid-column:1/-1">
             <label style="display:flex;align-items:center;gap:6px">
               ⏱ Durée d'intervention
               <span style="font-size:10px;font-weight:400;color:var(--sub)">(apparaît entre parenthèses)</span>
             </label>
-            <!-- Cases à cocher : unité -->
-            <div style="display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:5px 10px;border:1.5px solid #e2e8f0;border-radius:7px;transition:all .15s" id="lbl_duree_h">
-                <input type="radio" name="f_Duree_Unite_r" value="h" onchange="_buildDuree()" style="accent-color:#1e40af"> Heure(s)
-              </label>
-              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:5px 10px;border:1.5px solid #e2e8f0;border-radius:7px;transition:all .15s" id="lbl_duree_dj">
-                <input type="radio" name="f_Duree_Unite_r" value="dj" onchange="_buildDuree()" style="accent-color:#1e40af"> ½ Journée(s)
-              </label>
-              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:5px 10px;border:1.5px solid #e2e8f0;border-radius:7px;transition:all .15s" id="lbl_duree_j">
-                <input type="radio" name="f_Duree_Unite_r" value="j" onchange="_buildDuree()" style="accent-color:#1e40af"> Journée(s)
-              </label>
-            </div>
-            <!-- Nombre + effacer -->
-            <div style="display:flex;gap:6px;align-items:center">
-              <input type="number" id="f_Duree_Valeur" min="0.5" max="30" step="0.5" placeholder="Nombre"
-                style="width:90px;border:1.5px solid #bfdbfe;border-radius:6px;padding:6px 10px;font-size:15px;font-weight:800;text-align:center;color:#1e40af"
+            <!-- Contrôle durée : nombre + unités intégrés sur 1 ligne -->
+            <div style="display:flex;align-items:center;gap:0;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;max-width:500px">
+              <!-- Nombre -->
+              <input type="number" id="f_Duree_Valeur" min="0.5" max="30" step="0.5" placeholder="–"
+                style="width:64px;border:none;border-right:1.5px solid #e2e8f0;padding:10px 8px;font-size:17px;font-weight:800;text-align:center;color:#1e40af;background:transparent;outline:none"
                 oninput="_buildDuree()">
-              <div id="f_Duree_Preview" style="font-size:12px;color:#1e40af;font-weight:700;flex:1"></div>
-              <button type="button" onclick="_clearDuree()"
-                style="border:1px solid #fca5a5;border-radius:6px;padding:5px 10px;font-size:11px;color:#ef4444;background:#fef2f2;cursor:pointer" title="Effacer">✕ Effacer</button>
+              <!-- Séparateur vertical + unités -->
+              <div style="display:flex;flex:1">
+                <label id="lbl_duree_h" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;border-right:1px solid #e2e8f0;transition:all .15s;user-select:none">
+                  <input type="radio" name="f_Duree_Unite_r" value="h" onchange="_buildDuree()" style="display:none"> ⏰ Heure(s)
+                </label>
+                <label id="lbl_duree_dj" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;border-right:1px solid #e2e8f0;transition:all .15s;user-select:none">
+                  <input type="radio" name="f_Duree_Unite_r" value="dj" onchange="_buildDuree()" style="display:none"> ☀️ ½ Journée(s)
+                </label>
+                <label id="lbl_duree_j" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;transition:all .15s;user-select:none">
+                  <input type="radio" name="f_Duree_Unite_r" value="j" onchange="_buildDuree()" style="display:none"> 🌅 Journée(s)
+                </label>
+              </div>
+              <!-- Effacer -->
+              <button type="button" onclick="_clearDuree()" title="Effacer"
+                style="border:none;border-left:1.5px solid #e2e8f0;padding:10px 12px;font-size:13px;color:#94a3b8;background:transparent;cursor:pointer">✕</button>
             </div>
+            <div id="f_Duree_Preview" style="font-size:12px;color:#1e40af;font-weight:700;margin-top:5px;min-height:18px"></div>
             <input type="hidden" id="f_Duree_Intervention">
           </div>
           <div class="fg" style="grid-column:1/-1">
@@ -2148,7 +2150,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/08-05-26-17:25';
+const APP_VERSION = 'V1/08-05-26-17:34';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5068,14 +5070,14 @@ function _buildDuree() {
   const unit = radioSel ? radioSel.value : null;
   const val  = parseFloat(valEl?.value);
 
-  // Mettre en évidence le radio sélectionné
+  // Mettre en évidence le segment sélectionné
   ['h','dj','j'].forEach(u => {
     const lbl = document.getElementById('lbl_duree_' + u);
     if (lbl) {
       const isSelected = unit === u;
-      lbl.style.borderColor  = isSelected ? '#1e40af' : '#e2e8f0';
-      lbl.style.background   = isSelected ? '#eff6ff' : '';
-      lbl.style.color        = isSelected ? '#1e40af' : '';
+      lbl.style.background = isSelected ? '#1e40af' : '';
+      lbl.style.color      = isSelected ? '#fff'    : '#64748b';
+      lbl.style.fontWeight = isSelected ? '700'     : '600';
     }
   });
 
@@ -5100,7 +5102,7 @@ function _clearDuree() {
   document.querySelectorAll('input[name="f_Duree_Unite_r"]').forEach(r => r.checked = false);
   ['h','dj','j'].forEach(u => {
     const lbl = document.getElementById('lbl_duree_' + u);
-    if (lbl) { lbl.style.borderColor = '#e2e8f0'; lbl.style.background = ''; lbl.style.color = ''; }
+    if (lbl) { lbl.style.background = ''; lbl.style.color = '#64748b'; lbl.style.fontWeight = '600'; }
   });
 }
 
