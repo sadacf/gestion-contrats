@@ -1842,36 +1842,7 @@ function loadSheetJS(callback) {
             <input type="text" id="f_Installation" required placeholder="Nom de l'installation" maxlength="70" oninput="updateInstallCount()">
             <div style="height:3px;border-radius:2px;background:#e2e8f0;margin-top:3px;overflow:hidden"><div id="f_Installation_bar" style="height:100%;width:0%;border-radius:2px;background:#94a3b8;transition:width .15s,background .15s"></div></div>
           </div>
-          <div class="fg" style="grid-column:1/-1">
-            <label style="display:flex;align-items:center;gap:6px">
-              ⏱ Durée d'intervention
-              <span style="font-size:10px;font-weight:400;color:var(--sub)">(apparaît entre parenthèses)</span>
-            </label>
-            <!-- Contrôle durée : nombre + unités intégrés sur 1 ligne -->
-            <div style="display:flex;align-items:center;gap:0;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;max-width:500px">
-              <!-- Nombre -->
-              <input type="number" id="f_Duree_Valeur" min="0.5" max="30" step="0.5" placeholder="–"
-                style="width:64px;border:none;border-right:1.5px solid #e2e8f0;padding:10px 8px;font-size:17px;font-weight:800;text-align:center;color:#1e40af;background:transparent;outline:none"
-                oninput="_buildDuree()">
-              <!-- Séparateur vertical + unités -->
-              <div style="display:flex;flex:1">
-                <label id="lbl_duree_h" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;border-right:1px solid #e2e8f0;transition:all .15s;user-select:none">
-                  <input type="radio" name="f_Duree_Unite_r" value="h" onchange="_buildDuree()" style="display:none"> ⏰ Heure(s)
-                </label>
-                <label id="lbl_duree_dj" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;border-right:1px solid #e2e8f0;transition:all .15s;user-select:none">
-                  <input type="radio" name="f_Duree_Unite_r" value="dj" onchange="_buildDuree()" style="display:none"> ☀️ ½ Journée(s)
-                </label>
-                <label id="lbl_duree_j" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;transition:all .15s;user-select:none">
-                  <input type="radio" name="f_Duree_Unite_r" value="j" onchange="_buildDuree()" style="display:none"> 🌅 Journée(s)
-                </label>
-              </div>
-              <!-- Effacer -->
-              <button type="button" onclick="_clearDuree()" title="Effacer"
-                style="border:none;border-left:1.5px solid #e2e8f0;padding:10px 12px;font-size:13px;color:#94a3b8;background:transparent;cursor:pointer">✕</button>
-            </div>
-            <div id="f_Duree_Preview" style="font-size:12px;color:#1e40af;font-weight:700;margin-top:5px;min-height:18px"></div>
-            <input type="hidden" id="f_Duree_Intervention">
-          </div>
+          <input type="hidden" id="f_Duree_Intervention">
           <div class="fg" style="grid-column:1/-1">
             <label>📁 Dossier rapports
               <span style="font-size:10px;font-weight:400;color:#94a3b8;margin-left:6px">Chemin vers le dossier de l'installation</span>
@@ -1961,21 +1932,60 @@ function loadSheetJS(callback) {
           <!-- Ligne 2 : VE1 + VE2 côte à côte -->
           <div class="fg">
             <label>Semestre 1</label>
-            <select id="f_VE1">
+            <select id="f_VE1" onchange="_calcDureeVE()">
               <option value="">–</option>
               <option>Janvier</option><option>Fevrier</option><option>Mars</option>
               <option>Avril</option><option>Mai</option><option>Juin</option>
               <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
             </select>
+            <!-- Durée VE1 -->
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+              <span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap">⏱ Durée VE1</span>
+              <input type="number" id="f_Duree_VE1_val" min="0.5" max="30" step="0.5" placeholder="–"
+                style="width:52px;border:1.5px solid #bfdbfe;border-radius:6px;padding:4px 6px;font-size:13px;font-weight:800;text-align:center;color:#1e40af"
+                oninput="_onDureeVE1Change()">
+<div style="display:flex;gap:3px">
+                <label id="lbl_ve1_h"  style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
+                  <input type="radio" name="f_Duree_VE1_unit_r" value="h"  style="display:none" onchange="_onDureeVE1Change()"> h
+                </label>
+                <label id="lbl_ve1_dj" style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
+                  <input type="radio" name="f_Duree_VE1_unit_r" value="dj" style="display:none" onchange="_onDureeVE1Change()"> ½j
+                </label>
+                <label id="lbl_ve1_j"  style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
+                  <input type="radio" name="f_Duree_VE1_unit_r" value="j"  style="display:none" onchange="_onDureeVE1Change()"> j
+                </label>
+              </div>
+              <input type="hidden" id="f_Duree_VE1">
+            </div>
           </div>
           <div class="fg">
             <label>Semestre 2</label>
-            <select id="f_VE2">
+            <select id="f_VE2" onchange="_calcDureeVE()">
               <option value="">–</option>
               <option>Juillet</option><option>Aout</option><option>Septembre</option>
               <option>Octobre</option><option>Novembre</option><option>Decembre</option>
               <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
             </select>
+            <!-- Durée VE2 -->
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px" id="dureeVE2wrap">
+              <span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap">⏱ Durée VE2</span>
+              <input type="number" id="f_Duree_VE2_val" min="0.5" max="30" step="0.5" placeholder="–"
+                style="width:52px;border:1.5px solid #bfdbfe;border-radius:6px;padding:4px 6px;font-size:13px;font-weight:800;text-align:center;color:#1e40af"
+                oninput="_onDureeVEChange()">
+<div style="display:flex;gap:3px">
+                <label id="lbl_ve2_h"  style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
+                  <input type="radio" name="f_Duree_VE2_unit_r" value="h"  style="display:none" onchange="_onDureeVEChange()"> h
+                </label>
+                <label id="lbl_ve2_dj" style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
+                  <input type="radio" name="f_Duree_VE2_unit_r" value="dj" style="display:none" onchange="_onDureeVEChange()"> ½j
+                </label>
+                <label id="lbl_ve2_j"  style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
+                  <input type="radio" name="f_Duree_VE2_unit_r" value="j"  style="display:none" onchange="_onDureeVEChange()"> j
+                </label>
+              </div>
+              <input type="hidden" id="f_Duree_VE2">
+              <span id="dureeVE2auto" style="font-size:9px;color:#94a3b8;font-style:italic"></span>
+            </div>
           </div>
 
           <!-- Ligne 3 : MATERIEL + Nb détecteurs -->
@@ -2165,7 +2175,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/09-05-26-18:32';
+const APP_VERSION = 'V1/09-05-26-20:38';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4791,8 +4801,15 @@ function renderTable() {
         <div style="display:flex;align-items:center;gap:4px">
           ${typeIcon}
           ${r.Lien_Dossier
-            ? `<div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}${r.Duree_Intervention ? `<span style="font-size:10px;color:#fff;font-weight:700;margin-left:5px;background:#64748b;border-radius:4px;padding:1px 6px;white-space:nowrap;text-decoration:none">${_formatDureeLabel(r.Duree_Intervention)}</span>` : ''}</div>`
-            : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}${r.Duree_Intervention ? `<span style="font-size:10px;color:#fff;font-weight:700;margin-left:5px;background:#64748b;border-radius:4px;padding:1px 6px;white-space:nowrap">${_formatDureeLabel(r.Duree_Intervention)}</span>` : ''}</div>`
+            ? `<div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}</div>`
+            : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}
+              const d2 = _formatDureeLabel(r.Duree_VE2);
+              if (!d1 && !d2) return '';
+              let parts = [];
+              if (d1) parts.push('VE1\u00a0' + d1);
+              if (d2) parts.push('VE2\u00a0' + d2);
+              return '<span style="font-size:10px;color:#475569;font-weight:600;margin-left:6px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:1px 7px;white-space:nowrap">⏱\u00a0' + parts.join('\u00a0|\u00a0') + '</span>';
+            })()}</div>`
           }
           ${nouveauBadge}
         </div>
@@ -4803,13 +4820,13 @@ function renderTable() {
         }
         ${badgesHtml}
       </td>
-      <td>${typeBadge(r.Type_Contrat)}</td>
+      <td>${typeBadge(r.Type_Contrat, r.Duree_VE1, r.Duree_VE2)}</td>
       <td oncontextmenu="openCtxMenu(event, ${i}, 'VE1')" ondblclick="if(hasPerm('editVE'))editVeMois(event,${i},'VE1');else toast('🔒 Modification du mois VE non autorisée','warning')" style="cursor:context-menu;width:75px;min-width:75px;text-align:center" title="Clic droit : couleur | Double-clic : modifier le mois">
-        ${veCell(r.VE1, r.VE1_statut, r.Installation, 've1')}
+        ${veCell(r.VE1, r.VE1_statut, r.Installation, 've1', r.Duree_VE1)}
         ${r.Q7_VE1_tech ? `<div style="margin-top:3px"><span style="display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#dc2626;color:#fff;white-space:nowrap" title="Q7 VE1 : ${esc(r.Q7_VE1_tech)}">Q7 · ${esc(r.Q7_VE1_tech)}</span></div>` : ''}
       </td>
       <td oncontextmenu="openCtxMenu(event, ${i}, 'VE2')" ondblclick="if(hasPerm('editVE'))editVeMois(event,${i},'VE2');else toast('🔒 Modification du mois VE non autorisée','warning')" style="cursor:context-menu;width:75px;min-width:75px;text-align:center" title="Clic droit : couleur | Double-clic : modifier le mois">
-        ${veCell(r.VE2, r.VE2_statut, r.Installation, 've2')}
+        ${veCell(r.VE2, r.VE2_statut, r.Installation, 've2', r.Duree_VE2)}
         ${r.Q7_VE2_tech ? `<div style="margin-top:3px"><span style="display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#dc2626;color:#fff;white-space:nowrap" title="Q7 VE2 : ${esc(r.Q7_VE2_tech)}">Q7 · ${esc(r.Q7_VE2_tech)}</span></div>` : ''}
       </td>
       <td oncontextmenu="openTechMenu(event, ${i}, 'Technicien')" ondblclick="if(hasPerm('editTechInline')){event.stopPropagation();openTechMenu(event,${i},'Technicien')}else{toast('🔒 Modification du technicien non autorisée','warning')}" style="cursor:context-menu" title="Clic droit ou double-clic : modifier le technicien">${esc(r.Technicien)||'<span style="color:#ccc">–</span>'}</td>
@@ -5175,7 +5192,7 @@ function resetOptionsOrder() {
 }
 // BOOL_FIELDS dynamique (cases à cocher uniquement)
 let BOOL_FIELDS = getOptions().filter(o => (o.type||'checkbox')==='checkbox').map(o => o.key);
-const TEXT_FIELDS = ['Installation','Client','Ville','Departement','Type_Contrat','Type_Materiel','VE1','VE2','Technicien','Binome','Fin_Validite','Validite_Statut','Facturation','Q7','Remarques','Lien_Dossier','Dossier_Statut','Dossier_Dept','Dossier_SousRep','Duree_Intervention'];
+const TEXT_FIELDS = ['Installation','Client','Ville','Departement','Type_Contrat','Type_Materiel','VE1','VE2','Technicien','Binome','Fin_Validite','Validite_Statut','Facturation','Q7','Remarques','Lien_Dossier','Dossier_Statut','Dossier_Dept','Dossier_SousRep','Duree_Intervention','Duree_VE1','Duree_VE2'];
 const NUM_FIELDS  = ['Detect_Tech1','Detect_Tech2'];
 
 function refreshFamilleSelect() {
@@ -5189,10 +5206,135 @@ function refreshFamilleSelect() {
 // ── DOSSIER PATH ────────────────────────────────────────────────────────────
 
 // ── Durée d'intervention : helpers ──────────────────────────────────────────
+/* ── Durée par visite VE1 / VE2 ───────────────────────────────────── */
+function _parseDureeStored(stored) {
+  if (!stored) return null;
+  const m = stored.match(/^([0-9.]+)(h|j|dj)$/);
+  if (!m) return null;
+  return { val: parseFloat(m[1]), unit: m[2] };
+}
+
+function _dureeToStored(valEl, unitEl) {
+  const v = parseFloat(valEl?.value);
+  const u = unitEl?.value || 'j';
+  if (!v || isNaN(v) || v <= 0) return '';
+  return v + u;
+}
+
+function _dureeToLabel(stored) {
+  const p = _parseDureeStored(stored);
+  if (!p) return '';
+  const L = { h: p.val <= 1 ? 'heure' : 'heures', j: p.val <= 1 ? 'journée' : 'journées', dj: p.val <= 1 ? 'demi-journée' : 'demi-journées' };
+  return p.val + ' ' + L[p.unit];
+}
+
+function _halveDuree(stored) {
+  // Divise une durée par 2 et choisit l'unité la plus lisible
+  const p = _parseDureeStored(stored);
+  if (!p) return '';
+  let val = p.val / 2;
+  let unit = p.unit;
+  // Si la moitié donne 0.5j → convertir en demi-journée
+  if (unit === 'j' && val === 0.5) { val = 1; unit = 'dj'; }
+  // Si 0.25j → 2h (approx)
+  if (unit === 'j' && val < 0.5) { val = Math.round(p.val * 4) ; unit = 'h'; }
+  return val + unit;
+}
+
+function _applyVEUnitStyle(veNum, unit) {
+  ['h','dj','j'].forEach(u => {
+    const lbl = document.getElementById('lbl_ve' + veNum + '_' + u);
+    if (!lbl) return;
+    const on = u === unit;
+    lbl.style.borderColor  = on ? '#1e40af' : '#e2e8f0';
+    lbl.style.background   = on ? '#1e40af' : '#f8fafc';
+    lbl.style.color        = on ? '#ffffff' : '#94a3b8';
+    lbl.style.fontWeight   = on ? '800' : '600';
+    lbl.style.boxShadow    = on ? '0 2px 6px rgba(30,64,175,.35)' : 'none';
+  });
+}
+
+function _setDureeVEFields(veNum, stored) {
+  const valEl  = document.getElementById('f_Duree_VE' + veNum + '_val');
+  const hidden = document.getElementById('f_Duree_VE' + veNum);
+  const p = _parseDureeStored(stored);
+  if (valEl) valEl.value = p ? p.val : '';
+  // Cocher le bon radio
+  const unit = p ? p.unit : 'j';
+  const radio = document.querySelector('input[name="f_Duree_VE' + veNum + '_unit_r"][value="' + unit + '"]');
+  if (radio && p) radio.checked = true;
+  else document.querySelectorAll('input[name="f_Duree_VE' + veNum + '_unit_r"]').forEach(r => r.checked = false);
+  _applyVEUnitStyle(veNum, p ? unit : null);
+  if (hidden) hidden.value = stored || '';
+}
+
+function _getVEUnit(veNum) {
+  const r = document.querySelector('input[name="f_Duree_VE' + veNum + '_unit_r"]:checked');
+  return r ? r.value : 'j';
+}
+
+function _onDureeVEChange() {
+  const s1 = _dureeToStored(document.getElementById('f_Duree_VE1_val'), { value: _getVEUnit(1) });
+  const s2 = _dureeToStored(document.getElementById('f_Duree_VE2_val'), { value: _getVEUnit(2) });
+  // Appliquer les styles
+  _applyVEUnitStyle(1, _getVEUnit(1));
+  _applyVEUnitStyle(2, _getVEUnit(2));
+  const h1 = document.getElementById('f_Duree_VE1');
+  const h2 = document.getElementById('f_Duree_VE2');
+  if (h1) h1.value = s1;
+  if (h2) h2.value = s2;
+  // Supprimer le label "auto"
+  const autoLbl = document.getElementById('dureeVE2auto');
+  if (autoLbl) autoLbl.textContent = '';
+}
+
+function _calcDureeVE() {
+  // Quand VE2 est renseigné et VE1 a une durée → proposer auto VE2 = ½ VE1
+  const ve2 = document.getElementById('f_VE2')?.value || '';
+  const hasVE2 = ve2 && ve2 !== 'S.O';
+  const ve1dur = document.getElementById('f_Duree_VE1')?.value || '';
+  const ve2dur = document.getElementById('f_Duree_VE2')?.value || '';
+  const autoLbl = document.getElementById('dureeVE2auto');
+
+  if (hasVE2 && ve1dur && !ve2dur) {
+    // VE2 présente, VE1 a une durée, VE2 sans durée → auto-calculer
+    const half = _halveDuree(ve1dur);
+    _setDureeVEFields(2, half);
+    _onDureeVEChange();
+    if (autoLbl) autoLbl.textContent = '(auto = ½ VE1)';
+  } else if (!hasVE2) {
+    _setDureeVEFields(2, '');
+    _onDureeVEChange();
+    if (autoLbl) autoLbl.textContent = '';
+  }
+}
+
+// Déclenché quand durée VE1 change → recalcule VE2 si auto
+function _onDureeVE1Change() {
+  _onDureeVEChange();
+  const ve2dur = document.getElementById('f_Duree_VE2')?.value || '';
+  const autoLbl = document.getElementById('dureeVE2auto');
+  const isAuto = autoLbl && autoLbl.textContent.includes('auto');
+  if (isAuto || !ve2dur) _calcDureeVE();
+}
+
+function _populateDureeVEFields(ve1stored, ve2stored) {
+  _setDureeVEFields(1, ve1stored || '');
+  _setDureeVEFields(2, ve2stored || '');
+  // Indiquer si VE2 = moitié de VE1
+  if (ve1stored && ve2stored) {
+    const expected = _halveDuree(ve1stored);
+    const autoLbl = document.getElementById('dureeVE2auto');
+    if (autoLbl) autoLbl.textContent = (ve2stored === expected) ? '(auto = ½ VE1)' : '';
+  }
+}
+
 function _buildDuree() {
   const valEl  = document.getElementById('f_Duree_Valeur');
   const hidden = document.getElementById('f_Duree_Intervention');
   const preview= document.getElementById('f_Duree_Preview');
+  // Déclencher le recalcul VE1/VE2 après mise à jour de la durée globale
+  setTimeout(_calcDureeVE, 50);
   // Lire le radio sélectionné
   const radioSel = document.querySelector('input[name="f_Duree_Unite_r"]:checked');
   const unit = radioSel ? radioSel.value : null;
@@ -5489,6 +5631,7 @@ function openAdd() {
   updateInstallCount();
   // Réinitialiser durée d'intervention
   _populateDureeFields('');
+  _populateDureeVEFields('','');
 
   // Date d'enregistrement : aujourd'hui par défaut pour un nouveau contrat
   const today = new Date().toISOString().slice(0,10);
@@ -5583,6 +5726,7 @@ function openEditById(id) {
   updateInstallCount();
   // Durée d'intervention
   _populateDureeFields(r.Duree_Intervention || '');
+  _populateDureeVEFields(r.Duree_VE1 || '', r.Duree_VE2 || '');
 
   // Date d'enregistrement
   const _createdAtEl = document.getElementById('f_createdAt');
@@ -6102,10 +6246,26 @@ function closeModal(id) {
   }
 }
 
-function typeBadge(t) {
+function typeBadge(t, duree1, duree2) {
   if (!t) return '<span class="badge b-def">–</span>';
   const cls = {V1:'v1',V2:'v2',M1:'m1',M2:'m2',PROT:'prot'}[t] || 'def';
-  return `<span class="badge b-${cls}">${t}</span>`;
+  // Format durée court
+  function _sd(d) {
+    if (!d) return '';
+    const m = d.match(/^([0-9.]+)(h|j|dj)$/);
+    if (!m) return '';
+    const n = parseFloat(m[1]);
+    const u = m[2];
+    return u === 'dj' ? (n === 1 ? '½j' : n + '×½j') : n + u;
+  }
+  const d1 = _sd(duree1);
+  const d2 = _sd(duree2);
+  let dureeHtml = '';
+  if (d1 || d2) {
+    const parts = [d1, d2].filter(Boolean).map(p => '(' + p + ')');
+    dureeHtml = `<span style="display:block;font-size:10px;font-weight:700;color:#1e40af;margin-top:2px;line-height:1.3;letter-spacing:.2px">${parts.join(' ')}</span>`;
+  }
+  return `<span class="badge b-${cls}" style="display:inline-flex;flex-direction:column;align-items:center;padding:3px 8px;line-height:1.4">${t}${dureeHtml}</span>`;
 }
 
 function validBadge(v) {
@@ -11641,9 +11801,20 @@ function deleteTechFiche(idx) {
 ═══════════════════════════════════════════════ */
 let ctxTarget = null; // { filteredIdx, field }
 
-function veCell(val, statut, installation, field) {
+function veCell(val, statut, installation, field, duree) {
   const text = val && val.trim() ? val.trim() : null;
   if (!text) return '<span style="color:#ccc">–</span>';
+  // Format durée court : "1j" → "(1j)", "2heures" → "(2h)" etc.
+  function _shortDuree(d) {
+    if (!d) return '';
+    const m = d.match(/^([0-9.]+)(h|j|dj)$/);
+    if (!m) return '';
+    const n = parseFloat(m[1]);
+    const u = m[2];
+    if (u === 'dj') return n === 1 ? '(½j)' : '(' + n + '×½j)';
+    return '(' + n + u + ')';
+  }
+  const dureeLabel = _shortDuree(duree);
 
   // Statut CLEARED = effacé volontairement → pas de couleur même si VE_COLORS a une valeur
   if (statut === 'CLEARED') {
