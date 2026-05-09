@@ -668,6 +668,11 @@ tr.validite-expiree td { opacity: .85; }
 /* ═══════════════════════════════════════════════
    CONTEXT MENU VE1/VE2
 ═══════════════════════════════════════════════ */
+@keyframes _pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
 #ctxMenu {
   display: none; position: fixed; z-index: 300;
   background: white; border-radius: 10px;
@@ -890,6 +895,12 @@ function loadSheetJS(callback) {
       <span id="realtimeSyncIndicator" title="Dernière synchronisation Firebase"
         style="font-size:10px;color:#86efac;background:rgba(0,0,0,.25);border-radius:10px;padding:1px 8px;opacity:1;transition:opacity 0.5s;white-space:nowrap;cursor:pointer" onclick="if(window._fsPollFn)window._fsPollFn()" title="Cliquer pour synchroniser maintenant">⚡ –</span>
       <span id="autoBackupIndicator" style="font-size:10px;color:#86efac;background:rgba(0,0,0,.25);border-radius:10px;padding:1px 8px;white-space:nowrap"></span>
+      <!-- Badge données non synchronisées -->
+      <span id="pendingSyncBadge" onclick="_flushPendingSync()" title="Données non synchronisées avec Firebase — cliquer pour réessayer"
+        style="display:none;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:2px 10px;white-space:nowrap;cursor:pointer;animation:_pulse 2s infinite"
+        onmouseover="this.style.background='#fde68a'" onmouseout="this.style.background='#fef3c7'">
+        ⚠️ <span id="pendingSyncCount">0</span> non sync.
+      </span>
       <!-- Badge file d'attente mails -->
       <span id="mailQueueBadge" onclick="_flushMailQueue()" title="Cliquer pour renvoyer maintenant"
         style="display:none;align-items:center;font-size:10px;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:2px 10px;white-space:nowrap;cursor:pointer;gap:4px"
@@ -1774,9 +1785,13 @@ function loadSheetJS(callback) {
       <!-- Ajout nouvelle option -->
       <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid var(--line)">
         <input type="text" id="newOptionLabel" class="form-input" placeholder="Libellé de l'option" style="flex:1;min-width:0">
+        <select id="newOptionGroupe" style="padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-size:13px;background:var(--bg)">
+          <option value="detection">📟 Détection</option>
+          <option value="protection">🧯 Protection</option>
+        </select>
         <select id="newOptionType" style="padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-size:13px;background:var(--bg);color:var(--text)">
-          <option value="checkbox">☑ Case à cocher</option>
-          <option value="number">🔢 Quantité</option>
+          <option value="checkbox">☑ Case</option>
+          <option value="number">🔢 Qté</option>
           <option value="text">📝 Texte</option>
         </select>
         <button class="hbtn hbtn-success" onclick="addOption()" style="white-space:nowrap">＋ Ajouter</button>
@@ -2150,7 +2165,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/08-05-26-17:34';
+const APP_VERSION = 'V1/09-05-26-18:32';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2655,6 +2670,11 @@ const SP = (() => {
           _updateSyncIndicator();
           if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('syncing');
           onUpdate(newContracts);
+          // Firebase disponible → tenter de pousser les données en attente
+          if (_getPendingSync().length > 0) {
+            console.log('[PendingSync] Firebase de nouveau disponible → flush automatique');
+            setTimeout(_flushPendingSync, 2000); // attendre 2s que le poll finisse
+          }
           setTimeout(() => { if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('connected'); }, 1000);
         } catch(e) {
           console.warn('[Sync] Erreur polling:', e?.message);
@@ -3240,8 +3260,16 @@ function saveDB(modifiedContract = null) {
       if (_autoExport) { setTimeout(exportJSON, 300); }
       setTimeout(() => setStatus('loaded', `${db.length} contrats`), 2000);
     } catch(e) {
-      setStatus('loaded', 'Erreur sauvegarde!');
-      toast('Erreur de sauvegarde – ' + (SP.isOnSharePoint ? 'SharePoint inaccessible ?' : 'localStorage plein ?'), 'error');
+      // Firebase KO → mettre en file d'attente locale pour synchronisation ultérieure
+      if (modifiedContract) {
+        _addToPendingSync(modifiedContract);
+        setStatus('loaded', `${db.length} contrats – ⚠️ Firebase KO (en attente)`);
+        toast('⚠️ Firebase indisponible — modification sauvegardée localement, synchronisation automatique dès que Firebase revient', 'warning');
+      } else {
+        setStatus('loaded', 'Erreur sauvegarde!');
+        toast('Erreur de sauvegarde – ' + (SP.isOnSharePoint ? 'SharePoint inaccessible ?' : e?.message || 'erreur inconnue'), 'error');
+      }
+      console.warn('[saveDB] Erreur Firebase:', e?.message || e);
     } finally {
       clearTimeout(window._saveTimeoutSafety);
       setTimeout(() => { window._fsLocalWrite = false; }, 1500);
@@ -4878,31 +4906,47 @@ function di(label, val) {
 ═══════════════════════════════════════════════ */
 const OPTIONS_STORE_KEY = 'gestion_contrats_options';
 const DEFAULT_OPTIONS = [
-  { key:'Debit',           label:'Débit' },
-  { key:'Astreinte',       label:'Astreinte' },
-  { key:'MO_Inclus',       label:'MO Inclus' },
-  { key:'Formation_SSI',   label:'Formation SSI' },
-  { key:'Reconditionnement',label:'Reconditionnement', type:'number' },
-  { key:'Filtres_DFA',     label:'Filtres DFA' },
-  { key:'Batterie',        label:'Batterie / Piles' },
-  { key:'Entretien_DAS',   label:'Entretien DAS' },
-  { key:'Trienale_CS',     label:'Triennale CS' },
-  { key:'Sono',            label:'Sono' },
-  { key:'Fan_Test',        label:'Fan Test' },
-  { key:'Form_Extincteurs',label:'Form. Extincteurs' },
-  { key:'Verif_DAF',       label:'Vérif. DAF' },
-  { key:'PCF_CCF',         label:'PCF/CCF' },
-  { key:'BAES_BAEH',       label:'BAES/BAEH' },
-  { key:'Extincteurs',     label:'Extincteurs',  type:'number' },
-  { key:'Desenfumage',     label:'Désenfumage',  type:'number' },
-  { key:'RIA',             label:'RIA',          type:'number' },
-  { key:'Col_seche',       label:'Col. sèche',   type:'number' },
+  // ── DÉTECTION ──
+  { key:'Debit',            label:'Débit',            groupe:'detection' },
+  { key:'Astreinte',        label:'Astreinte',         groupe:'detection' },
+  { key:'MO_Inclus',        label:'MO Inclus',         groupe:'detection' },
+  { key:'Formation_SSI',    label:'Formation SSI',     groupe:'detection' },
+  { key:'Reconditionnement',label:'Reconditionnement', groupe:'detection', type:'number' },
+  { key:'Filtres_DFA',      label:'Filtres DFA',       groupe:'detection' },
+  { key:'Batterie',         label:'Batterie / Piles',  groupe:'detection' },
+  { key:'Entretien_DAS',    label:'Entretien DAS',     groupe:'detection' },
+  { key:'Trienale_CS',      label:'Triennale CS',      groupe:'detection' },
+  { key:'Sono',             label:'Sono',              groupe:'detection' },
+  { key:'Fan_Test',         label:'Fan Test',          groupe:'detection' },
+  { key:'Verif_DAF',        label:'Vérif. DAF',        groupe:'detection' },
+  { key:'PCF_CCF',          label:'PCF/CCF',           groupe:'detection' },
+  // ── PROTECTION ──
+  { key:'Form_Extincteurs', label:'Form. Extincteurs', groupe:'protection' },
+  { key:'BAES_BAEH',        label:'BAES/BAEH',         groupe:'protection' },
+  { key:'Extincteurs',      label:'Extincteurs',       groupe:'protection', type:'number' },
+  { key:'Desenfumage',      label:'Désenfumage',       groupe:'protection', type:'number' },
+  { key:'RIA',              label:'RIA',               groupe:'protection', type:'number' },
+  { key:'Col_seche',        label:'Col. sèche',        groupe:'protection', type:'number' },
 ];
+
+// Mapping groupe par défaut pour les options sans groupe (compatibilité données existantes)
+const _GROUPE_MAP = {
+  detection: ['Debit','Astreinte','MO_Inclus','Formation_SSI','Reconditionnement','Filtres_DFA',
+              'Batterie','Entretien_DAS','Trienale_CS','Sono','Fan_Test','Verif_DAF','PCF_CCF'],
+  protection: ['Form_Extincteurs','BAES_BAEH','Extincteurs','Desenfumage','RIA','Col_seche'],
+};
+function _getGroupe(opt) {
+  if (opt.groupe) return opt.groupe;
+  if (_GROUPE_MAP.detection.includes(opt.key))  return 'detection';
+  if (_GROUPE_MAP.protection.includes(opt.key)) return 'protection';
+  return 'detection'; // par défaut
+}
 
 let _options = null; // chargé au démarrage
 
 function getOptions() {
-  return _options || DEFAULT_OPTIONS;
+  // Utiliser DEFAULT_OPTIONS si _options est null, undefined, ou tableau vide
+  return (_options && _options.length > 0) ? _options : DEFAULT_OPTIONS;
 }
 function saveOptions(opts) {
   if (_offlineMode) { toast('📵 Mode hors ligne — modifications impossibles', 'warning'); return; }
@@ -4921,29 +4965,82 @@ function renderOptionsCheckboxes(record) {
   const grid = document.getElementById('optionsCheckboxGrid');
   if (!grid) return;
   const opts = getOptions();
-  grid.innerHTML = opts.map(o => {
-    const type = o.type || 'checkbox';
+  if (!opts || opts.length === 0) {
+    grid.innerHTML = '<div style="color:#94a3b8;font-size:12px;padding:10px">Aucune option configurée.</div>';
+    return;
+  }
+
+  const defaultKeys = ['Debit','Astreinte','MO_Inclus','Formation_SSI',
+    'Filtres_DFA','Batterie','Entretien_DAS','Trienale_CS','Sono','Fan_Test','Verif_DAF','PCF_CCF'];
+
+  // Helpers d'état visuel (appelés depuis les handlers inline)
+  function _applyOptState(key, on) {
+    var l=document.getElementById('lbl_opt_'+key);
+    var d=document.getElementById('dot_opt_'+key);
+    var t=document.getElementById('txt_opt_'+key);
+    if(l){l.style.borderColor=on?'#86efac':'#e2e8f0';l.style.background=on?'#dcfce7':'#f1f5f9';}
+    if(d)d.style.background=on?'#16a34a':'#94a3b8';
+    if(t){t.style.color=on?'#14532d':'#475569';t.style.fontWeight=on?'700':'500';}
+  }
+
+  // Pilule checkbox — inline handler use global _applyOptState
+  function makePill(o) {
     const val = record ? record[o.key] : null;
-    if (type === 'number') {
-      return `<div class="fg" style="min-width:120px"><label>${esc(o.label)}</label><input type="number" id="f_opt_${o.key}" min="0" placeholder="0" value="${val != null ? val : ''}" style="width:100%"></div>`;
-    } else if (type === 'text') {
-      return `<div class="fg" style="min-width:160px"><label>${esc(o.label)}</label><input type="text" id="f_opt_${o.key}" placeholder="…" value="${val != null ? esc(String(val)) : ''}" style="width:100%"></div>`;
-    } else {
-      // Quantité uniquement pour BAES_BAEH, Extincteurs et options personnalisées
-      const defaultKeys = ['Debit','Astreinte','MO_Inclus','Formation_SSI','Reconditionnement',
-        'Filtres_DFA','Batterie','Entretien_DAS','Trienale_CS','Sono','Fan_Test',
-        'Form_Extincteurs','Verif_DAF','PCF_CCF'];
-      const showQty = !defaultKeys.includes(o.key); // BAES_BAEH, Extincteurs, custom
-      const qty = (showQty && record) ? (record[o.key + '_qty'] ?? null) : null;
-      return `<label class="ck-item" style="gap:6px">
-        <input type="checkbox" id="f_opt_${o.key}"${val ? ' checked' : ''}>
-        <span>${esc(o.label)}</span>
-        ${showQty ? `<input type="number" id="f_opt_${o.key}_qty" min="0" placeholder="qté" value="${qty != null ? qty : ''}"
-          style="width:44px;font-size:11px;padding:1px 4px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--sub);margin-left:2px"
-          onclick="event.stopPropagation()" title="Quantité associée">` : ''}
-      </label>`;
-    }
-  }).join('');
+    const showQty = !defaultKeys.includes(o.key);
+    const qty = (showQty && record) ? (record[o.key + '_qty'] ?? '') : '';
+    const on = !!val;
+    const bdr = on ? '#86efac' : '#e2e8f0';
+    const bg  = on ? '#dcfce7' : '#f1f5f9';
+    const dot = on ? '#16a34a' : '#94a3b8';
+    const txt = on ? '#14532d' : '#475569';
+    const qtyHtml = showQty
+      ? `<input type="number" id="f_opt_${o.key}_qty" min="0" placeholder="qté" value="${qty}" style="width:44px;font-size:11px;padding:2px 4px;border:1px solid #d1fae5;border-radius:8px;background:#fff;text-align:center" onclick="event.stopPropagation()">`
+      : '';
+    return `<label onclick="event.stopPropagation()" id="lbl_opt_${o.key}" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:20px;cursor:pointer;border:1.5px solid ${bdr};background:${bg};transition:all .15s;user-select:none;white-space:nowrap">
+      <span id="dot_opt_${o.key}" style="width:10px;height:10px;border-radius:50%;background:${dot};flex-shrink:0"></span>
+      <input type="checkbox" id="f_opt_${o.key}"${on?' checked':''} style="display:none" onchange="_applyOptState('${o.key}',this.checked)">
+      <span id="txt_opt_${o.key}" style="font-size:12px;font-weight:${on?'700':'500'};color:${txt}">${esc(o.label)}</span>
+      ${qtyHtml}
+    </label>`;
+  }
+
+  // Pilule number/text
+  function makeNum(o) {
+    const val = record ? record[o.key] : null;
+    const isNum = o.type === 'number';
+    const v = val != null && val !== '' && String(val) !== '0';
+    const bdr = v ? '#86efac' : '#e2e8f0';
+    const bg  = v ? '#dcfce7' : '#f1f5f9';
+    const dot = v ? '#16a34a' : '#94a3b8';
+    const txt = v ? '#14532d' : '#475569';
+    return `<label onclick="event.stopPropagation()" id="lbl_opt_${o.key}" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:20px;cursor:default;border:1.5px solid ${bdr};background:${bg};transition:all .15s;user-select:none;white-space:nowrap">
+      <span id="dot_opt_${o.key}" style="width:10px;height:10px;border-radius:50%;background:${dot};flex-shrink:0"></span>
+      <span id="txt_opt_${o.key}" style="font-size:12px;font-weight:${v?'700':'500'};color:${txt}">${esc(o.label)}</span>
+      <input type="${isNum?'number':'text'}" id="f_opt_${o.key}" min="0" placeholder="${isNum?'0':'…'}" value="${val!=null?String(val):''}" onclick="event.stopPropagation()"
+        style="width:52px;font-size:12px;font-weight:700;padding:2px 4px;border:1px solid #d1fae5;border-radius:8px;background:#fff;text-align:center;color:${v?'#15803d':'#94a3b8'}"
+        oninput="_applyOptState('${o.key}', this.value && this.value!='0'); this.style.color=(this.value&&this.value!='0')?'#15803d':'#94a3b8'">
+    </label>`;
+  }
+
+  // Rendu d'une section
+  function renderSection(groupKey, groupLabel, groupIcon, groupColor) {
+    // Inclure toutes les options dont le groupe correspond OU dont le groupe n'est pas défini (fallback)
+    var go = opts.filter(function(o) { return _getGroupe(o) === groupKey; });
+    if (go.length === 0) return '';
+    var chk = go.filter(function(o) { return (o.type||'checkbox') === 'checkbox'; });
+    var num = go.filter(function(o) { return o.type === 'number' || o.type === 'text'; });
+    return '<div style="grid-column:1/-1;margin-bottom:10px">'
+      + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px">'
+      + '<span style="font-size:10px;font-weight:800;color:' + groupColor + ';text-transform:uppercase;letter-spacing:.8px">' + groupIcon + ' ' + groupLabel + '</span>'
+      + '<div style="flex:1;height:1px;background:' + groupColor + '44"></div>'
+      + '</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:5px">'
+      + chk.map(makePill).join('') + num.map(makeNum).join('')
+      + '</div></div>';
+  }
+
+  grid.innerHTML = renderSection('detection','Détection','📟','#1d4ed8')
+                 + renderSection('protection','Protection','🧯','#dc2626');
 }
 
 // Met à jour le select de filtre fOption dynamiquement
@@ -4967,46 +5064,77 @@ let optDragSrc = null;
 function renderOptionsList() {
   const opts = getOptions();
   const list = document.getElementById('optionsList');
-  const typeBadge = { checkbox: '☑ Case', number: '🔢 Qté', text: '📝 Texte' };
   const typeBg    = { checkbox: '#e0f2fe', number: '#fef9c3', text: '#f0fdf4' };
   const typeColor = { checkbox: '#0369a1', number: '#92400e', text: '#166534' };
-  list.innerHTML = opts.map((o, i) => {
-    const t = o.type || 'checkbox';
-    return `
-    <div class="tech-order-item" draggable="true" data-key="${esc(o.key)}" style="cursor:grab;justify-content:space-between;align-items:center">
-      <span class="tech-drag-handle" style="cursor:grab;margin-right:6px">☰</span>
-      <span style="flex:1;font-size:13px">${esc(o.label)}</span>
-      <select onchange="changeOptionType('${esc(o.key)}',this.value)" style="font-size:11px;padding:2px 4px;border:1px solid var(--line);border-radius:4px;background:${typeBg[t]};color:${typeColor[t]};margin-right:8px;cursor:pointer">
-        <option value="checkbox"${t==='checkbox'?' selected':''}>☑ Case</option>
-        <option value="number"${t==='number'?' selected':''}>🔢 Qté</option>
-        <option value="text"${t==='text'?' selected':''}>📝 Texte</option>
-      </select>
-      <button onclick="removeOption('${esc(o.key)}')" style="background:#fee2e2;color:#dc2626;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px;font-weight:700">✕</button>
-    </div>`;
-  }).join('');
 
-  list.querySelectorAll('.tech-order-item').forEach(item => {
-    item.addEventListener('dragstart', e => { optDragSrc = item; item.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
-    item.addEventListener('dragend', () => { item.classList.remove('dragging'); list.querySelectorAll('.tech-order-item').forEach(i => i.classList.remove('drag-over')); });
-    item.addEventListener('dragover', e => { e.preventDefault(); list.querySelectorAll('.tech-order-item').forEach(i => i.classList.remove('drag-over')); if (item !== optDragSrc) item.classList.add('drag-over'); });
-    item.addEventListener('drop', e => { e.preventDefault(); if (optDragSrc && optDragSrc !== item) { const items = [...list.querySelectorAll('.tech-order-item')]; if (items.indexOf(optDragSrc) < items.indexOf(item)) item.after(optDragSrc); else item.before(optDragSrc); } item.classList.remove('drag-over'); });
-  });
+  const renderGroupSection = (groupKey, groupLabel, groupIcon, groupColor, groupBg) => {
+    const groupOpts = opts.filter(o => _getGroupe(o) === groupKey);
+    const otherKey  = groupKey === 'detection' ? 'protection' : 'detection';
+    const otherIcon = groupKey === 'detection' ? '🧯' : '📟';
+    if (groupOpts.length === 0) return `
+      <div style="border:2px dashed ${groupColor}44;border-radius:10px;padding:12px;color:${groupColor};font-size:12px;text-align:center;opacity:.6">
+        ${groupIcon} Aucune option ${groupLabel}
+      </div>`;
+    return groupOpts.map(o => {
+      const t = o.type || 'checkbox';
+      return `
+      <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:4px">
+        <span style="font-size:13px;flex:1;font-weight:600;color:#1e293b">${esc(o.label)}</span>
+        <select onchange="changeOptionType('${esc(o.key)}',this.value)"
+          style="font-size:10px;padding:2px 4px;border:1px solid var(--line);border-radius:5px;background:${typeBg[t]};color:${typeColor[t]};cursor:pointer">
+          <option value="checkbox"${t==='checkbox'?' selected':''}>☑ Case</option>
+          <option value="number"${t==='number'?' selected':''}>🔢 Qté</option>
+          <option value="text"${t==='text'?' selected':''}>📝 Texte</option>
+        </select>
+        <button onclick="changeOptionGroupe('${esc(o.key)}','${otherKey}');renderOptionsList()"
+          title="Déplacer vers ${otherIcon}"
+          style="border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-size:11px;cursor:pointer;background:#f8fafc;color:#64748b;white-space:nowrap">
+          ${otherIcon} →
+        </button>
+        <button onclick="removeOption('${esc(o.key)}')"
+          style="background:#fee2e2;color:#dc2626;border:none;border-radius:5px;padding:2px 7px;cursor:pointer;font-size:12px;font-weight:700">✕</button>
+      </div>`;
+    }).join('');
+  };
+
+  list.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;align-items:center;gap:5px">
+          📟 Détection <span style="font-size:10px;font-weight:400;color:#94a3b8">(${opts.filter(o=>_getGroupe(o)==='detection').length})</span>
+        </div>
+        ${renderGroupSection('detection','Détection','📟','#1d4ed8','#eff6ff')}
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;align-items:center;gap:5px">
+          🧯 Protection <span style="font-size:10px;font-weight:400;color:#94a3b8">(${opts.filter(o=>_getGroupe(o)==='protection').length})</span>
+        </div>
+        ${renderGroupSection('protection','Protection','🧯','#dc2626','#fff1f2')}
+      </div>
+    </div>`;
 }
 
 function addOption() {
-  const label = document.getElementById('newOptionLabel').value.trim();
-  const type  = document.getElementById('newOptionType').value;
+  const label  = document.getElementById('newOptionLabel').value.trim();
+  const type   = document.getElementById('newOptionType').value;
+  const groupe = document.getElementById('newOptionGroupe')?.value || 'detection';
   if (!label) return;
   const key = labelToKey(label);
   const opts = getOptions();
   if (opts.find(o => o.key === key)) { toast('Cette option existe déjà', 'error'); return; }
-  opts.push({ key, label, type });
+  opts.push({ key, label, type, groupe });
   saveOptions(opts);
   BOOL_FIELDS = opts.filter(o => (o.type||'checkbox')==='checkbox').map(o => o.key);
   document.getElementById('newOptionLabel').value = '';
   renderOptionsList();
   rebuildOptionFilter();
   toast(`✅ Option "${label}" ajoutée`, 'success');
+}
+
+function changeOptionGroupe(key, groupe) {
+  const opts = getOptions();
+  const o = opts.find(x => x.key === key);
+  if (o) { o.groupe = groupe; saveOptions(opts); }
 }
 
 function changeOptionType(key, newType) {
@@ -6650,6 +6778,81 @@ async function envoyerMailsGlobaux() {
     if (nbSansMail > 0) msg += ` — ${nbSansMail} sans adresse`;
     toast(msg, 'success');
   });
+}
+
+/* ═══════════════════════════════════════════════
+   FILE D'ATTENTE SYNC FIREBASE (offline-first)
+═══════════════════════════════════════════════ */
+const PENDING_SYNC_KEY = 'gestion_contrats_pending_sync';
+
+function _getPendingSync() {
+  try { return JSON.parse(localStorage.getItem(PENDING_SYNC_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function _setPendingSync(list) {
+  try { localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(list)); } catch(e) {}
+  _updatePendingBadge();
+}
+
+function _addToPendingSync(contract) {
+  const list = _getPendingSync();
+  // Remplacer si déjà en attente pour ce contrat
+  const idx = list.findIndex(c => c._id === contract._id || c._fsId === contract._fsId);
+  if (idx >= 0) list[idx] = { ...contract, _pendingAt: Date.now() };
+  else list.push({ ...contract, _pendingAt: Date.now() });
+  _setPendingSync(list);
+  console.warn(`[PendingSync] ${list.length} contrat(s) en attente de synchronisation Firebase`);
+}
+
+function _removeFromPendingSync(contractId) {
+  const list = _getPendingSync().filter(c => c._id !== contractId && c._fsId !== contractId);
+  _setPendingSync(list);
+}
+
+function _updatePendingBadge() {
+  const list = _getPendingSync();
+  const badge = document.getElementById('pendingSyncBadge');
+  const count = document.getElementById('pendingSyncCount');
+  if (!badge) return;
+  if (list.length > 0) {
+    badge.style.display = 'flex';
+    if (count) count.textContent = list.length;
+    badge.title = `${list.length} contrat(s) non synchronisé(s) avec Firebase — cliquer pour réessayer maintenant`;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+async function _flushPendingSync() {
+  const list = _getPendingSync();
+  if (list.length === 0) { toast('✅ Tout est synchronisé', 'success'); return; }
+
+  toast(`⏳ Synchronisation de ${list.length} contrat(s) en attente…`, '');
+  let successCount = 0;
+  const failed = [];
+
+  for (const contract of list) {
+    try {
+      await SP.saveContract(contract);
+      successCount++;
+      // Mettre à jour db local si le contrat est toujours présent
+      const idx = db.findIndex(x => x._id === contract._id || x._fsId === contract._fsId);
+      if (idx >= 0) db[idx] = { ...db[idx], ...contract };
+    } catch(e) {
+      console.warn('[PendingSync] Échec pour', contract.Installation, e?.message);
+      failed.push(contract);
+    }
+  }
+
+  _setPendingSync(failed);
+
+  if (failed.length === 0) {
+    toast(`✅ ${successCount} contrat(s) synchronisé(s) avec Firebase`, 'success');
+    window._lastSyncTime = new Date();
+    _updateSyncIndicator();
+  } else {
+    toast(`⚠️ ${successCount} synchronisé(s), ${failed.length} encore en attente (Firebase KO ?)`, 'warning');
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -9603,6 +9806,8 @@ function closeLoginAndStart() {
   toast(`Bienvenue ${_currentUser.prenom || _currentUser.login} (${niveauLabel(_currentUser.niveau)})`, 'success');
   // Afficher le changelog si nouvelle version
   setTimeout(checkAndShowChangelog, 600);
+  // Afficher badge pending sync si données en attente de la session précédente
+  _updatePendingBadge();
   // Enregistrer la présence
   startPresence();
   // Vérifier les mises à jour toutes les 15 minutes
