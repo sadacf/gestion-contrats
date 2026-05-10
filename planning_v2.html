@@ -1859,7 +1859,9 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
       <button class="evp-tab" id="cfgtab-astr" onclick="switchCfgTab('astr')" style="font-size:11px">⚡ Astreintes</button>
     </div>
     <!-- Général -->
-    <div id="cfgbody-gen" style="flex:1;overflow-y:auto">
+    <div id="cfgbody-gen" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 0">
+
+      <!-- Afficher WE -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border-radius:9px;border:1px solid var(--line)">
         <div>
           <div style="font-size:13px;font-weight:700;color:var(--text)">📅 Afficher les week-ends</div>
@@ -1867,6 +1869,39 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
         </div>
         <input type="checkbox" id="cfgWE" class="tog" onchange="cfgToggleWE(this.checked)">
       </div>
+
+      <!-- Auto-placement depuis Gestion Contrats -->
+      <div style="border:2px solid #bfdbfe;border-radius:10px;padding:14px;background:#eff6ff">
+        <div style="font-size:13px;font-weight:800;color:#1e40af;margin-bottom:6px">🤖 Placement automatique depuis Gestion Contrats</div>
+        <div style="font-size:11px;color:#3b82f6;margin-bottom:12px;line-height:1.5">
+          Règle : <strong>Mardi &gt; Mercredi &gt; Jeudi</strong> → Lundi/Vendredi en dernier recours.<br>
+          Les RDV sans créneau sont envoyés au backlog avec alerte rouge.<br>
+          🔄 = Tacite reconduction (récurrence 6 ou 12 mois)
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <label style="font-size:10px;font-weight:700;color:#1e40af">Mois cible</label>
+            <select id="autoPlaceMois" style="padding:5px 10px;border:1.5px solid #bfdbfe;border-radius:7px;font-size:12px;font-weight:700;color:#1e40af;background:#fff">
+              ${['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'].map((m,i)=>`<option value="${i}"${i===new Date().getMonth()?' selected':''}>${m}</option>`).join('')}
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <label style="font-size:10px;font-weight:700;color:#1e40af">Année</label>
+            <input type="number" id="autoPlaceAnnee" value="${new Date().getFullYear()}" min="2024" max="2030"
+              style="width:80px;padding:5px 8px;border:1.5px solid #bfdbfe;border-radius:7px;font-size:12px;font-weight:700;color:#1e40af">
+          </div>
+          <button onclick="_runAutoPlace()"
+            style="margin-top:16px;background:#1e40af;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:800;cursor:pointer">
+            🤖 Placer automatiquement
+          </button>
+          <button onclick="renderBacklogView();setView('backlog')"
+            style="margin-top:16px;background:#f8fafc;border:1.5px solid #bfdbfe;color:#1e40af;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">
+            📋 Voir le backlog
+          </button>
+        </div>
+        <div id="autoPlaceResult" style="margin-top:10px;font-size:11px;min-height:16px"></div>
+      </div>
+
     </div>
     <!-- Types -->
     <div id="cfgbody-types" class="hidden" style="flex:1;overflow-y:auto;padding:4px 0">
@@ -2703,7 +2738,7 @@ async function fsDel(c,id,label=''){
   if(c==='planning_events')
     pushUndo({type:'del',collection:c,id,before,after:null,label:label||'Suppression'});
 }
-async function getContratsMin(){const s=await _lib.getDocs(_lib.collection(_db,'contrats'));return s.docs.map(d=>{const r=d.data();return{_fsId:d.id,_id:r._id,Installation:r.Installation,Client:r.Client,Ville:r.Ville,Technicien:r.Technicien,Binome:r.Binome,VE1:r.VE1,VE2:r.VE2,VE1_statut:r.VE1_statut,VE2_statut:r.VE2_statut,Type_Contrat:r.Type_Contrat||r.TypeContrat||r.type_contrat||'',Agence:r.Agence||r.agence||r.Agence_ACF||'',Service:r.Service||r.service||r.Famille||r.famille||'',Tel:r.Tel||r.Telephone||r.telephone||r.tel||'',Email:r.Email||r.email||'',Adresse:r.Adresse||r.adresse||r.Adresse1||'',CP:r.CP||r.cp||r.Code_Postal||'',Contact:r.Contact||r.NomContact||r.contact||'',Periodicite:r.Periodicite||r.periodicite||r.Periodicite_VE||'',Famille_Materiel:r.Famille_Materiel||r.famille_materiel||r.Famille||r.famille||'',_suspension:r._suspension};});}
+async function getContratsMin(){const s=await _lib.getDocs(_lib.collection(_db,'contrats'));return s.docs.map(d=>{const r=d.data();return{_fsId:d.id,_id:r._id,Installation:r.Installation,Client:r.Client,Ville:r.Ville,Technicien:r.Technicien,Binome:r.Binome,VE1:r.VE1,VE2:r.VE2,VE1_statut:r.VE1_statut,VE2_statut:r.VE2_statut,Type_Contrat:r.Type_Contrat||r.TypeContrat||r.type_contrat||'',Agence:r.Agence||r.agence||r.Agence_ACF||'',Service:r.Service||r.service||r.Famille||r.famille||'',Tel:r.Tel||r.Telephone||r.telephone||r.tel||'',Email:r.Email||r.email||'',Adresse:r.Adresse||r.adresse||r.Adresse1||'',CP:r.CP||r.cp||r.Code_Postal||'',Contact:r.Contact||r.NomContact||r.contact||'',Periodicite:r.Periodicite||r.periodicite||r.Periodicite_VE||'',Famille_Materiel:r.Famille_Materiel||r.famille_materiel||r.Famille||r.famille||'',_suspension:r._suspension,Validite_Statut:r.Validite_Statut||'',Duree_VE1:r.Duree_VE1||'',Duree_VE2:r.Duree_VE2||'',Departement:r.Departement||r.Dossier_Dept||''};});}
 let _savingRes=false; // flag pour éviter la boucle onSnapshot ↔ saveRes
 let _clearing=false; // flag pour bloquer le listener pendant clearAllEvents
 
@@ -2913,7 +2948,7 @@ function watchEv(){
 
     // Écoute les contrats
     _lib.onSnapshot(_lib.collection(_db,'contrats'),s=>{
-      _contrats=s.docs.map(d=>{const r=d.data();return{_fsId:d.id,_id:r._id,Installation:r.Installation,Client:r.Client,Ville:r.Ville,Technicien:r.Technicien,Binome:r.Binome,VE1:r.VE1,VE2:r.VE2,VE1_statut:r.VE1_statut,VE2_statut:r.VE2_statut,Type_Contrat:r.Type_Contrat||r.TypeContrat||r.type_contrat||'',Agence:r.Agence||r.agence||r.Agence_ACF||'',Service:r.Service||r.service||r.Famille||r.famille||'',Tel:r.Tel||r.Telephone||r.telephone||r.tel||'',Email:r.Email||r.email||'',Adresse:r.Adresse||r.adresse||r.Adresse1||'',CP:r.CP||r.cp||r.Code_Postal||'',Contact:r.Contact||r.NomContact||r.contact||'',Periodicite:r.Periodicite||r.periodicite||r.Periodicite_VE||'',Famille_Materiel:r.Famille_Materiel||r.famille_materiel||r.Famille||r.famille||'',_suspension:r._suspension};});
+      _contrats=s.docs.map(d=>{const r=d.data();return{_fsId:d.id,_id:r._id,Installation:r.Installation,Client:r.Client,Ville:r.Ville,Technicien:r.Technicien,Binome:r.Binome,VE1:r.VE1,VE2:r.VE2,VE1_statut:r.VE1_statut,VE2_statut:r.VE2_statut,Type_Contrat:r.Type_Contrat||r.TypeContrat||r.type_contrat||'',Agence:r.Agence||r.agence||r.Agence_ACF||'',Service:r.Service||r.service||r.Famille||r.famille||'',Tel:r.Tel||r.Telephone||r.telephone||r.tel||'',Email:r.Email||r.email||'',Adresse:r.Adresse||r.adresse||r.Adresse1||'',CP:r.CP||r.cp||r.Code_Postal||'',Contact:r.Contact||r.NomContact||r.contact||'',Periodicite:r.Periodicite||r.periodicite||r.Periodicite_VE||'',Famille_Materiel:r.Famille_Materiel||r.famille_materiel||r.Famille||r.famille||'',_suspension:r._suspension,Validite_Statut:r.Validite_Statut||'',Duree_VE1:r.Duree_VE1||'',Duree_VE2:r.Duree_VE2||'',Departement:r.Departement||r.Dossier_Dept||''};});
       if(_user) render();
     });
 
@@ -3126,8 +3161,212 @@ function actRes(){return _resources.filter(r=>r.active!==false);}
 function rColor(name){const r=_resources.find(r=>r.name===name);if(r)return r.color;const a=actRes();const i=a.findIndex(r=>r.name===name);return TC[i<0?0:i%TC.length];}
 function ini(n){return n.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);}
 function allTechs(){return actRes().map(r=>r.name);}
+/* ═══════════════════════════════════════════════
+   AUTO-PLACEMENT — Gestion Contrats → Planning
+═══════════════════════════════════════════════ */
+
+// Titre d'événement avec symbole récurrence
+function evTitleWithRecurr(e) {
+  return (e.tacite ? '🔄 ' : '') + (e.title || '');
+}
+
+// Convertit stockage durée ("2j","3h","1dj") → nb jours ouvrés
+function durToWorkDays(stored) {
+  if (!stored) return 1;
+  const m = stored.match(/^([0-9.]+)(h|j|dj)$/);
+  if (!m) return 1;
+  const n = parseFloat(m[1]), u = m[2];
+  if (u === 'h') return n <= 4 ? 0.5 : 1; // ≤4h → ½j, sinon 1j
+  if (u === 'dj') return 0.5;
+  return n;
+}
+
+// Trouve le premier créneau dispo pour un tech dans un mois donné
+// Préférence : Mardi(2), Mercredi(3), Jeudi(4) → Lundi(1), Vendredi(5)
+function findFirstSlot(tech, moisIdx, year, durationDays) {
+  if (!tech) return null;
+  durationDays = durationDays || 1;
+
+  // Jours occupés par ce tech ce mois
+  const busyDates = new Set();
+  _events.filter(e => {
+    const d = new Date(e.date || '');
+    return (e.tech === tech || (e.techs||[]).includes(tech)) &&
+           d.getFullYear() === year && d.getMonth() === moisIdx;
+  }).forEach(e => {
+    // Marquer le jour et les jours de durée
+    const start = new Date(e.date);
+    const dur = e.dureeJours || 1;
+    for (let i = 0; i < Math.max(1, dur); i++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      busyDates.add(d.toISOString().slice(0, 10));
+    }
+  });
+
+  // Aussi marquer depuis les events VE du mois déjà dans les contrats
+  buildEvs().filter(e => {
+    const d = new Date(e.date || '');
+    return e.isVE && e.tech === tech &&
+           d.getFullYear() === year && d.getMonth() === moisIdx;
+  }).forEach(e => busyDates.add(e.date));
+
+  // Lister tous les jours du mois par priorité
+  const daysInMonth = new Date(year, moisIdx + 1, 0).getDate();
+  const preferred = [2, 3, 4]; // Mar, Mer, Jeu
+  const fallback  = [1, 5];    // Lun, Ven
+  const prefDays = [], fallDays = [];
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, moisIdx, d);
+    const dow  = date.getDay();
+    if (preferred.includes(dow)) prefDays.push(date);
+    else if (fallback.includes(dow)) fallDays.push(date);
+  }
+
+  // Chercher un créneau libre (assez de jours consécutifs)
+  const tryDays = [...prefDays, ...fallDays];
+  for (const start of tryDays) {
+    let fits = true;
+    for (let i = 0; i < Math.ceil(durationDays); i++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      const ds = d.toISOString().slice(0, 10);
+      if (busyDates.has(ds)) { fits = false; break; }
+    }
+    if (fits) return start;
+  }
+  return null; // Aucun créneau disponible ce mois
+}
+
+// Auto-place un contrat (VE1 ou VE2) dans le planning Firebase
+async function autoPlaceContrat(contrat, veField) {
+  const moisStr = veField === 'VE1' ? contrat.VE1 : contrat.VE2;
+  if (!moisStr || moisStr === 'S.O') return { ok: false, reason: 'Pas de mois VE' };
+
+  const moisIdx = MOIS[(moisStr||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')];
+  if (moisIdx === undefined) return { ok: false, reason: `Mois non reconnu: ${moisStr}` };
+
+  const now = new Date();
+  let year = now.getFullYear();
+  // Si le mois est déjà passé cette année → l'année prochaine
+  if (moisIdx < now.getMonth()) year++;
+
+  const tech = veField === 'VE1' ? contrat.Technicien : (contrat.Binome || contrat.Technicien);
+  if (!tech) return { ok: false, reason: 'Technicien non renseigné' };
+
+  const durStored = veField === 'VE1' ? contrat.Duree_VE1 : contrat.Duree_VE2;
+  const durDays = durToWorkDays(durStored);
+  const durDaysEnd = Math.ceil(durDays) > 1 ? Math.ceil(durDays) : 1;
+
+  const slot = findFirstSlot(tech, moisIdx, year, durDays);
+
+  if (!slot) {
+    // Aucun créneau → backlog rouge
+    const backlogData = {
+      contratId: contrat._id || contrat._fsId,
+      installation: contrat.Installation,
+      client: contrat.Client,
+      ville: contrat.Ville,
+      technicien: tech,
+      veField,
+      mois: moisStr,
+      annee: year,
+      raison: 'Aucun créneau disponible en ' + moisStr + ' ' + year,
+      alerte: true,
+      createdAt: new Date().toISOString()
+    };
+    await fsAdd('planning_backlog', backlogData, 'Backlog auto: ' + contrat.Installation);
+    return { ok: false, reason: backlogData.raison, backlog: true };
+  }
+
+  // Calculer date de fin
+  const dateEnd = durDaysEnd > 1 ? (() => {
+    const end = new Date(slot);
+    // Avancer en sautant les WE
+    let daysAdded = 0;
+    while (daysAdded < durDaysEnd - 1) {
+      end.setDate(end.getDate() + 1);
+      if (end.getDay() !== 0 && end.getDay() !== 6) daysAdded++;
+    }
+    return end.toISOString().slice(0, 10);
+  })() : null;
+
+  // Récurrence si tacite
+  const tacite = (contrat.Validite_Statut || '').toUpperCase().includes('T');
+  const recurMonths = (contrat.Type_Contrat === 'V1' || contrat.Type_Contrat === 'M1') ? 12 : 6;
+
+  const evData = {
+    title: contrat.Installation || contrat.Client || '?',
+    date: slot.toISOString().slice(0, 10),
+    dateEnd: dateEnd,
+    tech,
+    techs: [tech],
+    type: veField === 'VE1' ? 've1' : 've2',
+    types: [veField === 'VE1' ? 've1' : 've2'],
+    hcInst: contrat.Installation,
+    note: '',
+    isVE: true,
+    contratId: contrat._id || contrat._fsId,
+    veField,
+    tacite,
+    dureeJours: durDays,
+    ville: contrat.Ville,
+    client: contrat.Client,
+    autoPlaced: true,
+    autoPlacedAt: new Date().toISOString(),
+    ...(tacite ? { recurMonths } : {})
+  };
+
+  await fsAdd('planning_events', evData, 'Auto-place: ' + contrat.Installation);
+  return { ok: true, date: slot.toISOString().slice(0, 10), tech };
+}
+
+// Place tous les contrats du mois sélectionné qui n'ont pas encore de RDV
+async function autoPlaceAll(moisIdx, year) {
+  if (!confirm(`Placer automatiquement tous les RDV de ${Object.keys(MOIS).find(k=>MOIS[k]===moisIdx)} ${year} ?
+
+Règle : Mardi > Mercredi > Jeudi > Lundi > Vendredi.`)) return;
+
+  let placed = 0, backlog = 0, skipped = 0;
+  const alreadyPlaced = new Set(_events.filter(e=>e.isVE).map(e=>e.contratId+'_'+e.veField));
+
+  for (const contrat of _contrats) {
+    if (contrat._suspension) continue;
+    for (const f of ['VE1','VE2']) {
+      const mois = f === 'VE1' ? contrat.VE1 : contrat.VE2;
+      if (!mois || mois === 'S.O') continue;
+      const mi = MOIS[(mois||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')];
+      if (mi !== moisIdx) continue;
+      const key = (contrat._id||contrat._fsId) + '_' + f.toLowerCase();
+      if (alreadyPlaced.has(key)) { skipped++; continue; }
+      const res = await autoPlaceContrat(contrat, f);
+      if (res.ok) placed++;
+      else if (res.backlog) backlog++;
+    }
+  }
+
+  toast(`✅ ${placed} RDV placés, ${backlog} dans le backlog (pas de créneau), ${skipped} déjà placés`, 'ok');
+}
+
+async function _runAutoPlace() {
+  const moisIdx = parseInt(document.getElementById('autoPlaceMois')?.value || new Date().getMonth());
+  const year    = parseInt(document.getElementById('autoPlaceAnnee')?.value || new Date().getFullYear());
+  const res     = document.getElementById('autoPlaceResult');
+  if (res) res.innerHTML = '<span style="color:#3b82f6">⏳ Placement en cours…</span>';
+  try {
+    await autoPlaceAll(moisIdx, year);
+    if (res) res.innerHTML = '<span style="color:#16a34a">✅ Placement terminé — voir le backlog pour les alertes</span>';
+  } catch(e) {
+    if (res) res.innerHTML = '<span style="color:#ef4444">❌ Erreur : ' + (e.message||e) + '</span>';
+  }
+}
+
 function buildEvs(){const evs=[];_contrats.forEach(r=>{if(r._suspension)return;['VE1','VE2'].forEach(f=>{const d=pd(r[f]);if(!d)return;const tech=f==='VE1'?r.Technicien:(r.Binome||r.Technicien);if(!tech)return;const st=f==='VE1'?r.VE1_statut:r.VE2_statut;let status='planifie';if(st==='FFC000')status='confirme';else if(st==='92D050'||st==='00B0F0')status='realise';else if(st==='FF00FF')status='annule';const rdvState=VE_TO_PLANNING[st]||'';
-evs.push({_id:`${r._id||r._fsId}_${f}`,type:f.toLowerCase(),date:dk(d),tech,title:r.Installation||r.Client||'?',rawDate:r[f],ville:r.Ville,client:r.Client,status,rdvState,isVE:true});});});_events.forEach(e=>{
+const _isTacite=(r.Validite_Statut||'').toUpperCase().includes('T');
+const _durStored=f==='VE1'?r.Duree_VE1:r.Duree_VE2;
+const _durDays=(()=>{if(!_durStored)return 1;const m=_durStored.match(/^([0-9.]+)(h|j|dj)$/);if(!m)return 1;const n=parseFloat(m[1]),u=m[2];if(u==='h')return Math.max(1,Math.round(n/8));if(u==='dj')return 0.5;return n;})();
+const _evTitle=(_isTacite?'🔄 ':'')+(r.Installation||r.Client||'?');evs.push({_id:`${r._id||r._fsId}_${f}`,type:f.toLowerCase(),date:dk(d),tech,title:_evTitle,rawDate:r[f],ville:r.Ville,client:r.Client,status,rdvState,isVE:true,tacite:_isTacite,dureeJours:_durDays,contratId:r._id||r._fsId,veField:f,departement:r.Departement||''});});});_events.forEach(e=>{
     const base={...e,_id:e._id||e._fsId,isVE:false};
     const techs=e.techs||(e.tech?[e.tech]:[]);
     const types=e.types||(e.type?[e.type]:['autre']);
@@ -6716,7 +6955,7 @@ async function gevResizeEnd(evt){
 function gevResizeStart(evt,el){} // conservé pour compatibilité
 
 window.addEventListener('resize',()=>{ adjustViewTop(); setTimeout(()=>{ if(_view!=='month'&&_view!=='res') render(); },150); });
-Object.assign(window,{toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,gdSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail,openFicheInst,closeFicheInst,switchFiTab,ctxOpenFiche,ctxOpenContrat,fiBtnNouveauRdv,fiBtnEnCours,fiBtnAppel,cfgAddGroup,cfgRemoveGroup,cfgDropGroup,cfgDropTypeInGroup,cfgRemoveTypeFromGroup,openPlanningPMEImport,closePlanningPMEImport,handlePPMFile,doPPMImport,updatePPMPreview,ppmConnect,ppmImportJson,openDashboard,goPlanning,renderDashboard,dashGoEv,clearAllFiltersNow,updClearFiltersBtn,applyEvFont,saveEvFont,renderPpmMapping,ppmAddMapRule,savePpmMapping,ppmSwitchTab,renderPpmStatusMap,ppmUpdateStatusCode,ppmAddStatusRule,renderPpmFieldMap,selectResGroup,openClientView,closeClientView,filterClientSearch,openClientDetail,createPlannerTask,sendEvToPlanner,syncPlannerAuto,startPlannerPolling,sendTeams,saveTeamsWebhook,testTeamsWebhook,saveMsConfig,openQuickAppel,closeQuickAppel,qaSearchClient,qaSelectClient,qaOpenFiche,qaOpenTeams,qaOpenTeams_name,qaOpenPlanner,saveQuickAppel,cvNewRdv,openSolderModal,closeSolderModal,confirmSolder,dashSwitchAppelTab,loadDashAppels,renderDashAppels,handleAppelAction,addAppelComment,solderAppelDash,deleteAppelDash,updateAppelSuivi,startTgPolling,tgPollOnce,getTechContact,openTelegramApp,saveTelegramToken,testTelegramBot,getTelegramUpdates,copyTelegramId,sendTelegram,openDepanDispatch,closeDepanDispatch,depanSelectAll,depanSelectAgence,depanToggleTech,sendDepanDispatch});
+Object.assign(window,{autoPlaceContrat,autoPlaceAll,_runAutoPlace,toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,gdSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail,openFicheInst,closeFicheInst,switchFiTab,ctxOpenFiche,ctxOpenContrat,fiBtnNouveauRdv,fiBtnEnCours,fiBtnAppel,cfgAddGroup,cfgRemoveGroup,cfgDropGroup,cfgDropTypeInGroup,cfgRemoveTypeFromGroup,openPlanningPMEImport,closePlanningPMEImport,handlePPMFile,doPPMImport,updatePPMPreview,ppmConnect,ppmImportJson,openDashboard,goPlanning,renderDashboard,dashGoEv,clearAllFiltersNow,updClearFiltersBtn,applyEvFont,saveEvFont,renderPpmMapping,ppmAddMapRule,savePpmMapping,ppmSwitchTab,renderPpmStatusMap,ppmUpdateStatusCode,ppmAddStatusRule,renderPpmFieldMap,selectResGroup,openClientView,closeClientView,filterClientSearch,openClientDetail,createPlannerTask,sendEvToPlanner,syncPlannerAuto,startPlannerPolling,sendTeams,saveTeamsWebhook,testTeamsWebhook,saveMsConfig,openQuickAppel,closeQuickAppel,qaSearchClient,qaSelectClient,qaOpenFiche,qaOpenTeams,qaOpenTeams_name,qaOpenPlanner,saveQuickAppel,cvNewRdv,openSolderModal,closeSolderModal,confirmSolder,dashSwitchAppelTab,loadDashAppels,renderDashAppels,handleAppelAction,addAppelComment,solderAppelDash,deleteAppelDash,updateAppelSuivi,startTgPolling,tgPollOnce,getTechContact,openTelegramApp,saveTelegramToken,testTelegramBot,getTelegramUpdates,copyTelegramId,sendTelegram,openDepanDispatch,closeDepanDispatch,depanSelectAll,depanSelectAgence,depanToggleTech,sendDepanDispatch});
 // ── SÉLECTION MULTI-JOURS PAR GLISSER-SOURIS ───────────────────────────────
 let _gdSel=null;
 
@@ -6983,8 +7222,60 @@ function renderBacklogView(){
     if(a.deadline&&b.deadline) return a.deadline.localeCompare(b.deadline);
     return 0;
   });
+  // Alertes auto-place (pas de créneau disponible)
+  const alertes = _backlog.filter(b => b.alerte && b.autoPlaced !== true);
+
+  // Contrats avec données manquantes (pas de technicien, pas de mois VE)
+  const missingData = _contrats.filter(r => {
+    if (r._suspension) return false;
+    const noTech = !r.Technicien;
+    const noVE = (!r.VE1 || r.VE1 === 'S.O') && (!r.VE2 || r.VE2 === 'S.O');
+    return noTech || noVE;
+  }).slice(0, 50);
+
+  let topHtml = '';
+
+  // Section alertes rouges
+  if (alertes.length > 0) {
+    topHtml += `<div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:800;color:#dc2626;margin-bottom:8px">🔴 ${alertes.length} RDV sans créneau disponible</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${alertes.map(b => `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border-radius:7px;border-left:4px solid #ef4444">
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:700;color:#1e293b">${esc(b.installation||'?')}</div>
+            <div style="font-size:11px;color:#64748b">${esc(b.technicien||'?')} · ${esc(b.veField||'')} · ${esc(b.mois||'')} ${b.annee||''}</div>
+            <div style="font-size:10px;color:#ef4444;margin-top:2px">${esc(b.raison||'')}</div>
+          </div>
+          <button onclick="planifyBacklog('${esc(b._fsId||b._id||'')}')" style="background:#1e40af;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;white-space:nowrap">📅 Placer manuellement</button>
+          <button onclick="deleteBacklogItem('${esc(b._fsId||b._id||'')}')" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer">✕</button>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Section données manquantes
+  if (missingData.length > 0) {
+    topHtml += `<div style="background:#fffbeb;border:2px solid #fde68a;border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:800;color:#92400e;margin-bottom:8px">⚠️ ${missingData.length} contrat(s) avec données manquantes</div>
+      <div style="font-size:11px;color:#78350f;margin-bottom:8px">Ces contrats ne peuvent pas être placés automatiquement dans le planning.</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:6px;max-height:200px;overflow-y:auto">
+        ${missingData.map(r => {
+          const noTech = !r.Technicien;
+          const noVE = (!r.VE1 || r.VE1==='S.O') && (!r.VE2 || r.VE2==='S.O');
+          return `<div style="padding:7px 10px;background:#fff;border-radius:6px;border-left:3px solid #f59e0b;font-size:11px">
+            <div style="font-weight:700;color:#1e293b;margin-bottom:2px">${esc(r.Installation||'?')}</div>
+            <div style="color:#78350f">${[noTech?'❌ Pas de technicien':'',noVE?'❌ Pas de VE planifiée':''].filter(Boolean).join(' · ')}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  if(topHtml) { table.innerHTML = topHtml + '<div id="backlogItemsSection"></div>'; }
+  const itemsSection = document.getElementById('backlogItemsSection') || table;
+
   if(!items.length){
-    table.innerHTML=`<div style="padding:40px;text-align:center;color:var(--sub);background:var(--card);border-radius:10px">
+    itemsSection.innerHTML=`<div style="padding:40px;text-align:center;color:var(--sub);background:var(--card);border-radius:10px">
       ${filtPrio||filtTech?'Aucun résultat pour ce filtre.':'Aucune intervention en attente. Ajoutez-en avec le bouton ＋'}
     </div>`;
     return;
@@ -6995,7 +7286,7 @@ function renderBacklogView(){
     basse:'<span class="bl-prio-basse">🟢 Basse</span>'
   }[p]||'<span class="bl-prio-normale">🟡 Normale</span>');
   const today=dk(new Date());
-  table.innerHTML=`<table>
+  itemsSection.innerHTML=`<table>
     <thead><tr>
       <th>Priorité</th><th>Type</th><th>Titre / Lieu</th>
       <th>Ressource</th><th>Échéance</th><th>Note</th><th></th>

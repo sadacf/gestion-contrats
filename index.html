@@ -2069,6 +2069,7 @@ function loadSheetJS(callback) {
       <button class="tbtn" id="resilieBtn" style="display:none;margin-right:auto;background:#fff7ed;color:#c2410c;border-color:#fed7aa;font-weight:700" onclick="resilierContrat()">🚫 Résilié</button>
       <button class="tbtn" id="suspensionBtn" onclick="toggleSuspension()" style="display:none;font-weight:700" title="Marquer une alerte — ne plus intervenir sur ce site">⚠️ Alerte — Ne plus faire</button>
       <button class="tbtn" onclick="envoyerMailNouveauContrat()" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;font-weight:700" title="Envoyer un mail au technicien et à Olivier Belliard">📧 Nouveau contrat: envoi de mail tech. & obelliard</button>
+      <button class="tbtn" id="btnEnvoiPlanning" style="display:none;background:#f0fdf4;color:#15803d;border-color:#86efac;font-weight:700" onclick="envoyerVersPlanning()" title="Placer automatiquement dans le planning">📅 → Planning</button>
       <button class="tbtn" onclick="closeModal('formModal')">Annuler</button>
       <button class="tbtn danger" id="deleteBtn" style="display:none" onclick="deleteCurrentContract()">🗑 Supprimer</button>
       <button type="button" class="hbtn hbtn-success" onclick="saveContract()">💾 Enregistrer</button>
@@ -2187,7 +2188,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/10-05-26-11:57';
+const APP_VERSION = 'V1/10-05-26-16:28';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5748,6 +5749,12 @@ function openAdd() {
   const today = new Date().toISOString().slice(0,10);
   const dateEl = document.getElementById('f_createdAt');
   if (dateEl) dateEl.value = today;
+  // Bouton planning : montrer si VE planifiee
+  const _r4plan = db.find(x => x._id === editingId);
+  const _hasPlanVE = _r4plan && ((_r4plan.VE1 && _r4plan.VE1 !== 'S.O') || (_r4plan.VE2 && _r4plan.VE2 !== 'S.O'));
+  const _btnP = document.getElementById('btnEnvoiPlanning');
+  if (_btnP) _btnP.style.display = _hasPlanVE ? '' : 'none';
+
   document.getElementById('formModal').classList.add('open');
 }
 
@@ -5848,6 +5855,18 @@ function openEditById(id) {
       _createdAtEl.value = ''; // ancien contrat sans date
     }
   }
+
+  // Bouton → Planning : visible si le contrat a au moins une VE planifiée
+  const _hasPlanVE2 = (r.VE1 && r.VE1 !== 'S.O') || (r.VE2 && r.VE2 !== 'S.O');
+  const _btnPlanning = document.getElementById('btnEnvoiPlanning');
+  if (_btnPlanning) {
+    _btnPlanning.style.display = _hasPlanVE2 ? 'inline-flex' : 'none';
+    _btnPlanning.disabled = false;
+    _btnPlanning.textContent = '📅 → Planning';
+    _btnPlanning.style.background = '#f0fdf4';
+    _btnPlanning.style.borderColor = '#86efac';
+  }
+
   document.getElementById('formModal').classList.add('open');
 }
 
@@ -7050,6 +7069,144 @@ async function envoyerMailsGlobaux() {
     if (nbSansMail > 0) msg += ` — ${nbSansMail} sans adresse`;
     toast(msg, 'success');
   });
+}
+
+/* ═══════════════════════════════════════════════
+   ENVOI VERS PLANNING
+═══════════════════════════════════════════════ */
+async function envoyerVersPlanning() {
+  const r = db.find(x => x._id === editingId);
+  if (!r) { toast('Contrat introuvable', 'error'); return; }
+
+  const hasVE1 = r.VE1 && r.VE1 !== 'S.O';
+  const hasVE2 = r.VE2 && r.VE2 !== 'S.O';
+
+  if (!hasVE1 && !hasVE2) {
+    toast('Ce contrat n\'a pas de mois de visite (S1/S2)', 'warning');
+    return;
+  }
+
+  // Construire la liste des VE à placer
+  const veList = [];
+  if (hasVE1) veList.push({ field: 'VE1', mois: r.VE1, tech: r.Technicien, duree: r.Duree_VE1 });
+  if (hasVE2) veList.push({ field: 'VE2', mois: r.VE2, tech: r.Binome || r.Technicien, duree: r.Duree_VE2 });
+
+  // Vérifier les données manquantes
+  const missing = [];
+  if (!r.Technicien) missing.push('technicien');
+  if (missing.length > 0) {
+    toast('Données manquantes : ' + missing.join(', '), 'warning');
+    return;
+  }
+
+  const isTacite = (r.Validite_Statut || '').toUpperCase().includes('T');
+  const MOIS_IDX = {
+    'janvier':0,'fevrier':1,'février':1,'mars':2,'avril':3,'mai':4,'juin':5,
+    'juillet':6,'aout':7,'août':7,'septembre':8,'octobre':9,'novembre':10,'decembre':11,'décembre':11
+  };
+
+  const btn = document.getElementById('btnEnvoiPlanning');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi…'; }
+
+  let placed = 0, failed = 0;
+
+  for (const ve of veList) {
+    const moisKey = (ve.mois || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const moisIdx = MOIS_IDX[moisKey];
+    if (moisIdx === undefined) { failed++; continue; }
+
+    const now = new Date();
+    let year = now.getFullYear();
+    if (moisIdx < now.getMonth()) year++;
+
+    // Durée en jours
+    let durDays = 1;
+    if (ve.duree) {
+      const m = ve.duree.match(/^([0-9.]+)(h|j|dj)$/);
+      if (m) {
+        const n = parseFloat(m[1]), u = m[2];
+        if (u === 'h') durDays = n <= 4 ? 0.5 : 1;
+        else if (u === 'dj') durDays = 0.5;
+        else durDays = n;
+      }
+    }
+
+    // Premier créneau du mois (Mardi > Mercredi > Jeudi > Lundi > Vendredi)
+    const preferred = [2, 3, 4], fallback = [1, 5];
+    const daysInMonth = new Date(year, moisIdx + 1, 0).getDate();
+    const allDays = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, moisIdx, d);
+      const dow = date.getDay();
+      if (preferred.includes(dow)) allDays.unshift(date);
+      else if (fallback.includes(dow)) allDays.push(date);
+    }
+    allDays.sort((a, b) => {
+      const pa = preferred.includes(a.getDay()) ? 0 : 1;
+      const pb = preferred.includes(b.getDay()) ? 0 : 1;
+      return pa - pb || a - b;
+    });
+
+    const slot = allDays[0]; // Premier créneau préféré du mois
+    if (!slot) { failed++; continue; }
+
+    const dateEnd = durDays > 1 ? (() => {
+      const end = new Date(slot);
+      let added = 0;
+      while (added < Math.ceil(durDays) - 1) {
+        end.setDate(end.getDate() + 1);
+        if (end.getDay() !== 0 && end.getDay() !== 6) added++;
+      }
+      return end.toISOString().slice(0,10);
+    })() : null;
+
+    const evData = {
+      title: r.Installation || r.Client || '?',
+      date: slot.toISOString().slice(0,10),
+      dateEnd,
+      tech: ve.tech,
+      techs: [ve.tech].filter(Boolean),
+      type: ve.field === 'VE1' ? 've1' : 've2',
+      types: [ve.field === 'VE1' ? 've1' : 've2'],
+      hcInst: r.Installation,
+      note: '',
+      isVE: true,
+      contratId: r._id || r._fsId,
+      veField: ve.field,
+      tacite: isTacite,
+      dureeJours: durDays,
+      ville: r.Ville,
+      client: r.Client,
+      autoPlaced: true,
+      autoPlacedAt: new Date().toISOString(),
+      createdFromGestionContrats: true,
+      ...(isTacite ? { recurMonths: (r.Type_Contrat === 'V1' || r.Type_Contrat === 'M1') ? 12 : 6 } : {})
+    };
+
+    try {
+      // Écrire dans Firebase planning_events
+      await initFirebase();
+      const { addDoc, collection } = window._fsLib;
+      await addDoc(collection(_db, 'planning_events'), evData);
+      placed++;
+    } catch(e) {
+      console.error('[Planning] Erreur envoi:', e);
+      failed++;
+    }
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = '📅 → Planning'; }
+
+  if (placed > 0 && failed === 0) {
+    btn.style.background = '#f0fdf4';
+    btn.style.borderColor = '#86efac';
+    btn.textContent = '✅ Envoyé au planning';
+    toast(`✅ ${placed} RDV envoyé(s) au planning — ${r.VE1||''} ${r.VE2||''}`, 'success');
+  } else if (placed > 0) {
+    toast(`⚠️ ${placed} RDV envoyé(s), ${failed} échec(s)`, 'warning');
+  } else {
+    toast('Echec envoi au planning', 'error');
+  }
 }
 
 /* ═══════════════════════════════════════════════
