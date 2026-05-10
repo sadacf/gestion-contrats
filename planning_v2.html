@@ -1883,6 +1883,10 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
             style="background:#1e40af;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:800;cursor:pointer">
             🤖 Tout placer (toute l'année)
           </button>
+          <button onclick="effacerTousRDVAuto()"
+            style="background:#fff;border:2px solid #fca5a5;color:#dc2626;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:800;cursor:pointer">
+            🗑 Tout effacer
+          </button>
           <button onclick="renderBacklogView();setView('backlog')"
             style="background:#f8fafc;border:1.5px solid #bfdbfe;color:#1e40af;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer">
             📋 Voir le backlog
@@ -3367,6 +3371,43 @@ Règle : Mardi > Mercredi > Jeudi > Lundi > Vendredi.`)) return;
 }
 
 // Place TOUS les contrats de toute l'année en une seule passe
+// Efface tous les RDV créés par auto-placement (isVE:true ou autoPlaced:true)
+async function effacerTousRDVAuto() {
+  const veEvents = _events.filter(e => e.isVE || e.autoPlaced);
+  if (veEvents.length === 0) {
+    toast('Aucun RDV auto-placé à supprimer', 'ok');
+    return;
+  }
+  if (!confirm(`Supprimer les ${veEvents.length} RDV importés depuis Gestion Contrats ?
+
+Les RDV saisis manuellement ne seront pas touchés.`)) return;
+
+  const res = document.getElementById('autoPlaceResult');
+  if (res) res.innerHTML = '<span style="color:#ef4444">⏳ Suppression en cours…</span>';
+
+  let deleted = 0, errors = 0;
+  for (const e of veEvents) {
+    try {
+      if (e._fsId) {
+        await fsDel('planning_events', e._fsId, 'Effacement auto: ' + e.title);
+        deleted++;
+      }
+    } catch(err) {
+      errors++;
+      console.warn('[Effacer]', err);
+    }
+  }
+
+  // Aussi vider le backlog auto
+  const autoBacklog = _backlog.filter(b => b.alerte || b.autoPlaced);
+  for (const b of autoBacklog) {
+    try { if (b._fsId) await fsDel('planning_backlog', b._fsId, 'Effacement backlog auto'); } catch(e) {}
+  }
+
+  if (res) res.innerHTML = `<span style="color:#16a34a">✅ ${deleted} RDV supprimés${errors > 0 ? ', ' + errors + ' erreurs' : ''}</span>`;
+  toast(`🗑 ${deleted} RDV auto-placés supprimés`, 'ok');
+}
+
 async function autoPlaceTous() {
   if (!confirm("Placer automatiquement TOUS les RDV ?\n\nTous les contrats de toute annee.\nRegle : Mardi > Mercredi > Jeudi > Lundi > Vendredi.")) return;
 
@@ -7012,7 +7053,7 @@ async function gevResizeEnd(evt){
 function gevResizeStart(evt,el){} // conservé pour compatibilité
 
 window.addEventListener('resize',()=>{ adjustViewTop(); setTimeout(()=>{ if(_view!=='month'&&_view!=='res') render(); },150); });
-Object.assign(window,{autoPlaceContrat,autoPlaceAll,autoPlaceTous,_runAutoPlace,toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,gdSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail,openFicheInst,closeFicheInst,switchFiTab,ctxOpenFiche,ctxOpenContrat,fiBtnNouveauRdv,fiBtnEnCours,fiBtnAppel,cfgAddGroup,cfgRemoveGroup,cfgDropGroup,cfgDropTypeInGroup,cfgRemoveTypeFromGroup,openPlanningPMEImport,closePlanningPMEImport,handlePPMFile,doPPMImport,updatePPMPreview,ppmConnect,ppmImportJson,openDashboard,goPlanning,renderDashboard,dashGoEv,clearAllFiltersNow,updClearFiltersBtn,applyEvFont,saveEvFont,renderPpmMapping,ppmAddMapRule,savePpmMapping,ppmSwitchTab,renderPpmStatusMap,ppmUpdateStatusCode,ppmAddStatusRule,renderPpmFieldMap,selectResGroup,openClientView,closeClientView,filterClientSearch,openClientDetail,createPlannerTask,sendEvToPlanner,syncPlannerAuto,startPlannerPolling,sendTeams,saveTeamsWebhook,testTeamsWebhook,saveMsConfig,openQuickAppel,closeQuickAppel,qaSearchClient,qaSelectClient,qaOpenFiche,qaOpenTeams,qaOpenTeams_name,qaOpenPlanner,saveQuickAppel,cvNewRdv,openSolderModal,closeSolderModal,confirmSolder,dashSwitchAppelTab,loadDashAppels,renderDashAppels,handleAppelAction,addAppelComment,solderAppelDash,deleteAppelDash,updateAppelSuivi,startTgPolling,tgPollOnce,getTechContact,openTelegramApp,saveTelegramToken,testTelegramBot,getTelegramUpdates,copyTelegramId,sendTelegram,openDepanDispatch,closeDepanDispatch,depanSelectAll,depanSelectAgence,depanToggleTech,sendDepanDispatch});
+Object.assign(window,{autoPlaceContrat,autoPlaceAll,autoPlaceTous,effacerTousRDVAuto,_runAutoPlace,toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,gdSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail,openFicheInst,closeFicheInst,switchFiTab,ctxOpenFiche,ctxOpenContrat,fiBtnNouveauRdv,fiBtnEnCours,fiBtnAppel,cfgAddGroup,cfgRemoveGroup,cfgDropGroup,cfgDropTypeInGroup,cfgRemoveTypeFromGroup,openPlanningPMEImport,closePlanningPMEImport,handlePPMFile,doPPMImport,updatePPMPreview,ppmConnect,ppmImportJson,openDashboard,goPlanning,renderDashboard,dashGoEv,clearAllFiltersNow,updClearFiltersBtn,applyEvFont,saveEvFont,renderPpmMapping,ppmAddMapRule,savePpmMapping,ppmSwitchTab,renderPpmStatusMap,ppmUpdateStatusCode,ppmAddStatusRule,renderPpmFieldMap,selectResGroup,openClientView,closeClientView,filterClientSearch,openClientDetail,createPlannerTask,sendEvToPlanner,syncPlannerAuto,startPlannerPolling,sendTeams,saveTeamsWebhook,testTeamsWebhook,saveMsConfig,openQuickAppel,closeQuickAppel,qaSearchClient,qaSelectClient,qaOpenFiche,qaOpenTeams,qaOpenTeams_name,qaOpenPlanner,saveQuickAppel,cvNewRdv,openSolderModal,closeSolderModal,confirmSolder,dashSwitchAppelTab,loadDashAppels,renderDashAppels,handleAppelAction,addAppelComment,solderAppelDash,deleteAppelDash,updateAppelSuivi,startTgPolling,tgPollOnce,getTechContact,openTelegramApp,saveTelegramToken,testTelegramBot,getTelegramUpdates,copyTelegramId,sendTelegram,openDepanDispatch,closeDepanDispatch,depanSelectAll,depanSelectAgence,depanToggleTech,sendDepanDispatch});
 // ── SÉLECTION MULTI-JOURS PAR GLISSER-SOURIS ───────────────────────────────
 let _gdSel=null;
 
