@@ -2187,7 +2187,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/10-05-26-16:38';
+const APP_VERSION = 'V1/10-05-26-21:10';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5020,6 +5020,16 @@ function labelToKey(label) {
   return label.trim().replace(/[^a-zA-Z0-9_]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
 }
 
+// État visuel des pilules options (global pour les handlers inline HTML)
+function _applyOptState(key, on) {
+  var l=document.getElementById('lbl_opt_'+key);
+  var d=document.getElementById('dot_opt_'+key);
+  var t=document.getElementById('txt_opt_'+key);
+  if(l){l.style.borderColor=on?'#86efac':'#e2e8f0';l.style.background=on?'#dcfce7':'#f1f5f9';}
+  if(d)d.style.background=on?'#16a34a':'#94a3b8';
+  if(t){t.style.color=on?'#14532d':'#475569';t.style.fontWeight=on?'700':'500';}
+}
+
 // Rend les checkboxes dynamiquement dans le formulaire
 function renderOptionsCheckboxes(record) {
   const grid = document.getElementById('optionsCheckboxGrid');
@@ -5033,15 +5043,7 @@ function renderOptionsCheckboxes(record) {
   const defaultKeys = ['Debit','Astreinte','MO_Inclus','Formation_SSI',
     'Filtres_DFA','Batterie','Entretien_DAS','Trienale_CS','Sono','Fan_Test','Verif_DAF','PCF_CCF'];
 
-  // Helpers d'état visuel (appelés depuis les handlers inline)
-  function _applyOptState(key, on) {
-    var l=document.getElementById('lbl_opt_'+key);
-    var d=document.getElementById('dot_opt_'+key);
-    var t=document.getElementById('txt_opt_'+key);
-    if(l){l.style.borderColor=on?'#86efac':'#e2e8f0';l.style.background=on?'#dcfce7':'#f1f5f9';}
-    if(d)d.style.background=on?'#16a34a':'#94a3b8';
-    if(t){t.style.color=on?'#14532d':'#475569';t.style.fontWeight=on?'700':'500';}
-  }
+  // _applyOptState est définie globalement ci-dessous
 
   // Pilule checkbox — inline handler use global _applyOptState
   function makePill(o) {
