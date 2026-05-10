@@ -2187,7 +2187,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/10-05-26-21:10';
+const APP_VERSION = 'V1/10-05-26-21:19';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -8256,20 +8256,27 @@ function updateSynthese() {
   // Pour chaque tech : compter VEs ce mois, VEs faites (bleu+vert), calculer %
   const _progressByTech = {}; // name → { total, done }
   let _globalVeTotal = 0, _globalVeDone = 0;
+  let _detTotal = 0, _detDone = 0; // Détection uniquement
+  let _protTotal = 0, _protDone = 0; // Protection uniquement
 
   _srcBadges.forEach(r => {
     const t = r.Technicien ? resolveTechName(r.Technicien) : null;
     if (!t) return;
+    const isProt = (r.Type_Contrat || '').toUpperCase() === 'PROT';
     ['ve1','ve2'].forEach(field => {
       const val = (field === 've1' ? r.VE1 : r.VE2) || '';
       if (!_curMoisVariants.includes(val.trim().toLowerCase())) return;
-      if (!_progressByTech[t]) _progressByTech[t] = { total: 0, done: 0 };
+      if (!_progressByTech[t]) _progressByTech[t] = { total: 0, done: 0, detTotal: 0, detDone: 0, protTotal: 0, protDone: 0 };
       _progressByTech[t].total++;
       _globalVeTotal++;
+      if (isProt) { _protTotal++; _progressByTech[t].protTotal++; }
+      else         { _detTotal++;  _progressByTech[t].detTotal++;  }
       const color = getVeColorForRecord(r, field);
-      if (color === '00B0F0' || color === '92D050') { // archivé ou réalisé = fait
+      if (color === '00B0F0' || color === '92D050') {
         _progressByTech[t].done++;
         _globalVeDone++;
+        if (isProt) { _protDone++; _progressByTech[t].protDone++; }
+        else         { _detDone++;  _progressByTech[t].detDone++;  }
       }
     });
   });
@@ -8452,23 +8459,32 @@ function updateSynthese() {
   };
   const gridHtml = techs.map(([name, v]) => buildBadgeHtml(name, v)).join('');
 
-  // Barre de progression globale
-  const _gPct = _globalVeTotal > 0 ? Math.round(_globalVeDone / _globalVeTotal * 100) : -1;
-  const _gColor = _gPct < 0 ? '#e2e8f0' : _gPct < 50 ? '#ef4444' : _gPct < 80 ? '#f97316' : _gPct < 100 ? '#eab308' : '#22c55e';
+  // Barres de progression globales — Détection + Protection séparées
   const _curMoisNameGlobal = (_moisMap[_curMonthIdx] || ['?'])[0];
-  const globalProgHtml = _globalVeTotal > 0 ? `
-    <div onclick="filterByCurrentMonthVe()"
-         style="margin:6px 0 10px;padding:10px 16px;background:#fff;border-radius:10px;box-shadow:var(--shadow);cursor:pointer;border-left:4px solid ${_gColor}"
-         title="Cliquer pour voir toutes les VEs de ${_curMoisNameGlobal}">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div>
-          <span style="font-size:12px;font-weight:800;color:var(--navy)">📅 Avancement ${_curMoisNameGlobal} — tous techniciens</span>
-          <span style="font-size:11px;color:var(--sub);margin-left:8px">${_globalVeDone} VEs faites sur ${_globalVeTotal} prévues</span>
-        </div>
-        <span style="font-size:15px;font-weight:800;color:${_gColor}">${_gPct}%</span>
+
+  function _progBar(total, done, label, icon, color, onclick) {
+    if (total === 0) return '';
+    const pct = Math.round(done / total * 100);
+    const col = pct < 50 ? '#ef4444' : pct < 80 ? '#f97316' : pct < 100 ? '#eab308' : '#22c55e';
+    return `<div onclick="${onclick}" style="flex:1;padding:8px 14px;background:#fff;border-radius:10px;box-shadow:var(--shadow);cursor:pointer;border-left:4px solid ${col};min-width:180px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:11px;font-weight:800;color:var(--navy)">${icon} ${label}</span>
+        <span style="font-size:14px;font-weight:800;color:${col}">${pct}%</span>
       </div>
-      <div style="height:10px;background:#e2e8f0;border-radius:5px;overflow:hidden">
-        <div style="height:100%;width:${_gPct}%;background:${_gColor};border-radius:5px;transition:width .5s ease"></div>
+      <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-bottom:3px">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:4px;transition:width .5s ease"></div>
+      </div>
+      <div style="font-size:10px;color:var(--sub)">${done} fait${done>1?'s':''} sur ${total} prévu${total>1?'s':''}</div>
+    </div>`;
+  }
+
+  const globalProgHtml = (_globalVeTotal > 0) ? `
+    <div style="margin:6px 0 10px">
+      <div style="font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">📅 Avancement ${_curMoisNameGlobal} — tous techniciens</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${_detTotal > 0 ? _progBar(_detTotal, _detDone, 'Détection', '📟', '#1d4ed8', 'filterByCurrentMonthVe()') : ''}
+        ${_protTotal > 0 ? _progBar(_protTotal, _protDone, 'Protection', '🧯', '#dc2626', 'filterByCurrentMonthVe()') : ''}
+
       </div>
     </div>` : '';
 
