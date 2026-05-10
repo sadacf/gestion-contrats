@@ -1878,25 +1878,42 @@ body.dragging-active .gev:not(.dragging),body.dragging-active .cev:not(.dragging
           Les RDV sans créneau sont envoyés au backlog avec alerte rouge.<br>
           🔄 = Tacite reconduction (récurrence 6 ou 12 mois)
         </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+          <button onclick="autoPlaceTous()"
+            style="background:#1e40af;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:800;cursor:pointer">
+            🤖 Tout placer (toute l'année)
+          </button>
+          <button onclick="renderBacklogView();setView('backlog')"
+            style="background:#f8fafc;border:1.5px solid #bfdbfe;color:#1e40af;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer">
+            📋 Voir le backlog
+          </button>
+        </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:3px">
-            <label style="font-size:10px;font-weight:700;color:#1e40af">Mois cible</label>
+            <label style="font-size:10px;font-weight:700;color:#64748b">Ou mois par mois :</label>
             <select id="autoPlaceMois" style="padding:5px 10px;border:1.5px solid #bfdbfe;border-radius:7px;font-size:12px;font-weight:700;color:#1e40af;background:#fff">
-              ${['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'].map((m,i)=>`<option value="${i}"${i===new Date().getMonth()?' selected':''}>${m}</option>`).join('')}
+              <option value="0">Janvier</option>
+              <option value="1">Février</option>
+              <option value="2">Mars</option>
+              <option value="3">Avril</option>
+              <option value="4">Mai</option>
+              <option value="5" selected>Juin</option>
+              <option value="6">Juillet</option>
+              <option value="7">Août</option>
+              <option value="8">Septembre</option>
+              <option value="9">Octobre</option>
+              <option value="10">Novembre</option>
+              <option value="11">Décembre</option>
             </select>
           </div>
           <div style="display:flex;flex-direction:column;gap:3px">
-            <label style="font-size:10px;font-weight:700;color:#1e40af">Année</label>
-            <input type="number" id="autoPlaceAnnee" value="${new Date().getFullYear()}" min="2024" max="2030"
+            <label style="font-size:10px;font-weight:700;color:#64748b">Année</label>
+            <input type="number" id="autoPlaceAnnee" value="2026" min="2024" max="2030"
               style="width:80px;padding:5px 8px;border:1.5px solid #bfdbfe;border-radius:7px;font-size:12px;font-weight:700;color:#1e40af">
           </div>
           <button onclick="_runAutoPlace()"
-            style="margin-top:16px;background:#1e40af;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:800;cursor:pointer">
-            🤖 Placer automatiquement
-          </button>
-          <button onclick="renderBacklogView();setView('backlog')"
-            style="margin-top:16px;background:#f8fafc;border:1.5px solid #bfdbfe;color:#1e40af;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">
-            📋 Voir le backlog
+            style="margin-top:16px;background:#64748b;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">
+            📅 Placer ce mois
           </button>
         </div>
         <div id="autoPlaceResult" style="margin-top:10px;font-size:11px;min-height:16px"></div>
@@ -3347,6 +3364,46 @@ Règle : Mardi > Mercredi > Jeudi > Lundi > Vendredi.`)) return;
   }
 
   toast(`✅ ${placed} RDV placés, ${backlog} dans le backlog (pas de créneau), ${skipped} déjà placés`, 'ok');
+}
+
+// Place TOUS les contrats de toute l'année en une seule passe
+async function autoPlaceTous() {
+  if (!confirm("Placer automatiquement TOUS les RDV ?\n\nTous les contrats de toute annee.\nRegle : Mardi > Mercredi > Jeudi > Lundi > Vendredi.")) return;
+
+  const res = document.getElementById('autoPlaceResult');
+  if (res) res.innerHTML = '<span style="color:#3b82f6">⏳ Placement en cours sur tous les mois…</span>';
+
+  let placed = 0, backlog = 0, skipped = 0;
+  const year = parseInt(document.getElementById('autoPlaceAnnee')?.value || 2026);
+
+  // Indexer les VEs déjà placées dans le planning
+  const alreadyPlaced = new Set(_events.filter(e => e.isVE && e.contratId && e.veField)
+    .map(e => e.contratId + '_' + e.veField));
+
+  try {
+    for (const contrat of _contrats) {
+      if (contrat._suspension) continue;
+      for (const f of ['VE1', 'VE2']) {
+        const mois = f === 'VE1' ? contrat.VE1 : contrat.VE2;
+        if (!mois || mois === 'S.O') continue;
+        const key = (contrat._id || contrat._fsId) + '_' + f.toLowerCase();
+        if (alreadyPlaced.has(key)) { skipped++; continue; }
+
+        const mi = MOIS[(mois || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')];
+        if (mi === undefined) { skipped++; continue; }
+
+        const res2 = await autoPlaceContrat(contrat, f);
+        if (res2.ok) placed++;
+        else if (res2.backlog) backlog++;
+        else skipped++;
+      }
+    }
+
+    if (res) res.innerHTML = `<span style="color:#16a34a">✅ Terminé — ${placed} RDV placés, ${backlog} dans le backlog (sans créneau), ${skipped} ignorés (déjà placés ou données manquantes)</span>`;
+    toast(`✅ ${placed} RDV placés automatiquement`, 'ok');
+  } catch(e) {
+    if (res) res.innerHTML = '<span style="color:#ef4444">❌ Erreur : ' + (e.message || e) + '</span>';
+  }
 }
 
 async function _runAutoPlace() {
@@ -6955,7 +7012,7 @@ async function gevResizeEnd(evt){
 function gevResizeStart(evt,el){} // conservé pour compatibilité
 
 window.addEventListener('resize',()=>{ adjustViewTop(); setTimeout(()=>{ if(_view!=='month'&&_view!=='res') render(); },150); });
-Object.assign(window,{autoPlaceContrat,autoPlaceAll,_runAutoPlace,toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,gdSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail,openFicheInst,closeFicheInst,switchFiTab,ctxOpenFiche,ctxOpenContrat,fiBtnNouveauRdv,fiBtnEnCours,fiBtnAppel,cfgAddGroup,cfgRemoveGroup,cfgDropGroup,cfgDropTypeInGroup,cfgRemoveTypeFromGroup,openPlanningPMEImport,closePlanningPMEImport,handlePPMFile,doPPMImport,updatePPMPreview,ppmConnect,ppmImportJson,openDashboard,goPlanning,renderDashboard,dashGoEv,clearAllFiltersNow,updClearFiltersBtn,applyEvFont,saveEvFont,renderPpmMapping,ppmAddMapRule,savePpmMapping,ppmSwitchTab,renderPpmStatusMap,ppmUpdateStatusCode,ppmAddStatusRule,renderPpmFieldMap,selectResGroup,openClientView,closeClientView,filterClientSearch,openClientDetail,createPlannerTask,sendEvToPlanner,syncPlannerAuto,startPlannerPolling,sendTeams,saveTeamsWebhook,testTeamsWebhook,saveMsConfig,openQuickAppel,closeQuickAppel,qaSearchClient,qaSelectClient,qaOpenFiche,qaOpenTeams,qaOpenTeams_name,qaOpenPlanner,saveQuickAppel,cvNewRdv,openSolderModal,closeSolderModal,confirmSolder,dashSwitchAppelTab,loadDashAppels,renderDashAppels,handleAppelAction,addAppelComment,solderAppelDash,deleteAppelDash,updateAppelSuivi,startTgPolling,tgPollOnce,getTechContact,openTelegramApp,saveTelegramToken,testTelegramBot,getTelegramUpdates,copyTelegramId,sendTelegram,openDepanDispatch,closeDepanDispatch,depanSelectAll,depanSelectAgence,depanToggleTech,sendDepanDispatch});
+Object.assign(window,{autoPlaceContrat,autoPlaceAll,autoPlaceTous,_runAutoPlace,toggleCommentForm,saveComment,setApSuivi,importFromTeams,importTeamsMsg,importFromPlanner,importPlannerTask,toggleApAgenceMenu,setApFilt,openAppelsList,appelsSearchInst,selectAppelsInst,openAppels,closeAppels,switchAppelsTab,saveAppel,renderStateColors,updateStatePreview,syncStateHex,saveStateColors,resetStateColors,openVersionModal,setVersionToday,saveVersion,openPlannerImport,closePlannerImport,msConnect,showPlannerPlans,loadPlannerTasks,updateImportBtn,importSelectedTasks,blSearchInst,blSelectInst,loadBacklog,renderBacklogView,openBacklogForm,closeBacklogForm,saveBacklogItem,deleteBacklogItem,planifyBacklog,updateBacklogBadge,_ensureFullTypeOrder,closeSearch,_applySearchHighlight,mcGoToday,gdSelStart,gdSelMove,gdSelEnd,ctxEclater,renderMonthGantt,doRefresh,setLastSync,ctxChangeType,doChangeType,toggleTypeBtn,getOrderedTypes,typeDragStart,typeDragOver,typeDrop,onDurSlider,onEndTimeChange,onStartTimeChange,durToStr,gdCellClick,tlCellClick,tlEvDblClick,tlWrapDrop,tlSelStart,tlSelMove,tlSelEnd,tlResizeStart,tlSpanResizeStart,gdSpanResizeStart,renderTimeline,copyEv6months,copyEv12months,copyEvNmonths,openEmailModal,closeEmailModal,sendEmailRdv,openEmailModalForEv,loadVacSco,undoLast,switchCfgResTab,renderCfgRes,cfgTogF,cfgAddFreeRes,gevResizeStart,gevEdgeHover,gevEdgeMousedown,doSearch,searchGo,updEvTitle,ctxPaste,ctxDissociate,ganttCellRClick,switchEvTab,toggleAllDay,addEvTech,removeEvTech,setHalfDay,toggleEvTech,toggleResDropdown,filterResDrop,switchCfgTab,cfgAddType,cfgRemoveType,toggleMiniCal,mcNav,mcGo,toggleFilter,closeAllFilters,clearFilter,toggleFltVal,doLogin,doLogout,evClick,evRClick,switchView,navPeriod,goToday,toggleWE,openConfig,closeConfig,cfgToggleWE,syncGanttCols,setupGanttSync,sRT,renderSyncOpts,onSyncChange,saveSyncOpts,evDragStart,evDragEnd,calDragOver,calDragLeave,calDrop,ganttDragOver,ganttDrop,renderTypes,addType,removeType,saveTypes,togTF,togLeg,openNewEvent,closeModal,saveEv,deleteEv,showPop,closePopup,editPopup,onInstInput,togF,addFreeRes,updR,rmR,rdS,rdO,rdE,rdD,saveRes,renderFeries,addFerie,rmFerie,saveFeries,showCtx,closeCtx,showSubMenu,hideSubMenuDelay,clearHideDelay,ctxOpen,ctxSetState,ctxCopy,ctxDelete,ctxEmail,openFicheInst,closeFicheInst,switchFiTab,ctxOpenFiche,ctxOpenContrat,fiBtnNouveauRdv,fiBtnEnCours,fiBtnAppel,cfgAddGroup,cfgRemoveGroup,cfgDropGroup,cfgDropTypeInGroup,cfgRemoveTypeFromGroup,openPlanningPMEImport,closePlanningPMEImport,handlePPMFile,doPPMImport,updatePPMPreview,ppmConnect,ppmImportJson,openDashboard,goPlanning,renderDashboard,dashGoEv,clearAllFiltersNow,updClearFiltersBtn,applyEvFont,saveEvFont,renderPpmMapping,ppmAddMapRule,savePpmMapping,ppmSwitchTab,renderPpmStatusMap,ppmUpdateStatusCode,ppmAddStatusRule,renderPpmFieldMap,selectResGroup,openClientView,closeClientView,filterClientSearch,openClientDetail,createPlannerTask,sendEvToPlanner,syncPlannerAuto,startPlannerPolling,sendTeams,saveTeamsWebhook,testTeamsWebhook,saveMsConfig,openQuickAppel,closeQuickAppel,qaSearchClient,qaSelectClient,qaOpenFiche,qaOpenTeams,qaOpenTeams_name,qaOpenPlanner,saveQuickAppel,cvNewRdv,openSolderModal,closeSolderModal,confirmSolder,dashSwitchAppelTab,loadDashAppels,renderDashAppels,handleAppelAction,addAppelComment,solderAppelDash,deleteAppelDash,updateAppelSuivi,startTgPolling,tgPollOnce,getTechContact,openTelegramApp,saveTelegramToken,testTelegramBot,getTelegramUpdates,copyTelegramId,sendTelegram,openDepanDispatch,closeDepanDispatch,depanSelectAll,depanSelectAgence,depanToggleTech,sendDepanDispatch});
 // ── SÉLECTION MULTI-JOURS PAR GLISSER-SOURIS ───────────────────────────────
 let _gdSel=null;
 
