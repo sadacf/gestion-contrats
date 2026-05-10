@@ -1773,7 +1773,7 @@ function loadSheetJS(callback) {
 
 <!-- MODAL GESTION OPTIONS -->
 <div class="overlay" id="optionsModal" style="z-index:200">
-  <div class="modal-box" style="width:560px;max-height:85vh;display:flex;flex-direction:column">
+  <div class="modal-box" style="width:820px;max-width:96vw;max-height:90vh;height:90vh;display:flex;flex-direction:column">
     <div class="modal-header">
       <span style="font-size:18px">🔧</span>
       <h2>Gestion des options</h2>
@@ -1797,6 +1797,9 @@ function loadSheetJS(callback) {
         <button class="hbtn hbtn-success" onclick="addOption()" style="white-space:nowrap">＋ Ajouter</button>
       </div>
 
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+        <button onclick="resetOptionsOrder()" style="font-size:11px;border:1px solid #e2e8f0;border-radius:6px;padding:3px 10px;background:#f8fafc;color:#64748b;cursor:pointer">↺ Remettre l'ordre par défaut</button>
+      </div>
       <div id="optionsList" style="display:flex;flex-direction:column;gap:4px"></div>
     </div>
     <div class="modal-footer">
@@ -1896,7 +1899,7 @@ function loadSheetJS(callback) {
               oninput="formatDateInput(this)">
             <input type="hidden" id="f_Fin_Validite">
           </div>
-          <div class="fg" style="grid-column:1/-1">
+          <div class="fg">
             <label>Client *</label>
             <input type="text" id="f_Client" required placeholder="Nom du client" list="clientList" autocomplete="off">
             <datalist id="clientList"></datalist>
@@ -1938,25 +1941,30 @@ function loadSheetJS(callback) {
               <option>Avril</option><option>Mai</option><option>Juin</option>
               <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
             </select>
-            <!-- Durée VE1 -->
-            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
-              <span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap">⏱ Durée VE1</span>
-              <input type="number" id="f_Duree_VE1_val" min="0.5" max="30" step="0.5" placeholder="–"
-                style="width:52px;border:1.5px solid #bfdbfe;border-radius:6px;padding:4px 6px;font-size:13px;font-weight:800;text-align:center;color:#1e40af"
-                oninput="_onDureeVE1Change()">
-<div style="display:flex;gap:3px">
-                <label id="lbl_ve1_h"  style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
-                  <input type="radio" name="f_Duree_VE1_unit_r" value="h"  style="display:none" onchange="_onDureeVE1Change()"> h
-                </label>
-                <label id="lbl_ve1_dj" style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
-                  <input type="radio" name="f_Duree_VE1_unit_r" value="dj" style="display:none" onchange="_onDureeVE1Change()"> ½j
-                </label>
-                <label id="lbl_ve1_j"  style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
-                  <input type="radio" name="f_Duree_VE1_unit_r" value="j"  style="display:none" onchange="_onDureeVE1Change()"> j
-                </label>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px"><span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap">Temps estimé</span><div style="display:inline-flex;align-items:stretch;gap:4px">
+              <!-- xx j -->
+              <div id="lbl_ve1_j" onclick="_selectVEUnit(1,'j')"
+                style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden;cursor:pointer;background:#f8fafc;transition:all .15s">
+                <input type="number" id="f_Duree_VE1_j_val" min="0.5" max="30" step="0.5" placeholder="–"
+                  style="width:34px;border:none;padding:4px 3px;font-size:13px;font-weight:800;text-align:center;color:#1e40af;outline:none;background:transparent"
+                  onclick="event.stopPropagation();_selectVEUnit(1,'j')" oninput="_onDureeVE1Change()">
+                <span style="font-size:12px;font-weight:700;padding:0 6px 0 2px;color:#64748b">j</span>
+              </div>
+              <!-- 1/2 j -->
+              <div id="lbl_ve1_dj" onclick="_selectVEUnit(1,'dj')"
+                style="display:flex;align-items:center;justify-content:center;border:1.5px solid #e2e8f0;border-radius:8px;padding:4px 10px;cursor:pointer;background:#f8fafc;font-size:12px;font-weight:700;color:#64748b;transition:all .15s;white-space:nowrap">
+                ½j
+              </div>
+              <!-- xx h -->
+              <div id="lbl_ve1_h" onclick="_selectVEUnit(1,'h')"
+                style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden;cursor:pointer;background:#f8fafc;transition:all .15s">
+                <input type="number" id="f_Duree_VE1_h_val" min="0.5" max="24" step="0.5" placeholder="–"
+                  style="width:34px;border:none;padding:4px 3px;font-size:13px;font-weight:800;text-align:center;color:#1e40af;outline:none;background:transparent"
+                  onclick="event.stopPropagation();_selectVEUnit(1,'h')" oninput="_onDureeVE1Change()">
+                <span style="font-size:12px;font-weight:700;padding:0 6px 0 2px;color:#64748b">h</span>
               </div>
               <input type="hidden" id="f_Duree_VE1">
-            </div>
+            </div></div>
           </div>
           <div class="fg">
             <label>Semestre 2</label>
@@ -1966,27 +1974,31 @@ function loadSheetJS(callback) {
               <option>Octobre</option><option>Novembre</option><option>Decembre</option>
               <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
             </select>
-            <!-- Durée VE2 -->
-            <div style="display:flex;align-items:center;gap:6px;margin-top:6px" id="dureeVE2wrap">
-              <span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap">⏱ Durée VE2</span>
-              <input type="number" id="f_Duree_VE2_val" min="0.5" max="30" step="0.5" placeholder="–"
-                style="width:52px;border:1.5px solid #bfdbfe;border-radius:6px;padding:4px 6px;font-size:13px;font-weight:800;text-align:center;color:#1e40af"
-                oninput="_onDureeVEChange()">
-<div style="display:flex;gap:3px">
-                <label id="lbl_ve2_h"  style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
-                  <input type="radio" name="f_Duree_VE2_unit_r" value="h"  style="display:none" onchange="_onDureeVEChange()"> h
-                </label>
-                <label id="lbl_ve2_dj" style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
-                  <input type="radio" name="f_Duree_VE2_unit_r" value="dj" style="display:none" onchange="_onDureeVEChange()"> ½j
-                </label>
-                <label id="lbl_ve2_j"  style="cursor:pointer;font-size:10px;font-weight:600;padding:3px 7px;border:1.5px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#94a3b8;transition:all .15s;white-space:nowrap;user-select:none">
-                  <input type="radio" name="f_Duree_VE2_unit_r" value="j"  style="display:none" onchange="_onDureeVEChange()"> j
-                </label>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px"><span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap">Temps estimé</span><div style="display:inline-flex;align-items:stretch;gap:4px">
+              <!-- xx j -->
+              <div id="lbl_ve2_j" onclick="_selectVEUnit(2,'j')"
+                style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden;cursor:pointer;background:#f8fafc;transition:all .15s">
+                <input type="number" id="f_Duree_VE2_j_val" min="0.5" max="30" step="0.5" placeholder="–"
+                  style="width:34px;border:none;padding:4px 3px;font-size:13px;font-weight:800;text-align:center;color:#1e40af;outline:none;background:transparent"
+                  onclick="event.stopPropagation();_selectVEUnit(2,'j')" oninput="_onDureeVEChange()">
+                <span style="font-size:12px;font-weight:700;padding:0 6px 0 2px;color:#64748b">j</span>
+              </div>
+              <!-- 1/2 j -->
+              <div id="lbl_ve2_dj" onclick="_selectVEUnit(2,'dj')"
+                style="display:flex;align-items:center;justify-content:center;border:1.5px solid #e2e8f0;border-radius:8px;padding:4px 10px;cursor:pointer;background:#f8fafc;font-size:12px;font-weight:700;color:#64748b;transition:all .15s;white-space:nowrap">
+                ½j
+              </div>
+              <!-- xx h -->
+              <div id="lbl_ve2_h" onclick="_selectVEUnit(2,'h')"
+                style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden;cursor:pointer;background:#f8fafc;transition:all .15s">
+                <input type="number" id="f_Duree_VE2_h_val" min="0.5" max="24" step="0.5" placeholder="–"
+                  style="width:34px;border:none;padding:4px 3px;font-size:13px;font-weight:800;text-align:center;color:#1e40af;outline:none;background:transparent"
+                  onclick="event.stopPropagation();_selectVEUnit(2,'h')" oninput="_onDureeVEChange()">
+                <span style="font-size:12px;font-weight:700;padding:0 6px 0 2px;color:#64748b">h</span>
               </div>
               <input type="hidden" id="f_Duree_VE2">
-              <span id="dureeVE2auto" style="font-size:9px;color:#94a3b8;font-style:italic"></span>
-            </div>
-          </div>
+            </div><span id="dureeVE2auto" style="font-size:9px;color:#94a3b8;font-style:italic;display:flex;align-items:center;margin-left:2px"></span>
+          </div></div>
 
           <!-- Ligne 3 : MATERIEL + Nb détecteurs -->
           <div class="fg">
@@ -2175,7 +2187,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/09-05-26-20:38';
+const APP_VERSION = 'V1/10-05-26-11:57';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4938,19 +4950,24 @@ const DEFAULT_OPTIONS = [
   { key:'Verif_DAF',        label:'Vérif. DAF',        groupe:'detection' },
   { key:'PCF_CCF',          label:'PCF/CCF',           groupe:'detection' },
   // ── PROTECTION ──
-  { key:'Form_Extincteurs', label:'Form. Extincteurs', groupe:'protection' },
-  { key:'BAES_BAEH',        label:'BAES/BAEH',         groupe:'protection' },
-  { key:'Extincteurs',      label:'Extincteurs',       groupe:'protection', type:'number' },
-  { key:'Desenfumage',      label:'Désenfumage',       groupe:'protection', type:'number' },
-  { key:'RIA',              label:'RIA',               groupe:'protection', type:'number' },
-  { key:'Col_seche',        label:'Col. sèche',        groupe:'protection', type:'number' },
+  { key:'Form_Extincteurs',     label:'Form. Extincteurs',    groupe:'protection' },
+  { key:'BAES_BAEH',            label:'BAES/BAEH',            groupe:'protection' },
+  { key:'Extincteurs',          label:'Extincteurs',          groupe:'protection', type:'number' },
+  { key:'Desenfumage',          label:'Désenfumage',          groupe:'protection', type:'number' },
+  { key:'RIA',                  label:'RIA',                  groupe:'protection', type:'number' },
+  { key:'Col_seche',            label:'Col. sèche',           groupe:'protection', type:'number' },
+  { key:'T4',                   label:'T4',                   groupe:'protection' },
+  { key:'Source_Centrale',      label:'Source Centrale',      groupe:'protection' },
+  { key:'Luminaires_sur_source',label:'Luminaires sur source',groupe:'protection' },
+  { key:'BAPI',                 label:'BAPI',                 groupe:'protection' },
+  { key:'T3_BAAS',              label:'T3-BAAS',              groupe:'protection' },
 ];
 
 // Mapping groupe par défaut pour les options sans groupe (compatibilité données existantes)
 const _GROUPE_MAP = {
   detection: ['Debit','Astreinte','MO_Inclus','Formation_SSI','Reconditionnement','Filtres_DFA',
               'Batterie','Entretien_DAS','Trienale_CS','Sono','Fan_Test','Verif_DAF','PCF_CCF'],
-  protection: ['Form_Extincteurs','BAES_BAEH','Extincteurs','Desenfumage','RIA','Col_seche'],
+  protection: ['Form_Extincteurs','BAES_BAEH','Extincteurs','Desenfumage','RIA','Col_seche','T4','Source_Centrale','Luminaires_sur_source','BAPI','T3_BAAS'],
 };
 function _getGroupe(opt) {
   if (opt.groupe) return opt.groupe;
@@ -4962,8 +4979,41 @@ function _getGroupe(opt) {
 let _options = null; // chargé au démarrage
 
 function getOptions() {
-  // Utiliser DEFAULT_OPTIONS si _options est null, undefined, ou tableau vide
-  return (_options && _options.length > 0) ? _options : DEFAULT_OPTIONS;
+  // Si pas de données Firebase/locales → utiliser DEFAULT_OPTIONS directement
+  if (!_options || _options.length === 0) return DEFAULT_OPTIONS.map(d => ({...d}));
+
+  // Copie pour ne pas muter _options
+  const base = _options.map(o => ({...o}));
+
+  // 1. Corriger les groupes manquants ou erronés selon DEFAULT_OPTIONS
+  base.forEach(o => {
+    const def = DEFAULT_OPTIONS.find(d => d.key === o.key);
+    if (!o.groupe) {
+      if (def && def.groupe) o.groupe = def.groupe;
+      else if (_GROUPE_MAP.detection.includes(o.key))  o.groupe = 'detection';
+      else if (_GROUPE_MAP.protection.includes(o.key)) o.groupe = 'protection';
+      else o.groupe = 'detection';
+    }
+    // Corriger le type si DEFAULT le définit et que la sauvegarde ne l'a pas
+    if (def && def.type && !o.type) o.type = def.type;
+  });
+
+  // 2. Ajouter dans l'ordre DEFAULT les options manquantes
+  // Insérer chaque option manquante après son voisin dans DEFAULT_OPTIONS
+  DEFAULT_OPTIONS.forEach((def, di) => {
+    if (!base.find(o => o.key === def.key)) {
+      // Trouver le meilleur endroit : après la dernière option DEFAULT déjà présente avant def
+      let insertAfter = -1;
+      for (let i = di - 1; i >= 0; i--) {
+        const prevKey = DEFAULT_OPTIONS[i].key;
+        const prevIdx = base.findIndex(o => o.key === prevKey);
+        if (prevIdx >= 0) { insertAfter = prevIdx; break; }
+      }
+      base.splice(insertAfter + 1, 0, {...def});
+    }
+  });
+
+  return base;
 }
 function saveOptions(opts) {
   if (_offlineMode) { toast('📵 Mode hors ligne — modifications impossibles', 'warning'); return; }
@@ -5078,25 +5128,61 @@ function openOptionsModal() {
 
 let optDragSrc = null;
 
+function resetOptionsOrder() {
+  if (!confirm('Remettre toutes les options dans l\'ordre par défaut ?')) return;
+  // Conserver les options custom (non dans DEFAULT) et les options par défaut dans l'ordre DEFAULT
+  const custom = getOptions().filter(o => !DEFAULT_OPTIONS.find(d => d.key === o.key));
+  const reset = [...DEFAULT_OPTIONS.map(d => ({...d})), ...custom];
+  saveOptions(reset);
+  renderOptionsList();
+  toast('Ordre réinitialisé', 'success');
+}
+
+function _moveOption(key, direction) {
+  const opts = getOptions();
+  const idx = opts.findIndex(o => o.key === key);
+  if (idx < 0) return;
+  const grp = _getGroupe(opts[idx]);
+  // Trouver les index dans le même groupe
+  const grpIdxs = opts.map((o,i) => _getGroupe(o) === grp ? i : -1).filter(i => i >= 0);
+  const posInGrp = grpIdxs.indexOf(idx);
+  const targetPos = direction === 'up' ? posInGrp - 1 : posInGrp + 1;
+  if (targetPos < 0 || targetPos >= grpIdxs.length) return;
+  // Échanger dans le tableau global
+  const targetIdx = grpIdxs[targetPos];
+  [opts[idx], opts[targetIdx]] = [opts[targetIdx], opts[idx]];
+  saveOptions(opts);
+  renderOptionsList();
+}
+
 function renderOptionsList() {
   const opts = getOptions();
   const list = document.getElementById('optionsList');
   const typeBg    = { checkbox: '#e0f2fe', number: '#fef9c3', text: '#f0fdf4' };
   const typeColor = { checkbox: '#0369a1', number: '#92400e', text: '#166534' };
 
-  const renderGroupSection = (groupKey, groupLabel, groupIcon, groupColor, groupBg) => {
-    const groupOpts = opts.filter(o => _getGroupe(o) === groupKey);
+  const renderGroupSection = (groupKey, groupLabel, groupIcon, groupColor) => {
+    const groupOpts = opts.map((o,i) => ({o,i})).filter(({o}) => _getGroupe(o) === groupKey);
     const otherKey  = groupKey === 'detection' ? 'protection' : 'detection';
     const otherIcon = groupKey === 'detection' ? '🧯' : '📟';
     if (groupOpts.length === 0) return `
       <div style="border:2px dashed ${groupColor}44;border-radius:10px;padding:12px;color:${groupColor};font-size:12px;text-align:center;opacity:.6">
         ${groupIcon} Aucune option ${groupLabel}
       </div>`;
-    return groupOpts.map(o => {
+    return groupOpts.map(({o}, posInGrp) => {
       const t = o.type || 'checkbox';
+      const isFirst = posInGrp === 0;
+      const isLast  = posInGrp === groupOpts.length - 1;
       return `
-      <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:4px">
-        <span style="font-size:13px;flex:1;font-weight:600;color:#1e293b">${esc(o.label)}</span>
+      <div style="display:flex;align-items:center;gap:5px;padding:5px 8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:4px">
+        <!-- Flèches ordre -->
+        <div style="display:flex;flex-direction:column;gap:1px;flex-shrink:0">
+          <button onclick="_moveOption('${esc(o.key)}','up')" ${isFirst?'disabled':''} title="Monter"
+            style="border:none;background:${isFirst?'transparent':'#f1f5f9'};color:${isFirst?'#e2e8f0':'#64748b'};border-radius:3px;padding:1px 4px;cursor:${isFirst?'default':'pointer'};font-size:9px;line-height:1">▲</button>
+          <button onclick="_moveOption('${esc(o.key)}','down')" ${isLast?'disabled':''} title="Descendre"
+            style="border:none;background:${isLast?'transparent':'#f1f5f9'};color:${isLast?'#e2e8f0':'#64748b'};border-radius:3px;padding:1px 4px;cursor:${isLast?'default':'pointer'};font-size:9px;line-height:1">▼</button>
+        </div>
+        <span style="font-size:12px;flex:1;font-weight:600;color:#1e293b">${esc(o.label)}</span>
         <select onchange="changeOptionType('${esc(o.key)}',this.value)"
           style="font-size:10px;padding:2px 4px;border:1px solid var(--line);border-radius:5px;background:${typeBg[t]};color:${typeColor[t]};cursor:pointer">
           <option value="checkbox"${t==='checkbox'?' selected':''}>☑ Case</option>
@@ -5105,11 +5191,11 @@ function renderOptionsList() {
         </select>
         <button onclick="changeOptionGroupe('${esc(o.key)}','${otherKey}');renderOptionsList()"
           title="Déplacer vers ${otherIcon}"
-          style="border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-size:11px;cursor:pointer;background:#f8fafc;color:#64748b;white-space:nowrap">
-          ${otherIcon} →
+          style="border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-size:10px;cursor:pointer;background:#f8fafc;color:#64748b;white-space:nowrap">
+          ${otherIcon}→
         </button>
         <button onclick="removeOption('${esc(o.key)}')"
-          style="background:#fee2e2;color:#dc2626;border:none;border-radius:5px;padding:2px 7px;cursor:pointer;font-size:12px;font-weight:700">✕</button>
+          style="background:#fee2e2;color:#dc2626;border:none;border-radius:5px;padding:2px 6px;cursor:pointer;font-size:11px;font-weight:700">✕</button>
       </div>`;
     }).join('');
   };
@@ -5117,16 +5203,16 @@ function renderOptionsList() {
   list.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div>
-        <div style="font-size:11px;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;align-items:center;gap:5px">
+        <div style="font-size:11px;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">
           📟 Détection <span style="font-size:10px;font-weight:400;color:#94a3b8">(${opts.filter(o=>_getGroupe(o)==='detection').length})</span>
         </div>
-        ${renderGroupSection('detection','Détection','📟','#1d4ed8','#eff6ff')}
+        ${renderGroupSection('detection','Détection','📟','#1d4ed8')}
       </div>
       <div>
-        <div style="font-size:11px;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;align-items:center;gap:5px">
+        <div style="font-size:11px;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">
           🧯 Protection <span style="font-size:10px;font-weight:400;color:#94a3b8">(${opts.filter(o=>_getGroupe(o)==='protection').length})</span>
         </div>
-        ${renderGroupSection('protection','Protection','🧯','#dc2626','#fff1f2')}
+        ${renderGroupSection('protection','Protection','🧯','#dc2626')}
       </div>
     </div>`;
 }
@@ -5243,42 +5329,67 @@ function _halveDuree(stored) {
 
 function _applyVEUnitStyle(veNum, unit) {
   ['h','dj','j'].forEach(u => {
-    const lbl = document.getElementById('lbl_ve' + veNum + '_' + u);
-    if (!lbl) return;
+    const el = document.getElementById('lbl_ve' + veNum + '_' + u);
+    if (!el) return;
     const on = u === unit;
-    lbl.style.borderColor  = on ? '#1e40af' : '#e2e8f0';
-    lbl.style.background   = on ? '#1e40af' : '#f8fafc';
-    lbl.style.color        = on ? '#ffffff' : '#94a3b8';
-    lbl.style.fontWeight   = on ? '800' : '600';
-    lbl.style.boxShadow    = on ? '0 2px 6px rgba(30,64,175,.35)' : 'none';
+    el.style.borderColor = on ? '#1e40af' : '#e2e8f0';
+    el.style.background  = on ? '#1e40af' : '#f8fafc';
+    el.style.color       = on ? '#fff' : '#64748b';
+    el.querySelectorAll('span').forEach(s => s.style.color = on ? '#fff' : '#64748b');
+    el.querySelectorAll('input[type="number"]').forEach(i => i.style.color = on ? '#fff' : '#1e40af');
   });
 }
 
+function _selectVEUnit(veNum, unit) {
+  _applyVEUnitStyle(veNum, unit);
+  if (veNum === 1) _onDureeVE1Change();
+  else _onDureeVEChange();
+}
+
+function _getVEActiveUnit(veNum) {
+  for (const u of ['j','dj','h']) {
+    const el = document.getElementById('lbl_ve' + veNum + '_' + u);
+    if (el && el.style.borderColor === 'rgb(30, 64, 175)') return u;
+  }
+  return null;
+}
+
 function _setDureeVEFields(veNum, stored) {
-  const valEl  = document.getElementById('f_Duree_VE' + veNum + '_val');
   const hidden = document.getElementById('f_Duree_VE' + veNum);
   const p = _parseDureeStored(stored);
-  if (valEl) valEl.value = p ? p.val : '';
-  // Cocher le bon radio
-  const unit = p ? p.unit : 'j';
-  const radio = document.querySelector('input[name="f_Duree_VE' + veNum + '_unit_r"][value="' + unit + '"]');
-  if (radio && p) radio.checked = true;
-  else document.querySelectorAll('input[name="f_Duree_VE' + veNum + '_unit_r"]').forEach(r => r.checked = false);
-  _applyVEUnitStyle(veNum, p ? unit : null);
+  // Réinitialiser tous les inputs
+  ['j','h'].forEach(u => {
+    const el = document.getElementById('f_Duree_VE' + veNum + '_' + u + '_val');
+    if (el) el.value = '';
+  });
+  if (p) {
+    if (p.unit === 'dj') {
+      _applyVEUnitStyle(veNum, 'dj');
+    } else {
+      const el = document.getElementById('f_Duree_VE' + veNum + '_' + p.unit + '_val');
+      if (el) el.value = p.val;
+      _applyVEUnitStyle(veNum, p.unit);
+    }
+  } else {
+    _applyVEUnitStyle(veNum, null);
+  }
   if (hidden) hidden.value = stored || '';
 }
 
 function _getVEUnit(veNum) {
-  const r = document.querySelector('input[name="f_Duree_VE' + veNum + '_unit_r"]:checked');
-  return r ? r.value : 'j';
+  return _getVEActiveUnit(veNum) || 'j';
+}
+
+function _getVEValEl(veNum) {
+  const u = _getVEActiveUnit(veNum);
+  if (!u) return null;
+  if (u === 'dj') return { value: '1' }; // ½j = 1 demi-journée
+  return document.getElementById('f_Duree_VE' + veNum + '_' + u + '_val');
 }
 
 function _onDureeVEChange() {
-  const s1 = _dureeToStored(document.getElementById('f_Duree_VE1_val'), { value: _getVEUnit(1) });
-  const s2 = _dureeToStored(document.getElementById('f_Duree_VE2_val'), { value: _getVEUnit(2) });
-  // Appliquer les styles
-  _applyVEUnitStyle(1, _getVEUnit(1));
-  _applyVEUnitStyle(2, _getVEUnit(2));
+  const s1 = _dureeToStored(_getVEValEl(1), { value: _getVEUnit(1) });
+  const s2 = _dureeToStored(_getVEValEl(2), { value: _getVEUnit(2) });
   const h1 = document.getElementById('f_Duree_VE1');
   const h2 = document.getElementById('f_Duree_VE2');
   if (h1) h1.value = s1;
@@ -6263,9 +6374,10 @@ function typeBadge(t, duree1, duree2) {
   let dureeHtml = '';
   if (d1 || d2) {
     const parts = [d1, d2].filter(Boolean).map(p => '(' + p + ')');
-    dureeHtml = `<span style="display:block;font-size:10px;font-weight:700;color:#1e40af;margin-top:2px;line-height:1.3;letter-spacing:.2px">${parts.join(' ')}</span>`;
+    dureeHtml = `<span style="display:block;width:100%;height:1px;background:currentColor;opacity:.25;margin:3px 0 2px"></span>`
+              + `<span style="display:block;font-size:11px;font-weight:800;line-height:1.2">${parts.join(' / ')}</span>`;
   }
-  return `<span class="badge b-${cls}" style="display:inline-flex;flex-direction:column;align-items:center;padding:3px 8px;line-height:1.4">${t}${dureeHtml}</span>`;
+  return `<span class="badge b-${cls}" style="display:inline-flex;flex-direction:column;align-items:center;padding:4px 10px;line-height:1.5;min-width:42px">${t}${dureeHtml}</span>`;
 }
 
 function validBadge(v) {
