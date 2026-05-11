@@ -2187,7 +2187,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/10-05-26-21:19';
+const APP_VERSION = 'V1/11-05-26-16:43';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2860,7 +2860,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (cache.techOrder && cache.techOrder.length > 0) _techOrder = cache.techOrder;
       if (cache.options) {
         _options    = cache.options;
-        BOOL_FIELDS = _options.filter(o => (o.type||'checkbox') === 'checkbox').map(o => o.key);
+        BOOL_FIELDS = getOptions().filter(o => (o.type||'checkbox') === 'checkbox').map(o => o.key);
       }
       setStatus('loaded', `${db.length} contrats (hors ligne)`);
       activateOfflineMode(cache);
@@ -2973,7 +2973,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (cache.techOrder && cache.techOrder.length > 0) _techOrder = cache.techOrder;
         if (cache.options) {
           _options    = cache.options;
-          BOOL_FIELDS = _options.filter(o => (o.type||'checkbox') === 'checkbox').map(o => o.key);
+          BOOL_FIELDS = getOptions().filter(o => (o.type||'checkbox') === 'checkbox').map(o => o.key);
         }
         setStatus('loaded', `${db.length} contrats (hors ligne)`);
         activateOfflineMode(cache);
@@ -2999,7 +2999,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         const localOpts = JSON.parse(localStorage.getItem('gestion_contrats_options') || 'null');
         if (localOpts) {
           _options = localOpts;
-          BOOL_FIELDS = _options.filter(o => (o.type||'checkbox') === 'checkbox').map(o => o.key);
+          BOOL_FIELDS = getOptions().filter(o => (o.type||'checkbox') === 'checkbox').map(o => o.key);
         }
         setStatus('loaded', `${db.length} contrats (cache local)`);
         showLogin();
@@ -4813,8 +4813,14 @@ function renderTable() {
         <div style="display:flex;align-items:center;gap:4px">
           ${typeIcon}
           ${r.Lien_Dossier
-            ? `<div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}</div>`
-            : `<div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}</div>`
+            ? `<div style="display:flex;align-items:flex-start;gap:2px;width:100%"><div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}</div><button onclick="event.stopPropagation();ouvrirMailInstallation('${escJs(r._id||r._fsId||'')}','${escJs(r.Installation||'')}','${escJs(r.Client||'')}','${escJs(r.Technicien||'')}','${escJs(r.VE1||'')}','${escJs(r.VE2||'')}','${escJs(r.Ville||'')}','${escJs(r.Remarques||'')}' )"
+  style="border:none;background:transparent;padding:2px 4px;cursor:pointer;color:#94a3b8;border-radius:4px;flex-shrink:0;font-size:13px;line-height:1;transition:color .15s"
+  onmouseover="this.style.color='#1d4ed8'" onmouseout="this.style.color='#94a3b8'"
+  title="Envoyer un mail concernant cette installation">✉️</button></div>`
+            : `<div style="display:flex;align-items:flex-start;gap:2px;width:100%"><div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}</div><button onclick="event.stopPropagation();ouvrirMailInstallation('${escJs(r._id||r._fsId||'')}','${escJs(r.Installation||'')}','${escJs(r.Client||'')}','${escJs(r.Technicien||'')}','${escJs(r.VE1||'')}','${escJs(r.VE2||'')}','${escJs(r.Ville||'')}','${escJs(r.Remarques||'')}' )"
+  style="border:none;background:transparent;padding:2px 4px;cursor:pointer;color:#94a3b8;border-radius:4px;flex-shrink:0;font-size:13px;line-height:1;transition:color .15s"
+  onmouseover="this.style.color='#1d4ed8'" onmouseout="this.style.color='#94a3b8'"
+  title="Envoyer un mail concernant cette installation">✉️</button></div>`
           }
           ${nouveauBadge}
         </div>
@@ -5058,12 +5064,14 @@ function renderOptionsCheckboxes(record) {
     const qtyHtml = showQty
       ? `<input type="number" id="f_opt_${o.key}_qty" min="0" placeholder="qté" value="${qty}" style="width:44px;font-size:11px;padding:2px 4px;border:1px solid #d1fae5;border-radius:8px;background:#fff;text-align:center" onclick="event.stopPropagation()">`
       : '';
-    return `<label onclick="event.stopPropagation()" id="lbl_opt_${o.key}" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:20px;cursor:pointer;border:1.5px solid ${bdr};background:${bg};transition:all .15s;user-select:none;white-space:nowrap">
+    // data-checked stocke l'état — plus fiable qu'un checkbox caché
+    return `<div onclick="(function(e){e.stopPropagation();var d=document.getElementById('lbl_opt_${o.key}');var v=d.getAttribute('data-checked')!=='true';d.setAttribute('data-checked',v);_applyOptState('${o.key}',v);})(event)"
+      id="lbl_opt_${o.key}" data-key="${o.key}" data-checked="${on?'true':'false'}"
+      style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:20px;cursor:pointer;border:1.5px solid ${bdr};background:${bg};transition:all .15s;user-select:none;white-space:nowrap">
       <span id="dot_opt_${o.key}" style="width:10px;height:10px;border-radius:50%;background:${dot};flex-shrink:0"></span>
-      <input type="checkbox" id="f_opt_${o.key}"${on?' checked':''} style="display:none" onchange="_applyOptState('${o.key}',this.checked)">
       <span id="txt_opt_${o.key}" style="font-size:12px;font-weight:${on?'700':'500'};color:${txt}">${esc(o.label)}</span>
       ${qtyHtml}
-    </label>`;
+    </div>`;
   }
 
   // Pilule number/text
@@ -5925,14 +5933,17 @@ function saveContract() {
     }
   });
   NUM_FIELDS.forEach(f  => { const el = document.getElementById('f_'+f); record[f] = el && el.value !== '' ? parseFloat(el.value) : null; });
-  BOOL_FIELDS.forEach(f => {
-    const el = document.getElementById('f_opt_'+f); record[f] = el ? el.checked : false;
-    const qtyEl = document.getElementById('f_opt_'+f+'_qty');
-    record[f+'_qty'] = qtyEl && qtyEl.value !== '' ? parseFloat(qtyEl.value) : null;
+  // ── Sauvegarder TOUTES les options depuis le DOM ─────────────────────────
+  // Checkboxes : lire data-checked sur chaque pilule [data-key]
+  document.querySelectorAll('#optionsCheckboxGrid [data-key]').forEach(function(el) {
+    var f = el.getAttribute('data-key');
+    record[f] = el.getAttribute('data-checked') === 'true';
+    var qtyEl = document.getElementById('f_opt_'+f+'_qty');
+    if (qtyEl) record[f+'_qty'] = qtyEl.value !== '' ? parseFloat(qtyEl.value) : null;
   });
-  // Options de type number et text
-  getOptions().filter(o => (o.type||'checkbox') !== 'checkbox').forEach(o => {
-    const el = document.getElementById('f_opt_'+o.key);
+  // Options number / text : lire input f_opt_KEY
+  getOptions().filter(function(o){ return (o.type||'checkbox') !== 'checkbox'; }).forEach(function(o) {
+    var el = document.getElementById('f_opt_'+o.key);
     if (!el) return;
     record[o.key] = o.type === 'number' ? (el.value !== '' ? parseFloat(el.value) : null) : (el.value.trim() || null);
   });
@@ -7046,6 +7057,53 @@ async function envoyerMailsGlobaux() {
     toast(msg, 'success');
   });
 }
+
+/* ═══════════════════════════════════════════════
+   MAIL INSTALLATION
+═══════════════════════════════════════════════ */
+function ouvrirMailInstallation(id, installation, client, technicien, ve1, ve2, ville, remarques) {
+  const mois = [ve1, ve2].filter(v => v && v !== 'S.O').join(' / ');
+  const sujet = '[ACF Incendie] ' + (installation || client || '?') + (ville ? ' - ' + ville : '');
+  const corps = 'Bonjour,\n\n'
+    + 'Concerne l\'installation : ' + (installation || '?') + '\n'
+    + 'Client : ' + (client || '?') + '\n'
+    + (ville ? 'Ville : ' + ville + '\n' : '')
+    + 'Technicien : ' + (technicien || '?') + '\n'
+    + (mois ? 'Visite prevue : ' + mois + '\n' : '')
+    + (remarques ? '\nRemarques : ' + remarques + '\n' : '')
+    + '\nCordialement,\n';
+
+  const modal = document.createElement('div');
+  modal.id = '_mailInstModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML =
+    '<div style="background:#fff;border-radius:14px;padding:24px;width:420px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.3)">'
+    + '<div style="font-size:15px;font-weight:800;color:#1e293b;margin-bottom:4px">&#9993; Envoyer un mail</div>'
+    + '<div style="font-size:12px;color:#64748b;margin-bottom:16px">' + esc(installation || client || '?') + (ville ? ' — ' + esc(ville) : '') + '</div>'
+    + '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'
+    + '<input id="_mailInstTo" type="email" placeholder="Destinataire (email)" style="border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:13px;width:100%;box-sizing:border-box">'
+    + '<input id="_mailInstCc" type="email" placeholder="CC (optionnel)" style="border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:13px;width:100%;box-sizing:border-box">'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;justify-content:flex-end">'
+    + '<button onclick="var m=document.getElementById(\'_mailInstModal\');if(m)m.remove()" style="border:1px solid #e2e8f0;border-radius:8px;padding:8px 16px;cursor:pointer;background:#f8fafc;color:#64748b">Annuler</button>'
+    + '<button id="_mailInstSend" style="background:#1e40af;color:#fff;border:none;border-radius:8px;padding:8px 20px;cursor:pointer;font-weight:700">&#9993; Ouvrir dans la messagerie</button>'
+    + '</div></div>';
+  document.body.appendChild(modal);
+
+  const _sujetEnc = encodeURIComponent(sujet);
+  const _corpsEnc = encodeURIComponent(corps);
+  document.getElementById('_mailInstSend').addEventListener('click', function() {
+    const to = document.getElementById('_mailInstTo').value.trim();
+    const cc = document.getElementById('_mailInstCc').value.trim();
+    if (!to) { toast('Veuillez saisir un destinataire', 'warning'); return; }
+    const ccPart = cc ? '&cc=' + encodeURIComponent(cc) : '';
+    window.location.href = 'mailto:' + encodeURIComponent(to) + '?subject=' + _sujetEnc + '&body=' + _corpsEnc + ccPart;
+    document.getElementById('_mailInstModal').remove();
+  });
+  modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+  setTimeout(function() { const el = document.getElementById('_mailInstTo'); if (el) el.focus(); }, 50);
+}
+
 
 /* ═══════════════════════════════════════════════
    FILE D'ATTENTE SYNC FIREBASE (offline-first)
