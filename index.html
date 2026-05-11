@@ -2187,7 +2187,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/11-05-26-16:43';
+const APP_VERSION = 'V1/11-05-26-18:25';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2547,6 +2547,7 @@ const SP = (() => {
         await Promise.all(tasks);
       } catch(e) {
         console.warn('saveAll Firebase error:', e);
+        if (typeof _handleFirebaseError === 'function') _handleFirebaseError(e);
       }
     },
 
@@ -2700,7 +2701,8 @@ const SP = (() => {
           setTimeout(() => { if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('connected'); }, 1000);
         } catch(e) {
           console.warn('[Sync] Erreur polling:', e?.message);
-          if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
+          if (_handleFirebaseError(e)) { /* quota banner already shown */ }
+          else if (typeof setRealtimeBeacon === 'function') setRealtimeBeacon('disconnected');
         }
       };
 
@@ -3291,6 +3293,7 @@ function saveDB(modifiedContract = null) {
         setStatus('loaded', 'Erreur sauvegarde!');
         toast('Erreur de sauvegarde – ' + (SP.isOnSharePoint ? 'SharePoint inaccessible ?' : e?.message || 'erreur inconnue'), 'error');
       }
+      _handleFirebaseError(e);
       console.warn('[saveDB] Erreur Firebase:', e?.message || e);
     } finally {
       clearTimeout(window._saveTimeoutSafety);
@@ -3346,7 +3349,32 @@ function setRealtimeBeacon(state, label) {
     beacon.classList.add('rb-disconnected');
     beacon.title = '🔴 Synchronisation temps réel inactive';
     if (txt) txt.textContent = label || 'Hors ligne';
+  } else if (state === 'quota') {
+    beacon.classList.add('rb-disconnected');
+    beacon.style.background = '#fef3c7';
+    beacon.style.borderColor = '#fbbf24';
+    beacon.title = '⚠️ Quota Firebase dépassé — données sauvegardées localement uniquement. Reset automatique à 9h du matin.';
+    if (txt) { txt.textContent = '⚠️ Quota Firebase'; txt.style.color = '#92400e'; }
+    // Bannière rouge en haut de l'écran si pas déjà affichée
+    if (!document.getElementById('_quotaBanner')) {
+      const banner = document.createElement('div');
+      banner.id = '_quotaBanner';
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#fef3c7;border-bottom:2px solid #f59e0b;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;color:#92400e;box-shadow:0 2px 8px rgba(0,0,0,.15)';
+      banner.innerHTML = '<span>⚠️ <strong>Quota Firebase dépassé</strong> — les données sont sauvegardées localement mais pas synchronisées avec les autres utilisateurs. Réinitialisation automatique à 9h du matin (heure française).</span>'
+        + '<button onclick="var b=document.getElementById(\'_quotaBanner\');if(b)b.remove()" style="border:none;background:#f59e0b;color:#fff;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:700;margin-left:12px;flex-shrink:0">Fermer ✕</button>';
+      document.body.prepend(banner);
+    }
   }
+}
+
+// Détecter les erreurs Firebase de quota dépassé
+function _handleFirebaseError(e) {
+  const msg = (e?.message || e?.code || String(e)).toLowerCase();
+  if (msg.includes('resource-exhausted') || msg.includes('quota-exceeded') || msg.includes('quota exceeded')) {
+    setRealtimeBeacon('quota');
+    return true;
+  }
+  return false;
 }
 
 
@@ -4814,8 +4842,8 @@ function renderTable() {
           ${typeIcon}
           ${r.Lien_Dossier
             ? `<div style="display:flex;align-items:flex-start;gap:2px;width:100%"><div title="📁 Cliquer pour ouvrir le dossier" onclick="ouvrirDossier('${escJs(r.Lien_Dossier)}','${escJs(r.Dossier_Statut||'')}','${escJs(r.Dossier_Dept||'')}','${escJs(r.Dossier_SousRep||'')}');event.stopPropagation()" style="font-size:12px;flex:1;word-break:break-word;cursor:pointer;color:#1d4ed8;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">${esc(r.Installation)}</div><button onclick="event.stopPropagation();ouvrirMailInstallation('${escJs(r._id||r._fsId||'')}','${escJs(r.Installation||'')}','${escJs(r.Client||'')}','${escJs(r.Technicien||'')}','${escJs(r.VE1||'')}','${escJs(r.VE2||'')}','${escJs(r.Ville||'')}','${escJs(r.Remarques||'')}' )"
-  style="border:none;background:transparent;padding:2px 4px;cursor:pointer;color:#94a3b8;border-radius:4px;flex-shrink:0;font-size:13px;line-height:1;transition:color .15s"
-  onmouseover="this.style.color='#1d4ed8'" onmouseout="this.style.color='#94a3b8'"
+  style="border:none;background:#dbeafe;padding:3px 6px;cursor:pointer;color:#1d4ed8;border-radius:6px;flex-shrink:0;font-size:14px;line-height:1;transition:all .15s"
+  onmouseover="this.style.background='#1d4ed8';this.style.color='#fff'" onmouseout="this.style.background='#dbeafe';this.style.color='#1d4ed8'"
   title="Envoyer un mail concernant cette installation">✉️</button></div>`
             : `<div style="display:flex;align-items:flex-start;gap:2px;width:100%"><div title="${esc(r.Installation)}" style="font-size:12px;flex:1;word-break:break-word">${esc(r.Installation) || '<span style="color:#ccc">–</span>'}</div><button onclick="event.stopPropagation();ouvrirMailInstallation('${escJs(r._id||r._fsId||'')}','${escJs(r.Installation||'')}','${escJs(r.Client||'')}','${escJs(r.Technicien||'')}','${escJs(r.VE1||'')}','${escJs(r.VE2||'')}','${escJs(r.Ville||'')}','${escJs(r.Remarques||'')}' )"
   style="border:none;background:transparent;padding:2px 4px;cursor:pointer;color:#94a3b8;border-radius:4px;flex-shrink:0;font-size:13px;line-height:1;transition:color .15s"
@@ -5017,8 +5045,16 @@ function getOptions() {
 function saveOptions(opts) {
   if (_offlineMode) { toast('📵 Mode hors ligne — modifications impossibles', 'warning'); return; }
   _options = opts;
-  SP.saveAll({ options: opts });
-  BOOL_FIELDS = opts.map(o => o.key);
+  // Sauvegarder localStorage immédiatement (synchrone)
+  try { localStorage.setItem('gestion_contrats_options', JSON.stringify(opts)); } catch(e) {}
+  // Sauvegarder Firebase (async)
+  SP.saveAll({ options: opts }).catch(e => {
+    console.warn('[saveOptions] Firebase error:', e);
+    if (!_handleFirebaseError(e)) {
+      toast('⚠️ Options sauvegardées localement (Firebase indisponible)', 'warning');
+    }
+  });
+  BOOL_FIELDS = opts.filter(o => (o.type||'checkbox') === 'checkbox').map(o => o.key);
 }
 
 // Génère une clé safe depuis un libellé
@@ -5234,6 +5270,10 @@ function addOption() {
   document.getElementById('newOptionLabel').value = '';
   renderOptionsList();
   rebuildOptionFilter();
+  // Rafraîchir les options dans la fiche si elle est ouverte
+  if (document.getElementById('formModal')?.classList.contains('open')) {
+    renderOptionsCheckboxes(_origRecord || null);
+  }
   toast(`✅ Option "${label}" ajoutée`, 'success');
 }
 
@@ -5269,6 +5309,10 @@ function saveOptionsOrder() {
   BOOL_FIELDS = ordered.filter(o => (o.type||'checkbox')==='checkbox').map(o => o.key);
   rebuildOptionFilter();
   closeModal('optionsModal');
+  // Rafraîchir les options dans la fiche si elle est ouverte
+  if (document.getElementById('formModal')?.classList.contains('open')) {
+    renderOptionsCheckboxes(_origRecord || null);
+  }
   toast('✅ Ordre des options enregistré', 'success');
 }
 
