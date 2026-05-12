@@ -1941,30 +1941,25 @@ function loadSheetJS(callback) {
               <option>Avril</option><option>Mai</option><option>Juin</option>
               <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
             </select>
-            <div style="display:flex;align-items:center;gap:6px;margin-top:6px"><span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap">Temps estimé</span><div style="display:inline-flex;align-items:stretch;gap:4px">
-              <!-- xx j -->
-              <div id="lbl_ve1_j" onclick="_selectVEUnit(1,'j')"
-                style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden;cursor:pointer;background:#f8fafc;transition:all .15s">
-                <input type="number" id="f_Duree_VE1_j_val" min="0.5" max="30" step="0.5" placeholder="–"
-                  style="width:34px;border:none;padding:4px 3px;font-size:13px;font-weight:800;text-align:center;color:#1e40af;outline:none;background:transparent"
-                  onclick="event.stopPropagation();_selectVEUnit(1,'j')" oninput="_onDureeVE1Change()">
-                <span style="font-size:12px;font-weight:700;padding:0 6px 0 2px;color:#64748b">j</span>
-              </div>
-              <!-- 1/2 j -->
-              <div id="lbl_ve1_dj" onclick="_selectVEUnit(1,'dj')"
-                style="display:flex;align-items:center;justify-content:center;border:1.5px solid #e2e8f0;border-radius:8px;padding:4px 10px;cursor:pointer;background:#f8fafc;font-size:12px;font-weight:700;color:#64748b;transition:all .15s;white-space:nowrap">
-                ½j
-              </div>
-              <!-- xx h -->
-              <div id="lbl_ve1_h" onclick="_selectVEUnit(1,'h')"
-                style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden;cursor:pointer;background:#f8fafc;transition:all .15s">
-                <input type="number" id="f_Duree_VE1_h_val" min="0.5" max="24" step="0.5" placeholder="–"
-                  style="width:34px;border:none;padding:4px 3px;font-size:13px;font-weight:800;text-align:center;color:#1e40af;outline:none;background:transparent"
-                  onclick="event.stopPropagation();_selectVEUnit(1,'h')" oninput="_onDureeVE1Change()">
-                <span style="font-size:12px;font-weight:700;padding:0 6px 0 2px;color:#64748b">h</span>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:flex-start;margin-top:6px">
+              <button type="button" id="ve1_b_1h"  onclick="_setVEDuree(1,'1h')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">1h</span><span style="display:block;font-size:9px;color:#94a3b8">heure</span></button>
+              <button type="button" id="ve1_b_2h"  onclick="_setVEDuree(1,'2h')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">2h</span><span style="display:block;font-size:9px;color:#94a3b8">heures</span></button>
+              <button type="button" id="ve1_b_dj"  onclick="_setVEDuree(1,'1dj')" style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">½j</span><span style="display:block;font-size:9px;color:#94a3b8">= 4h</span></button>
+              <button type="button" id="ve1_b_1j"  onclick="_setVEDuree(1,'1j')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">1j</span><span style="display:block;font-size:9px;color:#94a3b8">journée</span></button>
+              <button type="button" id="ve1_b_2j"  onclick="_setVEDuree(1,'2j')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">2j</span><span style="display:block;font-size:9px;color:#94a3b8">journées</span></button>
+              <div id="ve1_b_plus_wrap" style="display:inline-block">
+                <button type="button" id="ve1_b_plus" onclick="_toggleVECustom(1)" style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:14px;font-weight:800;color:#64748b">+</span><span style="display:block;font-size:9px;color:#94a3b8">autre</span></button>
+                <div id="ve1_custom_wrap" style="display:none;align-items:center;gap:4px;margin-top:4px">
+                  <input type="number" id="ve1_custom_val" min="3" max="30" step="0.5" placeholder="3"
+                    style="width:56px;border:1.5px solid #bfdbfe;border-radius:7px;padding:4px 6px;font-size:13px;font-weight:800;color:#1e40af;text-align:center"
+                    oninput="_onVECustomChange(1)">
+                  <span style="font-size:11px;font-weight:700;color:#64748b">j</span>
+                  <button type="button" onclick="_clearVEDuree(1)" style="border:none;background:transparent;color:#94a3b8;cursor:pointer;font-size:13px">✕</button>
+                </div>
               </div>
               <input type="hidden" id="f_Duree_VE1">
-            </div></div>
+              
+            </div>
           </div>
           <div class="fg">
             <label>Semestre 2</label>
@@ -1974,31 +1969,26 @@ function loadSheetJS(callback) {
               <option>Octobre</option><option>Novembre</option><option>Decembre</option>
               <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
             </select>
-            <div style="display:flex;align-items:center;gap:6px;margin-top:6px"><span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap">Temps estimé</span><div style="display:inline-flex;align-items:stretch;gap:4px">
-              <!-- xx j -->
-              <div id="lbl_ve2_j" onclick="_selectVEUnit(2,'j')"
-                style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden;cursor:pointer;background:#f8fafc;transition:all .15s">
-                <input type="number" id="f_Duree_VE2_j_val" min="0.5" max="30" step="0.5" placeholder="–"
-                  style="width:34px;border:none;padding:4px 3px;font-size:13px;font-weight:800;text-align:center;color:#1e40af;outline:none;background:transparent"
-                  onclick="event.stopPropagation();_selectVEUnit(2,'j')" oninput="_onDureeVEChange()">
-                <span style="font-size:12px;font-weight:700;padding:0 6px 0 2px;color:#64748b">j</span>
-              </div>
-              <!-- 1/2 j -->
-              <div id="lbl_ve2_dj" onclick="_selectVEUnit(2,'dj')"
-                style="display:flex;align-items:center;justify-content:center;border:1.5px solid #e2e8f0;border-radius:8px;padding:4px 10px;cursor:pointer;background:#f8fafc;font-size:12px;font-weight:700;color:#64748b;transition:all .15s;white-space:nowrap">
-                ½j
-              </div>
-              <!-- xx h -->
-              <div id="lbl_ve2_h" onclick="_selectVEUnit(2,'h')"
-                style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden;cursor:pointer;background:#f8fafc;transition:all .15s">
-                <input type="number" id="f_Duree_VE2_h_val" min="0.5" max="24" step="0.5" placeholder="–"
-                  style="width:34px;border:none;padding:4px 3px;font-size:13px;font-weight:800;text-align:center;color:#1e40af;outline:none;background:transparent"
-                  onclick="event.stopPropagation();_selectVEUnit(2,'h')" oninput="_onDureeVEChange()">
-                <span style="font-size:12px;font-weight:700;padding:0 6px 0 2px;color:#64748b">h</span>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:flex-start;margin-top:6px">
+              <button type="button" id="ve2_b_1h"  onclick="_setVEDuree(2,'1h')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">1h</span><span style="display:block;font-size:9px;color:#94a3b8">heure</span></button>
+              <button type="button" id="ve2_b_2h"  onclick="_setVEDuree(2,'2h')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">2h</span><span style="display:block;font-size:9px;color:#94a3b8">heures</span></button>
+              <button type="button" id="ve2_b_dj"  onclick="_setVEDuree(2,'1dj')" style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">½j</span><span style="display:block;font-size:9px;color:#94a3b8">= 4h</span></button>
+              <button type="button" id="ve2_b_1j"  onclick="_setVEDuree(2,'1j')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">1j</span><span style="display:block;font-size:9px;color:#94a3b8">journée</span></button>
+              <button type="button" id="ve2_b_2j"  onclick="_setVEDuree(2,'2j')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">2j</span><span style="display:block;font-size:9px;color:#94a3b8">journées</span></button>
+              <div id="ve2_b_plus_wrap" style="display:inline-block">
+                <button type="button" id="ve2_b_plus" onclick="_toggleVECustom(2)" style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:14px;font-weight:800;color:#64748b">+</span><span style="display:block;font-size:9px;color:#94a3b8">autre</span></button>
+                <div id="ve2_custom_wrap" style="display:none;align-items:center;gap:4px;margin-top:4px">
+                  <input type="number" id="ve2_custom_val" min="3" max="30" step="0.5" placeholder="3"
+                    style="width:56px;border:1.5px solid #bfdbfe;border-radius:7px;padding:4px 6px;font-size:13px;font-weight:800;color:#1e40af;text-align:center"
+                    oninput="_onVECustomChange(2)">
+                  <span style="font-size:11px;font-weight:700;color:#64748b">j</span>
+                  <button type="button" onclick="_clearVEDuree(2)" style="border:none;background:transparent;color:#94a3b8;cursor:pointer;font-size:13px">✕</button>
+                </div>
               </div>
               <input type="hidden" id="f_Duree_VE2">
-            </div><span id="dureeVE2auto" style="font-size:9px;color:#94a3b8;font-style:italic;display:flex;align-items:center;margin-left:2px"></span>
-          </div></div>
+              <span id="dureeVE2auto" style="font-size:9px;color:#94a3b8;font-style:italic;margin-left:4px"></span>
+            </div>
+          </div>
 
           <!-- Ligne 3 : MATERIEL + Nb détecteurs -->
           <div class="fg">
@@ -2187,7 +2177,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/11-05-26-18:25';
+const APP_VERSION = 'V1/12-05-26-19:13';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5272,7 +5262,8 @@ function addOption() {
   rebuildOptionFilter();
   // Rafraîchir les options dans la fiche si elle est ouverte
   if (document.getElementById('formModal')?.classList.contains('open')) {
-    renderOptionsCheckboxes(_origRecord || null);
+    const _rec = editingId ? db.find(x => x._id === editingId) : null;
+    renderOptionsCheckboxes(_rec || null);
   }
   toast(`✅ Option "${label}" ajoutée`, 'success');
 }
@@ -5302,18 +5293,16 @@ function removeOption(key) {
 }
 
 function saveOptionsOrder() {
-  const items = [...document.getElementById('optionsList').querySelectorAll('.tech-order-item')];
-  const current = getOptions();
-  const ordered = items.map(el => current.find(o => o.key === el.dataset.key)).filter(Boolean);
-  saveOptions(ordered);
-  BOOL_FIELDS = ordered.filter(o => (o.type||'checkbox')==='checkbox').map(o => o.key);
+  // L'ordre est maintenant géré en temps réel via les boutons ↑↓ et 📟→/🧯→
+  // Le bouton Enregistrer ferme simplement la modale
   rebuildOptionFilter();
   closeModal('optionsModal');
   // Rafraîchir les options dans la fiche si elle est ouverte
   if (document.getElementById('formModal')?.classList.contains('open')) {
-    renderOptionsCheckboxes(_origRecord || null);
+    const _rec = editingId ? db.find(x => x._id === editingId) : null;
+    renderOptionsCheckboxes(_rec || null);
   }
-  toast('✅ Ordre des options enregistré', 'success');
+  toast('✅ Options enregistrées', 'success');
 }
 
 function resetOptionsOrder() {
@@ -5374,6 +5363,101 @@ function _halveDuree(stored) {
   return val + unit;
 }
 
+/* ── Durée VE : grille de boutons rapides ───────────────────── */
+const _VE_BTN_IDS = { '1h':'1h','2h':'2h','1dj':'dj','1j':'1j','2j':'2j' };
+
+function _setVEDuree(veNum, stored) {
+  // Désélectionner tous les boutons
+  Object.keys(_VE_BTN_IDS).forEach(k => {
+    const btn = document.getElementById('ve'+veNum+'_b_'+_VE_BTN_IDS[k]);
+    if (!btn) return;
+    btn.style.borderColor = '#e2e8f0';
+    btn.style.background  = '#f8fafc';
+    btn.querySelectorAll('span').forEach(s => s.style.color = s.className ? '#94a3b8' : '#1e293b');
+  });
+  // Masquer champ custom
+  const cw = document.getElementById('ve'+veNum+'_custom_wrap');
+  if (cw) cw.style.display = 'none';
+  const pb = document.getElementById('ve'+veNum+'_b_plus');
+  if (pb) { pb.style.borderColor='#e2e8f0'; pb.style.background='#f8fafc'; }
+
+  // Sélectionner le bon bouton
+  const btnId = _VE_BTN_IDS[stored];
+  if (btnId) {
+    const btn = document.getElementById('ve'+veNum+'_b_'+btnId);
+    if (btn) {
+      btn.style.borderColor = '#1e40af';
+      btn.style.background  = '#1e40af';
+      btn.querySelectorAll('span').forEach(s => { s.style.color = '#fff'; });
+    }
+  } else if (stored) {
+    // Valeur custom
+    const pb2 = document.getElementById('ve'+veNum+'_b_plus');
+    if (pb2) { pb2.style.borderColor='#1e40af'; pb2.style.background='#1e40af';
+      pb2.querySelectorAll('span').forEach(s => s.style.color='#fff'); }
+    if (cw) { cw.style.display = 'flex';
+      const m = stored.match(/^([0-9.]+)(j|h|dj)$/);
+      const cv = document.getElementById('ve'+veNum+'_custom_val');
+      if (cv) { cv.value = (m && parseFloat(m[1]) >= 3) ? m[1] : (m ? m[1] : '3'); }
+    }
+  }
+
+  // Mettre à jour le champ hidden
+  const h = document.getElementById('f_Duree_VE'+veNum);
+  if (h) h.value = stored || '';
+
+  // Déclencher recalcul
+  if (veNum === 1) _onDureeVE1Change();
+  else _onDureeVEChange();
+}
+
+function _toggleVECustom(veNum) {
+  const cw = document.getElementById('ve'+veNum+'_custom_wrap');
+  if (!cw) return;
+  const visible = cw.style.display !== 'none';
+  if (visible) { _clearVEDuree(veNum); }
+  else {
+    cw.style.display = 'flex';
+    // désélectionner les autres boutons
+    Object.keys(_VE_BTN_IDS).forEach(k => {
+      const btn = document.getElementById('ve'+veNum+'_b_'+_VE_BTN_IDS[k]);
+      if (btn) { btn.style.borderColor='#e2e8f0'; btn.style.background='#f8fafc';
+        btn.querySelectorAll('span').forEach(s => s.style.color = ''); }
+    });
+    const pb = document.getElementById('ve'+veNum+'_b_plus');
+    if (pb) { pb.style.borderColor='#1e40af'; pb.style.background='#1e40af';
+      pb.querySelectorAll('span').forEach(s => s.style.color='#fff'); }
+    setTimeout(() => { const cv = document.getElementById('ve'+veNum+'_custom_val'); if (cv) { if (!cv.value) cv.value = '3'; cv.focus(); cv.select(); } }, 50);
+  }
+}
+
+function _onVECustomChange(veNum) {
+  const cv = document.getElementById('ve'+veNum+'_custom_val');
+  const h  = document.getElementById('f_Duree_VE'+veNum);
+  const v  = parseFloat(cv?.value);
+  const stored = (!isNaN(v) && v > 0) ? v + 'j' : '';
+  if (h) h.value = stored;
+  if (veNum === 1) _onDureeVE1Change();
+  else _onDureeVEChange();
+}
+
+function _clearVEDuree(veNum) {
+  const cw = document.getElementById('ve'+veNum+'_custom_wrap');
+  if (cw) cw.style.display = 'none';
+  const cv = document.getElementById('ve'+veNum+'_custom_val');
+  if (cv) cv.value = '';
+  const h = document.getElementById('f_Duree_VE'+veNum);
+  if (h) h.value = '';
+  // Reset tous les boutons
+  ['1h','2h','dj','1j','2j','plus'].forEach(k => {
+    const btn = document.getElementById('ve'+veNum+'_b_'+k);
+    if (btn) { btn.style.borderColor='#e2e8f0'; btn.style.background='#f8fafc';
+      btn.querySelectorAll('span').forEach(s => s.style.color=''); }
+  });
+  if (veNum === 1) _onDureeVE1Change();
+  else _onDureeVEChange();
+}
+
 function _applyVEUnitStyle(veNum, unit) {
   ['h','dj','j'].forEach(u => {
     const el = document.getElementById('lbl_ve' + veNum + '_' + u);
@@ -5402,41 +5486,16 @@ function _getVEActiveUnit(veNum) {
 }
 
 function _setDureeVEFields(veNum, stored) {
-  const hidden = document.getElementById('f_Duree_VE' + veNum);
-  const p = _parseDureeStored(stored);
-  // Réinitialiser tous les inputs
-  ['j','h'].forEach(u => {
-    const el = document.getElementById('f_Duree_VE' + veNum + '_' + u + '_val');
-    if (el) el.value = '';
-  });
-  if (p) {
-    if (p.unit === 'dj') {
-      _applyVEUnitStyle(veNum, 'dj');
-    } else {
-      const el = document.getElementById('f_Duree_VE' + veNum + '_' + p.unit + '_val');
-      if (el) el.value = p.val;
-      _applyVEUnitStyle(veNum, p.unit);
-    }
-  } else {
-    _applyVEUnitStyle(veNum, null);
-  }
-  if (hidden) hidden.value = stored || '';
+  _setVEDuree(veNum, stored || '');
 }
 
 function _getVEUnit(veNum) {
   return _getVEActiveUnit(veNum) || 'j';
 }
 
-function _getVEValEl(veNum) {
-  const u = _getVEActiveUnit(veNum);
-  if (!u) return null;
-  if (u === 'dj') return { value: '1' }; // ½j = 1 demi-journée
-  return document.getElementById('f_Duree_VE' + veNum + '_' + u + '_val');
-}
-
 function _onDureeVEChange() {
-  const s1 = _dureeToStored(_getVEValEl(1), { value: _getVEUnit(1) });
-  const s2 = _dureeToStored(_getVEValEl(2), { value: _getVEUnit(2) });
+  const s1 = document.getElementById('f_Duree_VE1')?.value || '';
+  const s2 = document.getElementById('f_Duree_VE2')?.value || '';
   const h1 = document.getElementById('f_Duree_VE1');
   const h2 = document.getElementById('f_Duree_VE2');
   if (h1) h1.value = s1;
@@ -5978,10 +6037,12 @@ function saveContract() {
   });
   NUM_FIELDS.forEach(f  => { const el = document.getElementById('f_'+f); record[f] = el && el.value !== '' ? parseFloat(el.value) : null; });
   // ── Sauvegarder TOUTES les options depuis le DOM ─────────────────────────
-  // Checkboxes : lire data-checked sur chaque pilule [data-key]
-  document.querySelectorAll('#optionsCheckboxGrid [data-key]').forEach(function(el) {
+  var _optEls = document.querySelectorAll('#optionsCheckboxGrid [data-key]');
+  // Diagnostic temporaire visible à l'écran
+  _optEls.forEach(function(el) {
     var f = el.getAttribute('data-key');
-    record[f] = el.getAttribute('data-checked') === 'true';
+    var checked = el.getAttribute('data-checked') === 'true';
+    record[f] = checked;
     var qtyEl = document.getElementById('f_opt_'+f+'_qty');
     if (qtyEl) record[f+'_qty'] = qtyEl.value !== '' ? parseFloat(qtyEl.value) : null;
   });
