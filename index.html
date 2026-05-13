@@ -1935,58 +1935,62 @@ function loadSheetJS(callback) {
           <!-- Ligne 2 : VE1 + VE2 côte à côte -->
           <div class="fg">
             <label>Semestre 1</label>
-            <select id="f_VE1" onchange="_calcDureeVE()">
-              <option value="">–</option>
-              <option>Janvier</option><option>Fevrier</option><option>Mars</option>
-              <option>Avril</option><option>Mai</option><option>Juin</option>
-              <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
-            </select>
-            <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:flex-start;margin-top:6px">
-              <button type="button" id="ve1_b_1h"  onclick="_setVEDuree(1,'1h')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">1h</span><span style="display:block;font-size:9px;color:#94a3b8">heure</span></button>
-              <button type="button" id="ve1_b_2h"  onclick="_setVEDuree(1,'2h')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">2h</span><span style="display:block;font-size:9px;color:#94a3b8">heures</span></button>
-              <button type="button" id="ve1_b_dj"  onclick="_setVEDuree(1,'1dj')" style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">½j</span><span style="display:block;font-size:9px;color:#94a3b8">= 4h</span></button>
-              <button type="button" id="ve1_b_1j"  onclick="_setVEDuree(1,'1j')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">1j</span><span style="display:block;font-size:9px;color:#94a3b8">journée</span></button>
-              <button type="button" id="ve1_b_2j"  onclick="_setVEDuree(1,'2j')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">2j</span><span style="display:block;font-size:9px;color:#94a3b8">journées</span></button>
-              <div id="ve1_b_plus_wrap" style="display:inline-block">
-                <button type="button" id="ve1_b_plus" onclick="_toggleVECustom(1)" style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:14px;font-weight:800;color:#64748b">+</span><span style="display:block;font-size:9px;color:#94a3b8">autre</span></button>
-                <div id="ve1_custom_wrap" style="display:none;align-items:center;gap:4px;margin-top:4px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <select id="f_VE1" onchange="_calcDureeVE()" style="flex:1;min-width:0">
+                <option value="">–</option>
+                <option>Janvier</option><option>Fevrier</option><option>Mars</option>
+                <option>Avril</option><option>Mai</option><option>Juin</option>
+                <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
+              </select>
+              <div style="display:flex;gap:3px;align-items:center;flex-shrink:0">
+              <button type="button" id="ve1_b_1h"  onclick="_setVEDuree(1,'1h')"  title="1 heure"   style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:11px;font-weight:800;color:#475569;white-space:nowrap">1h</button>
+              <button type="button" id="ve1_b_2h"  onclick="_setVEDuree(1,'2h')"  title="2 heures"  style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:11px;font-weight:800;color:#475569;white-space:nowrap">2h</button>
+              <button type="button" id="ve1_b_dj"  onclick="_setVEDuree(1,'1dj')" title="½ journée = 4h" style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:11px;font-weight:800;color:#475569;white-space:nowrap">½j</button>
+              <button type="button" id="ve1_b_1j"  onclick="_setVEDuree(1,'1j')"  title="1 journée" style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:11px;font-weight:800;color:#475569;white-space:nowrap">1j</button>
+              <button type="button" id="ve1_b_2j"  onclick="_setVEDuree(1,'2j')"  title="2 journées" style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:11px;font-weight:800;color:#475569;white-space:nowrap">2j</button>
+              <div id="ve1_b_plus_wrap" style="display:inline-flex;align-items:center;gap:3px">
+                <button type="button" id="ve1_b_plus" onclick="_toggleVECustom(1)" title="Autre durée" style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:12px;font-weight:800;color:#64748b;white-space:nowrap">+</button>
+                <div id="ve1_custom_wrap" style="display:none;align-items:center;gap:3px">
                   <input type="number" id="ve1_custom_val" min="3" max="30" step="0.5" placeholder="3"
-                    style="width:56px;border:1.5px solid #bfdbfe;border-radius:7px;padding:4px 6px;font-size:13px;font-weight:800;color:#1e40af;text-align:center"
+                    style="width:46px;border:1.5px solid #bfdbfe;border-radius:6px;padding:3px 5px;font-size:12px;font-weight:800;color:#1e40af;text-align:center"
                     oninput="_onVECustomChange(1)">
-                  <span style="font-size:11px;font-weight:700;color:#64748b">j</span>
-                  <button type="button" onclick="_clearVEDuree(1)" style="border:none;background:transparent;color:#94a3b8;cursor:pointer;font-size:13px">✕</button>
+                  <span style="font-size:10px;font-weight:700;color:#64748b">j</span>
+                  <button type="button" onclick="_clearVEDuree(1)" style="border:none;background:transparent;color:#94a3b8;cursor:pointer;font-size:12px;padding:0 2px">✕</button>
                 </div>
               </div>
               <input type="hidden" id="f_Duree_VE1">
               
             </div>
+            </div>
           </div>
           <div class="fg">
             <label>Semestre 2</label>
-            <select id="f_VE2" onchange="_calcDureeVE()">
-              <option value="">–</option>
-              <option>Juillet</option><option>Aout</option><option>Septembre</option>
-              <option>Octobre</option><option>Novembre</option><option>Decembre</option>
-              <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
-            </select>
-            <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:flex-start;margin-top:6px">
-              <button type="button" id="ve2_b_1h"  onclick="_setVEDuree(2,'1h')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">1h</span><span style="display:block;font-size:9px;color:#94a3b8">heure</span></button>
-              <button type="button" id="ve2_b_2h"  onclick="_setVEDuree(2,'2h')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">2h</span><span style="display:block;font-size:9px;color:#94a3b8">heures</span></button>
-              <button type="button" id="ve2_b_dj"  onclick="_setVEDuree(2,'1dj')" style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">½j</span><span style="display:block;font-size:9px;color:#94a3b8">= 4h</span></button>
-              <button type="button" id="ve2_b_1j"  onclick="_setVEDuree(2,'1j')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">1j</span><span style="display:block;font-size:9px;color:#94a3b8">journée</span></button>
-              <button type="button" id="ve2_b_2j"  onclick="_setVEDuree(2,'2j')"  style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:13px;font-weight:800;color:#1e293b">2j</span><span style="display:block;font-size:9px;color:#94a3b8">journées</span></button>
-              <div id="ve2_b_plus_wrap" style="display:inline-block">
-                <button type="button" id="ve2_b_plus" onclick="_toggleVECustom(2)" style="border:1.5px solid #e2e8f0;border-radius:9px;padding:5px 9px;background:#f8fafc;cursor:pointer;transition:all .15s;min-width:42px;text-align:center"><span style="display:block;font-size:14px;font-weight:800;color:#64748b">+</span><span style="display:block;font-size:9px;color:#94a3b8">autre</span></button>
-                <div id="ve2_custom_wrap" style="display:none;align-items:center;gap:4px;margin-top:4px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <select id="f_VE2" onchange="_calcDureeVE()" style="flex:1;min-width:0">
+                <option value="">–</option>
+                <option>Juillet</option><option>Aout</option><option>Septembre</option>
+                <option>Octobre</option><option>Novembre</option><option>Decembre</option>
+                <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
+              </select>
+              <div style="display:flex;gap:3px;align-items:center;flex-shrink:0">
+              <button type="button" id="ve2_b_1h"  onclick="_setVEDuree(2,'1h')"  title="1 heure"   style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:11px;font-weight:800;color:#475569;white-space:nowrap">1h</button>
+              <button type="button" id="ve2_b_2h"  onclick="_setVEDuree(2,'2h')"  title="2 heures"  style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:11px;font-weight:800;color:#475569;white-space:nowrap">2h</button>
+              <button type="button" id="ve2_b_dj"  onclick="_setVEDuree(2,'1dj')" title="½ journée = 4h" style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:11px;font-weight:800;color:#475569;white-space:nowrap">½j</button>
+              <button type="button" id="ve2_b_1j"  onclick="_setVEDuree(2,'1j')"  title="1 journée" style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:11px;font-weight:800;color:#475569;white-space:nowrap">1j</button>
+              <button type="button" id="ve2_b_2j"  onclick="_setVEDuree(2,'2j')"  title="2 journées" style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:11px;font-weight:800;color:#475569;white-space:nowrap">2j</button>
+              <div id="ve2_b_plus_wrap" style="display:inline-flex;align-items:center;gap:3px">
+                <button type="button" id="ve2_b_plus" onclick="_toggleVECustom(2)" title="Autre durée" style="border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 7px;background:#f8fafc;cursor:pointer;transition:all .15s;font-size:12px;font-weight:800;color:#64748b;white-space:nowrap">+</button>
+                <div id="ve2_custom_wrap" style="display:none;align-items:center;gap:3px">
                   <input type="number" id="ve2_custom_val" min="3" max="30" step="0.5" placeholder="3"
-                    style="width:56px;border:1.5px solid #bfdbfe;border-radius:7px;padding:4px 6px;font-size:13px;font-weight:800;color:#1e40af;text-align:center"
+                    style="width:46px;border:1.5px solid #bfdbfe;border-radius:6px;padding:3px 5px;font-size:12px;font-weight:800;color:#1e40af;text-align:center"
                     oninput="_onVECustomChange(2)">
-                  <span style="font-size:11px;font-weight:700;color:#64748b">j</span>
-                  <button type="button" onclick="_clearVEDuree(2)" style="border:none;background:transparent;color:#94a3b8;cursor:pointer;font-size:13px">✕</button>
+                  <span style="font-size:10px;font-weight:700;color:#64748b">j</span>
+                  <button type="button" onclick="_clearVEDuree(2)" style="border:none;background:transparent;color:#94a3b8;cursor:pointer;font-size:12px;padding:0 2px">✕</button>
                 </div>
               </div>
               <input type="hidden" id="f_Duree_VE2">
-              <span id="dureeVE2auto" style="font-size:9px;color:#94a3b8;font-style:italic;margin-left:4px"></span>
+              <span id='dureeVE2auto' style='font-size:9px;color:#94a3b8;font-style:italic;margin-left:2px'></span>
+            </div>
             </div>
           </div>
 
@@ -2177,7 +2181,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/12-05-26-19:13';
+const APP_VERSION = 'V1/13-05-26-08:17';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
