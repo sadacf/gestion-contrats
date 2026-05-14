@@ -1383,10 +1383,10 @@ function loadSheetJS(callback) {
       <!-- Ligne boutons mails -->
       <div style="display:flex;gap:8px;padding:10px 12px;background:#fffbeb;border-top:1px solid #fde68a">
         <button id="btnMailGlobalWrap" onclick="envoyerMailsGlobaux()"
-          style="display:none;flex:1;align-items:center;justify-content:center;gap:8px;background:#1e3a8a;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:11px;font-weight:800;color:#fff">
-          <span style="font-size:14px">📧</span>
+          style="display:none;align-items:center;justify-content:center;gap:6px;background:#1e3a8a;border:none;border-radius:20px;padding:7px 16px;cursor:pointer;font-size:11px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(30,58,138,.3)">
+          <span style="font-size:13px">📧</span>
           <span>Envoi mails des retards</span>
-          <span id="btnMailGlobalPastille" style="display:none;width:7px;height:7px;border-radius:50%;background:#93c5fd"></span>
+          <span id="btnMailGlobalPastille" style="display:none;width:6px;height:6px;border-radius:50%;background:#93c5fd"></span>
         </button>
         <button id="btnMailMoisWrap" onclick="envoyerMailsMoisCourantEtSuivant()"
           style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#1e3a8a;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:11px;font-weight:800;color:#fff">
@@ -2252,7 +2252,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/14-05-26-17:57';
+const APP_VERSION = 'V1/14-05-26-18:05';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2261,6 +2261,7 @@ const CHANGELOG = [
     date: '29/03/2026',
     items: [
       { type: 'improve', text: 'Mail identifiants : sauts de ligne CRLF corrects, URLs cliquables Outlook/Gmail' },
+      { type: 'improve', text: 'Suppression : modale de confirmation stylée sur tous les boutons Supprimer' },
       { type: 'improve', text: 'Suppression : modale de confirmation stylée sur tous les boutons Supprimer' },
       { type: 'improve', text: 'Mail identifiants : ajout procédure configuration (Chrome, LocalExplorer, chemin dossier)' },
       { type: 'improve', text: 'Bouton "Envoyer tous les mails" : couleur bleue, coins arrondis, taille réduite' },
@@ -6297,13 +6298,13 @@ function saveContract() {
 function confirmDelete(idx) {
   if (_offlineMode) { toast('📵 Mode hors ligne — modifications impossibles', 'warning'); return; }
   const r = filtered[idx];
-  if (confirm(`Supprimer le contrat "${r.Installation}" ?\nCette action est irréversible.`)) {
+  _confirmAction(`🗑️ Supprimer "${r.Installation}" ?`, 'Cette action est irréversible.', 'Supprimer', 'danger', () => {
     db = db.filter(x => x._id !== r._id);
     SP.deleteContract(r).catch(e => toast('Erreur suppression SharePoint', 'error'));
     if (!SP.isOnSharePoint) saveDB();
     buildFilters(); updateStats(); applyFilters();
     toast('🗑 Contrat supprimé', 'warning');
-  }
+  });
 }
 
 function deleteCurrentContract() {
@@ -6311,7 +6312,7 @@ function deleteCurrentContract() {
   if (!canEdit()) { toast('🔒 Accès en lecture seule — suppressions non autorisées pour ce niveau', 'warning'); return; }
   const r = db.find(x => x._id === editingId);
   if (!r) return;
-  confirmDelete(`Supprimer "${r.Installation}" ?`, () => {
+  _confirmAction(`🗑️ Supprimer "${r.Installation}" ?`, 'Cette action est irréversible.', 'Supprimer', 'danger', () => {
     // Supprimer uniquement par _id strict — évite d'effacer un doublon qui partagerait le même _fsId
     db = db.filter(x => x._id !== r._id);
     SP.deleteContract(r).catch(e => toast('Erreur suppression SharePoint', 'error'));
@@ -6520,26 +6521,20 @@ async function resilierContrat() {
   if (!canEdit()) { toast('🔒 Accès non autorisé', 'warning'); return; }
   const r = db.find(x => x._id === editingId);
   if (!r) return;
-  if (!confirm(`Résilier "${r.Installation}" ?\nL'installation sera retirée du tableau mais conservée dans les archives des résiliés.`)) return;
+  _confirmAction(`📋 Résilier "${r.Installation}" ?`, "L'installation sera retirée du tableau mais conservée dans les archives des résiliés.", 'Résilier', 'warning', () => { _doResilier(r); });
+}
 
-  // Archiver avec date de résiliation
+async function _doResilier(r) {
   const archive = { ...r, _resilieAt: new Date().toISOString(), _resilieBy: _currentUser?.login || 'inconnu' };
   const list = await getResilies();
   list.unshift(archive);
   await saveResilies(list);
-
-  // Supprimer du tableau actif
   pushUndo(`Résiliation "${r.Installation}"`);
-  db = db.filter(x => x._id !== editingId);
-
-  // Sauvegarder immédiatement dans localStorage
+  db = db.filter(x => x._id !== r._id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-
-  // Supprimer dans Firebase (async, ne pas bloquer l'UI)
   SP.deleteContract(r).then(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   }).catch(e => console.warn('Erreur suppression Firebase:', e));
-
   buildFilters(); updateStats(); applyFilters(); updateSynthese();
   closeModal('formModal');
   toast(`🚫 "${r.Installation}" résiliée et archivée`, 'warning');
@@ -6596,18 +6591,19 @@ async function restaurerResilie(idx) {
   const list = await getResilies();
   const r = list[idx];
   if (!r) return;
-  if (!confirm(`Restaurer "${r.Installation}" dans le tableau des contrats ?`)) return;
+  _confirmAction(`♻️ Restaurer "${r.Installation}" ?`, 'Le contrat sera remis dans le tableau actif.', 'Restaurer', 'success', () => { _doRestaurer(r, list, idx); });
+}
+
+async function _doRestaurer(r, list, idx) {
+  if (!list) { const l = await getResilies(); list = l; idx = l.findIndex(x => x._id === r._id); }
   const { _resilieAt, _resilieBy, _fsId, ...contrat } = r;
   db.push(contrat);
-  list.splice(idx, 1);
-  // Supprimer le résiliée de Firebase si on connaît son fsId
-  if (_fsId) {
-    try { await SP.deleteResilie(_fsId); } catch(e) { console.warn('Delete Firebase resilie failed:', e); }
-  }
+  if (idx >= 0) list.splice(idx, 1);
+  if (_fsId) { try { await SP.deleteResilie(_fsId); } catch(e) { console.warn('Delete Firebase resilie failed:', e); } }
   await saveResilies(list);
   saveDB();
   buildFilters(); updateStats(); applyFilters(); updateSynthese();
-  openResiliesModal(); // refresh
+  openResiliesModal();
   toast(`✅ "${contrat.Installation}" restaurée dans le tableau`, 'success');
 }
 
@@ -6668,17 +6664,24 @@ function escJs(str) {
 
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
 
-/* ─── Modale confirmation suppression ──────────── */
+/* ─── Modale confirmation universelle ──────────── */
 let _confirmDeleteCallback = null;
 
-function confirmDelete(message, onConfirm) {
-  const modal = document.getElementById('confirmDeleteModal');
-  const msg   = document.getElementById('confirmDeleteMsg');
-  if (!modal || !msg) { if (confirm(message)) onConfirm(); return; }
-  msg.textContent = message;
+function _confirmAction(title, subtitle, okLabel, variant, onConfirm) {
+  const modal    = document.getElementById('confirmDeleteModal');
+  const msgEl    = document.getElementById('confirmDeleteMsg');
+  const subEl    = document.getElementById('confirmDeleteSub');
+  const okBtn    = document.getElementById('confirmDeleteOkBtn');
+  if (!modal || !msgEl) { if (confirm(title + (subtitle ? '\n' + subtitle : ''))) onConfirm(); return; }
+  msgEl.textContent = title;
+  if (subEl)  subEl.textContent  = subtitle || '';
+  if (okBtn) {
+    okBtn.textContent = okLabel || 'Confirmer';
+    const colors = { danger:'#dc2626', warning:'#d97706', success:'#16a34a', default:'#1e40af' };
+    okBtn.style.background = colors[variant] || colors.default;
+  }
   _confirmDeleteCallback = onConfirm;
   modal.style.display = 'flex';
-  // Fermeture sur clic overlay
   modal.onclick = function(e) { if (e.target === modal) confirmDeleteCancel(); };
 }
 
@@ -13390,21 +13393,20 @@ function applyDashLogo(dataUrl) {
 </div><!-- fin dernière modale -->
 </div><!-- fin avant-dernière modale -->
 
-<!-- MODALE CONFIRMATION SUPPRESSION -->
+<!-- MODALE CONFIRMATION UNIVERSELLE -->
 <div id="confirmDeleteModal" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(2px)">
-  <div style="background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.22);width:100%;max-width:380px;margin:16px;overflow:hidden">
-    <div style="background:#fee2e2;padding:20px 24px 14px;display:flex;align-items:center;gap:14px">
-      <div style="background:#dc2626;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">🗑</div>
+  <div style="background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.22);width:100%;max-width:400px;margin:16px;overflow:hidden">
+    <div style="padding:20px 24px 14px;display:flex;align-items:center;gap:14px;background:#fff7f7;border-bottom:1px solid #fee2e2">
+      <div id="confirmDeleteIcon" style="background:#dc2626;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">🗑</div>
       <div>
-        <div style="font-size:15px;font-weight:800;color:#991b1b">Confirmer la suppression</div>
-        <div style="font-size:11px;color:#b91c1c;margin-top:2px">Cette action est irréversible</div>
+        <div id="confirmDeleteMsg" style="font-size:14px;font-weight:800;color:#1e293b;line-height:1.3"></div>
+        <div id="confirmDeleteSub" style="font-size:11px;color:#64748b;margin-top:3px"></div>
       </div>
     </div>
-    <div style="padding:18px 24px">
-      <p id="confirmDeleteMsg" style="font-size:13px;color:#374151;margin:0 0 18px;line-height:1.5"></p>
+    <div style="padding:16px 24px">
       <div style="display:flex;gap:10px;justify-content:flex-end">
         <button onclick="confirmDeleteCancel()" style="padding:8px 20px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;font-size:13px;font-weight:600;cursor:pointer">Annuler</button>
-        <button onclick="confirmDeleteOk()" style="padding:8px 20px;border-radius:8px;border:none;background:#dc2626;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(220,38,38,.35)">Supprimer</button>
+        <button id="confirmDeleteOkBtn" onclick="confirmDeleteOk()" style="padding:8px 20px;border-radius:8px;border:none;background:#dc2626;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2)">Supprimer</button>
       </div>
     </div>
   </div>
