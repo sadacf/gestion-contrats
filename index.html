@@ -548,6 +548,7 @@ tr.validite-expiree td { opacity: .85; }
   background: var(--card); border-radius: 8px; padding: 8px 12px;
   box-shadow: var(--shadow); border-top: 3px solid var(--azure);
   transition: transform .15s, box-shadow .15s;
+  display:flex; flex-direction:column; justify-content:space-between;
 }
 .synth-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
 .synth-card.green  { border-top-color: var(--green); }
@@ -1221,47 +1222,47 @@ function loadSheetJS(callback) {
   <div id="dashContent">
 
     <!-- Ligne stats compacte — 8 indicateurs sur 1 ligne -->
-    <div style="display:flex;gap:5px;margin-bottom:8px;flex-wrap:nowrap;overflow-x:auto">
-      <div class="synth-card indic-clickable" style="border-top-color:var(--blue);padding:5px 8px;flex:1;min-width:80px" onclick="filterFromIndic('all')">
-        <div class="synth-num" id="in-all" style="font-size:15px">–</div>
-        <div class="synth-lbl" style="font-size:9px">Total contrats</div>
+    <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;align-items:stretch">
+      <div class="synth-card indic-clickable" style="border-top-color:var(--blue);padding:7px 10px;flex:1;min-width:90px" onclick="filterFromIndic('all')">
+        <div class="synth-num" id="in-all" style="font-size:18px;font-weight:800;line-height:1">–</div>
+        <div class="synth-lbl" style="font-size:10px;font-weight:700;margin-top:2px">Total contrats</div>
       </div>
-      <div class="synth-card indic-clickable" style="border-top-color:var(--teal);padding:5px 8px;flex:1;min-width:80px" onclick="filterFromIndic('DETECTION')">
-        <div class="synth-num" id="in-det-contrats" style="color:var(--teal);font-size:15px">–</div>
-        <div class="synth-lbl" style="font-size:9px">Détection</div>
+      <div class="synth-card indic-clickable" style="border-top-color:var(--teal);padding:7px 10px;flex:1;min-width:90px" onclick="filterFromIndic('DETECTION')">
+        <div class="synth-num" id="in-det-contrats" style="font-size:18px;font-weight:800;line-height:1;color:var(--teal);font-size:15px">–</div>
+        <div class="synth-lbl" style="font-size:10px;font-weight:700;margin-top:2px">Détection</div>
       </div>
-      <div class="synth-card indic-clickable" style="border-top-color:var(--orange);padding:5px 8px;flex:1;min-width:80px" onclick="filterFromIndic('PROT')">
-        <div class="synth-num" id="in-prot" style="color:var(--orange);font-size:15px">–</div>
-        <div class="synth-lbl" style="font-size:9px">Protection</div>
+      <div class="synth-card indic-clickable" style="border-top-color:var(--orange);padding:7px 10px;flex:1;min-width:90px" onclick="filterFromIndic('PROT')">
+        <div class="synth-num" id="in-prot" style="font-size:18px;font-weight:800;line-height:1;color:var(--orange);font-size:15px">–</div>
+        <div class="synth-lbl" style="font-size:10px;font-weight:700;margin-top:2px">Protection</div>
       </div>
-      <div class="synth-card indic-clickable" style="border-top-color:#7c3aed;padding:5px 8px;flex:1;min-width:80px" onclick="filterFromIndic('apsad')">
-        <div class="synth-num" id="in-apsad" style="color:#7c3aed;font-size:15px">–</div>
-        <div class="synth-lbl" style="font-size:9px">APSAD</div>
+      <div class="synth-card indic-clickable" style="border-top-color:#7c3aed;padding:7px 10px;flex:1;min-width:90px" onclick="filterFromIndic('apsad')">
+        <div class="synth-num" id="in-apsad" style="font-size:18px;font-weight:800;line-height:1;color:#7c3aed;font-size:15px">–</div>
+        <div class="synth-lbl" style="font-size:10px;font-weight:700;margin-top:2px">APSAD</div>
       </div>
-      <div class="synth-card" style="border-top-color:var(--blue);background:linear-gradient(135deg,#f0f7ff,#e8f0fe);padding:5px 8px;flex:1;min-width:80px">
-        <div class="synth-num" id="in-det" style="color:var(--blue);font-size:15px">–</div>
-        <div class="synth-lbl" style="font-size:9px;font-weight:800">Détecteurs</div>
+      <div class="synth-card" style="border-top-color:var(--blue);background:linear-gradient(135deg,#f0f7ff,#e8f0fe);padding:7px 10px;flex:1;min-width:90px">
+        <div class="synth-num" id="in-det" style="font-size:18px;font-weight:800;line-height:1;color:var(--blue);font-size:15px">–</div>
+        <div class="synth-lbl" style="font-size:10px;font-weight:800;margin-top:2px">Détecteurs</div>
       </div>
-      <div class="synth-card indic-clickable" style="padding:5px 8px;flex:1;min-width:60px" onclick="filterFromIndic('ECS')">
-        <div class="synth-num" id="in-ecs" style="font-size:15px">–</div>
-        <div class="synth-lbl" style="font-size:9px">ECS</div>
+      <div class="synth-card indic-clickable" style="padding:7px 10px;flex:1;min-width:80px" onclick="filterFromIndic('ECS')">
+        <div class="synth-num" id="in-ecs" style="font-size:18px;font-weight:800;line-height:1;font-size:15px">–</div>
+        <div class="synth-lbl" style="font-size:10px;font-weight:700;margin-top:2px">ECS</div>
       </div>
-      <div class="synth-card teal indic-clickable" style="padding:5px 8px;flex:1;min-width:60px" onclick="filterFromIndic('CMSI')">
-        <div class="synth-num" id="in-cmsi" style="font-size:15px">–</div>
-        <div class="synth-lbl" style="font-size:9px">CMSI</div>
+      <div class="synth-card teal indic-clickable" style="padding:7px 10px;flex:1;min-width:80px" onclick="filterFromIndic('CMSI')">
+        <div class="synth-num" id="in-cmsi" style="font-size:18px;font-weight:800;line-height:1">–</div>
+        <div class="synth-lbl" style="font-size:10px;font-weight:700;margin-top:2px">CMSI</div>
       </div>
-      <div class="synth-card orange indic-clickable" style="padding:5px 8px;flex:1;min-width:80px" onclick="filterFromIndic('Q7_RENSEIGNE')">
+      <div class="synth-card orange indic-clickable" style="padding:7px 10px;flex:1;min-width:80px" onclick="filterFromIndic('Q7_RENSEIGNE')">
         <div style="display:flex;align-items:baseline;gap:3px">
-          <div class="synth-num" id="in-q7" style="color:var(--orange);font-size:15px">–</div>
+          <div class="synth-num" id="in-q7" style="font-size:18px;font-weight:800;line-height:1;color:var(--orange);font-size:15px">–</div>
           <div style="font-size:10px;color:var(--sub);font-weight:600">/<span id="in-q7-total">–</span></div>
         </div>
-        <div class="synth-lbl" style="font-size:9px">Q7 / total</div>
+        <div class="synth-lbl" style="font-size:10px;font-weight:700;margin-top:2px">Q7 / total</div>
       </div>
     </div>
 
     <!-- 🏷️ Section Répartition Matériel — au-dessus des donuts -->
     <div class="synth-section" style="margin-top:0">Répartition Matériel</div>
-    <div id="indicMatSection" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px"></div>
+    <div id="indicMatSection" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;align-items:stretch"></div>
 
     <!-- 📊 Avancement — donuts en premier -->
     <div style="margin-bottom:8px;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:10px;overflow:hidden">
@@ -2252,17 +2253,34 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/14-05-26-18:05';
+const APP_VERSION = 'V1/14-05-26-18:15';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
+  {
+    version: '2.14.0',
+    date: '14/05/2026',
+    items: [
+      { type: 'new',     text: 'Donuts avancement : 4 camemberts (Détection + Protection × Mois courant + Suivant)' },
+      { type: 'new',     text: 'Donuts : quantités affichées dans les tranches, % coloré selon progression' },
+      { type: 'new',     text: 'Donuts : clic sur une tranche filtre le tableau (mois + type + couleur VE)' },
+      { type: 'new',     text: 'Barre de progression sous chaque donut, cliquable vers le tableau filtré' },
+      { type: 'new',     text: 'Saisie durée VE : stepper +/− de 1h à 10j + saisie libre heures ou jours' },
+      { type: 'improve', text: '½j remplacé par 4h partout (affichage, tableau, badges, stepper)' },
+      { type: 'improve', text: 'Modale de confirmation stylée sur tous les boutons Supprimer / Résilier / Restaurer' },
+      { type: 'improve', text: 'Couleurs des donuts alignées avec le tableau des contrats (Excel : #92D050, #00B0F0, #FFC000, #FFFF00)' },
+      { type: 'improve', text: 'Layout page accueil : Répartition Matériel en haut, donuts, puis retards' },
+      { type: 'improve', text: 'Bouton "Envoi mails" : bleu marine, coins arrondis, taille réduite' },
+      { type: 'improve', text: 'Mail identifiants : CRLF corrects, URLs cliquables, procédure Chrome/LocalExplorer' },
+      { type: 'fix',     text: 'Doublons en mémoire : détection et nettoyage par _id' },
+      { type: 'fix',     text: "Notifications mise à jour : la nouvelle remplace l'ancienne (plus d'accumulation)" },
+    ]
+  },
   {
     version: '2.12.5',
     date: '29/03/2026',
     items: [
       { type: 'improve', text: 'Mail identifiants : sauts de ligne CRLF corrects, URLs cliquables Outlook/Gmail' },
-      { type: 'improve', text: 'Suppression : modale de confirmation stylée sur tous les boutons Supprimer' },
-      { type: 'improve', text: 'Suppression : modale de confirmation stylée sur tous les boutons Supprimer' },
       { type: 'improve', text: 'Mail identifiants : ajout procédure configuration (Chrome, LocalExplorer, chemin dossier)' },
       { type: 'improve', text: 'Bouton "Envoyer tous les mails" : couleur bleue, coins arrondis, taille réduite' },
     ]
@@ -8387,7 +8405,7 @@ function updateSynthese() {
       const pct  = _src.length > 0 ? Math.round(cnt/_src.length*100) : 0;
       const filter = mat === '(sans matériel)' ? 'sans_mat' : `mat_${mat}`;
       return `<div onclick="filterFromIndic('${filter}')" title="${mat} — ${cnt} contrat(s) (${pct}%) — cliquer pour filtrer"
-        style="background:${bg};border:1px solid ${txt}22;border-radius:8px;padding:7px 10px;cursor:pointer;transition:transform .1s,box-shadow .1s"
+        style="background:${bg};border:1px solid ${txt}22;border-radius:8px;padding:7px 10px;flex:1;min-width:90px;cursor:pointer;transition:transform .1s,box-shadow .1s"
         onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,.1)'"
         onmouseout="this.style.transform='';this.style.boxShadow=''">
         <div style="font-size:18px;font-weight:800;color:${txt};line-height:1">${cnt}</div>
@@ -8400,7 +8418,7 @@ function updateSynthese() {
     // Carte fixe : Total extincteurs
     if (totalExtincteurs > 0 || true) {
       matHtml += `<div title="Total extincteurs déclarés dans les contrats"
-        style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:7px 10px;transition:transform .1s,box-shadow .1s"
+        style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:7px 10px;flex:1;min-width:90px;transition:transform .1s,box-shadow .1s"
         onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,.1)'"
         onmouseout="this.style.transform='';this.style.boxShadow=''">
         <div style="font-size:18px;font-weight:800;color:#c2410c;line-height:1">🧯 ${totalExtincteurs}</div>
@@ -8413,7 +8431,7 @@ function updateSynthese() {
     if (nbBaes > 0 || true) {
       const pctBaes = _src.length > 0 ? Math.round(nbBaes / _src.length * 100) : 0;
       matHtml += `<div title="${nbBaes} contrat(s) avec BAES/BAEH — cliquer pour filtrer" onclick="filterFromIndic('mat_BAES')"
-        style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:7px 10px;cursor:pointer;transition:transform .1s,box-shadow .1s"
+        style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:7px 10px;flex:1;min-width:90px;cursor:pointer;transition:transform .1s,box-shadow .1s"
         onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,.1)'"
         onmouseout="this.style.transform='';this.style.boxShadow=''">
         <div style="font-size:18px;font-weight:800;color:#92400e;line-height:1">💡 ${nbBaes}</div>
