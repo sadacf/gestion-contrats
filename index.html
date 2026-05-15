@@ -1384,16 +1384,16 @@ function loadSheetJS(callback) {
       <!-- Ligne boutons mails -->
       <div style="display:flex;gap:8px;padding:10px 12px;background:#fffbeb;border-top:1px solid #fde68a">
         <button id="btnMailGlobalWrap" onclick="envoyerMailsGlobaux()"
-          style="display:none;align-items:center;justify-content:center;gap:6px;background:#1e3a8a;border:none;border-radius:20px;padding:7px 16px;cursor:pointer;font-size:11px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(30,58,138,.3)">
+          style="display:none;flex:1;align-items:center;justify-content:center;gap:6px;background:#2563eb;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:11px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.25)">
           <span style="font-size:13px">📧</span>
           <span>Envoi mails des retards</span>
-          <span id="btnMailGlobalPastille" style="display:none;width:6px;height:6px;border-radius:50%;background:#93c5fd"></span>
+          <span id="btnMailGlobalPastille" style="display:none;width:7px;height:7px;border-radius:50%;background:#bfdbfe"></span>
         </button>
         <button id="btnMailMoisWrap" onclick="envoyerMailsMoisCourantEtSuivant()"
-          style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#1e3a8a;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:11px;font-weight:800;color:#fff">
+          style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#2563eb;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:11px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.25)">
           <span style="font-size:14px">📅</span>
           <span id="btnMailMoisLabel">Envoi mails mois en cours</span>
-          <span id="btnMailMoisPastille" style="width:7px;height:7px;border-radius:50%;background:#93c5fd;display:block;flex-shrink:0"></span>
+          <span id="btnMailMoisPastille" style="width:7px;height:7px;border-radius:50%;background:#bfdbfe;display:block;flex-shrink:0"></span>
         </button>
       </div>
 
@@ -1451,7 +1451,24 @@ function loadSheetJS(callback) {
       </div>
       <button class="tbtn" style="background:#9333ea;color:#fff;border-color:#7e22ce;font-size:11px;padding:4px 12px;cursor:pointer" onclick="filterFromIndic('sans_ve_v2')">↗ Voir la liste</button>
     </div>
-    <div id="indicSansMatBar" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #16a34a;border-radius:8px;padding:10px 16px;margin-bottom:10px;align-items:center;gap:20px;flex-wrap:wrap">
+    <!-- VE assignée mais sans durée -->
+    <div id="indicVeSansDureeBar" style="display:none;background:#fff0f9;border:1px solid #fbcfe8;border-left:4px solid #ec4899;border-radius:8px;padding:10px 16px;margin-bottom:10px;align-items:center;gap:20px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:22px;font-weight:800;color:#ec4899" id="in-ve-sans-duree-total">–</span>
+        <span style="font-size:12px;font-weight:700;color:#9d174d;line-height:1.3">site(s) avec VE affectée mais sans durée<br><span style="font-weight:400;color:#ec4899">Mois VE renseigné mais temps d'intervention manquant — V2/M2 : les 2 semestres doivent avoir un temps</span></span>
+      </div>
+      <button class="tbtn" style="background:#ec4899;color:#fff;border-color:#db2777;font-size:11px;padding:4px 12px;cursor:pointer" onclick="filterFromIndic('ve_sans_duree')">↗ Voir la liste</button>
+    </div>
+    <!-- V2/M2 avec VE2 manquante uniquement -->
+    <div id="indicV2SansVe2Bar" style="display:none;background:#f5f3ff;border:1px solid #ddd6fe;border-left:4px solid #7c3aed;border-radius:8px;padding:10px 16px;margin-bottom:10px;align-items:center;gap:20px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:22px;font-weight:800;color:#7c3aed" id="in-v2-sans-ve2-total">–</span>
+        <span style="font-size:12px;font-weight:700;color:#4c1d95;line-height:1.3">contrat(s) V2/M2 sans VE2 renseignée<br><span style="font-weight:400;color:#7c3aed">2 semestres requis — VE du semestre 2 manquante</span></span>
+      </div>
+      <button class="tbtn" style="background:#7c3aed;color:#fff;border-color:#6d28d9;font-size:11px;padding:4px 12px;cursor:pointer" onclick="filterFromIndic('v2_sans_ve2')">↗ Voir la liste</button>
+    </div>
+    <div id="indicSansMatBar"
+ style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #16a34a;border-radius:8px;padding:10px 16px;margin-bottom:10px;align-items:center;gap:20px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:22px;font-weight:800;color:#15803d" id="in-sans-mat-total">–</span>
         <span style="font-size:12px;font-weight:700;color:#166534;line-height:1.3">installation(s) sans matériel<br><span style="font-weight:400;color:#15803d">Contrat sans Matériel renseigné</span></span>
@@ -2241,7 +2258,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-09:35';
+const APP_VERSION = 'V1/15-05-26-09:56';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4288,6 +4305,22 @@ function applyFilters() {
     if (activeQuickFilter === 'recond'    && !has(r.Reconditionnement)) return false;
     if (activeQuickFilter === 'apsad'     && !['ECS','ECS/CMSI','CMSI','CAT.B'].includes(r.Type_Materiel)) return false;
     if (activeQuickFilter === 'sans_mat' && (r.Type_Materiel && r.Type_Materiel.trim())) return false;
+    if (activeQuickFilter === 've_sans_duree') {
+      const typeF2 = (r.Type_Contrat || '').trim().toUpperCase();
+      const ve1f = (r.VE1 || '').trim().toLowerCase();
+      const ve2f = (r.VE2 || '').trim().toLowerCase();
+      const hasVe1f = ve1f && ve1f !== 's.o';
+      const hasVe2f = ve2f && ve2f !== 's.o';
+      const ve1NoDur = hasVe1f && !(r.Duree_VE1 || '').trim();
+      const ve2NoDur = (typeF2 === 'V2' || typeF2 === 'M2') && hasVe2f && !(r.Duree_VE2 || '').trim();
+      if (!ve1NoDur && !ve2NoDur) return false;
+    }
+    if (activeQuickFilter === 'v2_sans_ve2') {
+      const typeF = (r.Type_Contrat || '').trim().toUpperCase();
+      if (typeF !== 'V2' && typeF !== 'M2') return false;
+      const ve2f = (r.VE2 || '').trim();
+      if (ve2f && ve2f.toLowerCase() !== 's.o') return false;
+    }
     if (activeQuickFilter === 'sans_ve_v1') {
       const type = (r.Type_Contrat || '').trim().toUpperCase();
       if (type !== 'V1' && type !== 'M1') return false;
@@ -7883,8 +7916,8 @@ function updateBtnMailMois() {
   const dejaEnvoye = isMailMoisDejaEnvoye();
   if (dejaEnvoye) {
     // Bleu marine + indicateur vert
-    wrap.style.background    = '#1e3a8a';
-    wrap.style.borderColor   = '#1e40af';
+    wrap.style.background    = '#2563eb';
+    wrap.style.borderColor   = '#1d4ed8';
     wrap.style.boxShadow     = '0 3px 10px rgba(30,58,138,.3)';
     if (pastille) { pastille.style.background = '#86efac'; }
     const info = JSON.parse(localStorage.getItem(MAIL_MOIS_KEY + '_' + getMailMoisKey()) || '{}');
@@ -7892,8 +7925,8 @@ function updateBtnMailMois() {
     wrap.title = `✅ Envoyé le ${date} (${info.nb||0} technicien(s)) — cliquer pour renvoyer`;
   } else {
     // Bleu marine
-    wrap.style.background    = '#1e3a8a';
-    wrap.style.borderColor   = '#1e40af';
+    wrap.style.background    = '#2563eb';
+    wrap.style.borderColor   = '#1d4ed8';
     wrap.style.boxShadow     = '0 3px 10px rgba(30,58,138,.3)';
     if (pastille) { pastille.style.background = '#fca5a5'; }
     wrap.title = '⚠ Mails mois en cours + mois suivant non envoyés — cliquer pour envoyer';
@@ -8433,8 +8466,42 @@ function updateSynthese() {
     if (el) el.textContent = sansVeV2.length;
   }
 
+  // VE assignée sans durée — VE1 sans durée, ou V2/M2 avec VE2 assignée sans durée
+  const veSansDuree = _src.filter(r => {
+    const type = (r.Type_Contrat || '').trim().toUpperCase();
+    const ve1 = (r.VE1 || '').trim().toLowerCase();
+    const ve2 = (r.VE2 || '').trim().toLowerCase();
+    const hasVe1 = ve1 && ve1 !== 's.o';
+    const hasVe2 = ve2 && ve2 !== 's.o';
+    // VE1 assignée sans durée
+    if (hasVe1 && !(r.Duree_VE1 || '').trim()) return true;
+    // V2/M2 : VE2 assignée sans durée
+    if ((type === 'V2' || type === 'M2') && hasVe2 && !(r.Duree_VE2 || '').trim()) return true;
+    return false;
+  });
+  const veSansDureeBar = document.getElementById('indicVeSansDureeBar');
+  if (veSansDureeBar) {
+    veSansDureeBar.style.display = veSansDuree.length > 0 ? 'flex' : 'none';
+    const el = document.getElementById('in-ve-sans-duree-total');
+    if (el) el.textContent = veSansDuree.length;
+  }
+
+  // V2/M2 avec VE2 spécifiquement manquante
+  const v2SansVe2 = _src.filter(r => {
+    const type = (r.Type_Contrat || '').trim().toUpperCase();
+    if (type !== 'V2' && type !== 'M2') return false;
+    const ve2 = (r.VE2 || '').trim();
+    return !ve2 || ve2.toLowerCase() === 's.o';
+  });
+  const v2SansVe2Bar = document.getElementById('indicV2SansVe2Bar');
+  if (v2SansVe2Bar) {
+    v2SansVe2Bar.style.display = v2SansVe2.length > 0 ? 'flex' : 'none';
+    const el = document.getElementById('in-v2-sans-ve2-total');
+    if (el) el.textContent = v2SansVe2.length;
+  }
+
   if (aleasOk) {
-    aleasOk.style.display = (sansMat.length === 0 && sansTech.length === 0 && validiteExpire.length === 0 && sansVeV1.length === 0 && sansVeV2.length === 0) ? 'block' : 'none';
+    aleasOk.style.display = (sansMat.length === 0 && sansTech.length === 0 && validiteExpire.length === 0 && sansVeV1.length === 0 && sansVeV2.length === 0 && veSansDuree.length === 0 && v2SansVe2.length === 0) ? 'block' : 'none';
   }
 
   // ── Répartition Matériel dynamique ──
