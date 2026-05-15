@@ -2258,7 +2258,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-16:11';
+const APP_VERSION = 'V1/15-05-26-16:32';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2538,8 +2538,12 @@ const SP = (() => {
         const { doc, setDoc } = window._fsLib;
         await setDoc(doc(_db, 'contrats', id), data);
         contract._fsId = id;
+        // Mettre à jour lastEditedAt dans db local aussi (anti-race)
+        const dbIdx = db.findIndex(x => x._id === contract._id);
+        if (dbIdx >= 0) { db[dbIdx].lastEditedAt = data.lastEditedAt; db[dbIdx]._fsId = id; }
       } catch(e) {
-        console.warn('saveContract Firebase error (données sauvées en local):', e);
+        console.warn('saveContract Firebase error — ajout file d\'attente:', e);
+        throw e; // ← re-propager pour que saveDB ajoute à _pendingSync
       } finally {
         setTimeout(() => { window._fsLocalWrite = false; }, 1000);
       }
@@ -2797,7 +2801,27 @@ const SP = (() => {
       };
 
       // Lancer le polling toutes les 45 secondes
-      window._fsUnsubscribe = setInterval(_poll, 45 * 1000);
+      // Polling intelligent : 3 min si onglet actif, 10 min si arrière-plan
+function _getPollingDelay() {
+  return document.hidden ? 10 * 60 * 1000 : 3 * 60 * 1000;
+}
+function _schedulePoll() {
+  clearTimeout(window._pollTimeout);
+  window._pollTimeout = setTimeout(async function() {
+    await _poll();
+    _schedulePoll(); // re-planifier après chaque poll
+  }, _getPollingDelay());
+}
+// Réagir aux changements de visibilité
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    // Onglet redevient actif → synchro immédiate + reprendre rythme rapide
+    _poll();
+    _schedulePoll();
+  }
+});
+window._fsUnsubscribe = _schedulePoll;
+_schedulePoll();
       window._fsPollFn = _poll; // exposer pour synchro manuelle/focus
     },
 
