@@ -2011,26 +2011,19 @@ function loadSheetJS(callback) {
                 <option>Avril</option><option>Mai</option><option>Juin</option>
                 <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
               </select>
-              <div id="ve1_stepper" style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-                <!-- Stepper − / valeur / + -->
-                <div style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden">
-                  <button type="button" onclick="_veStep(1,-1)" style="border:none;background:#f8fafc;color:#475569;padding:5px 10px;font-size:16px;font-weight:700;cursor:pointer;line-height:1;transition:background .1s" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">−</button>
-                  <div id="ve1_step_val" style="border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:5px 14px;font-size:13px;font-weight:800;color:#1e293b;background:#fff;min-width:52px;text-align:center">–</div>
-                  <button type="button" onclick="_veStep(1,+1)" style="border:none;background:#f8fafc;color:#475569;padding:5px 10px;font-size:16px;font-weight:700;cursor:pointer;line-height:1;transition:background .1s" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">+</button>
-                </div>
-                <!-- Bouton saisie libre -->
-                <button type="button" id="ve1_b_plus" onclick="_toggleVECustom(1)" title="Saisir librement (heures ou jours)" style="border:1.5px solid #e2e8f0;border-radius:7px;padding:5px 9px;background:#f8fafc;cursor:pointer;font-size:12px;font-weight:800;color:#64748b;transition:all .15s">✏️</button>
-                <div id="ve1_custom_wrap" style="display:none;align-items:center;gap:3px">
-                  <input type="number" id="ve1_custom_val" min="0.5" max="30" step="0.5" placeholder="ex: 3"
-                    style="width:52px;border:1.5px solid #bfdbfe;border-radius:6px;padding:4px 5px;font-size:12px;font-weight:800;color:#1e40af;text-align:center"
-                    oninput="_onVECustomChange(1)">
-                  <select id="ve1_custom_unit" onchange="_onVECustomChange(1)" style="border:1.5px solid #bfdbfe;border-radius:6px;padding:4px 5px;font-size:11px;font-weight:700;color:#1e40af;background:#eff6ff">
-                    <option value="j">j</option>
-                    <option value="h">h</option>
-                  </select>
-                  <button type="button" onclick="_clearVEDuree(1)" style="border:none;background:transparent;color:#94a3b8;cursor:pointer;font-size:13px;padding:0 2px">✕</button>
+              <div id="ve1_stepper" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+                <div id="ve1_slots" style="display:flex;flex-direction:column;gap:3px"></div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <button type="button" onclick="_veAddSlot(1)" style="display:flex;align-items:center;gap:4px;border:1.5px dashed #93c5fd;background:#f0f9ff;color:#1d4ed8;border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer">＋ Créneau</button>
+                  <span id="ve1_total_lbl" style="font-size:10px;font-weight:700;color:#1e40af;background:#eff6ff;border-radius:5px;padding:2px 7px;display:none"></span>
+                  <button type="button" onclick="_clearVEDuree(1)" style="border:none;background:transparent;color:#cbd5e1;cursor:pointer;font-size:12px;padding:0 2px" title="Tout effacer">✕</button>
                 </div>
                 <input type="hidden" id="f_Duree_VE1">
+                <!-- compat legacy -->
+                <div id="ve1_b_plus_wrap" style="display:none"></div>
+                <div id="ve1_custom_wrap" style="display:none">
+                  <input type="number" id="ve1_custom_val"><select id="ve1_custom_unit"><option value="j">j</option><option value="h">h</option></select>
+                </div>
               </div>
             </div>
           </div>
@@ -2043,25 +2036,20 @@ function loadSheetJS(callback) {
                 <option>Octobre</option><option>Novembre</option><option>Decembre</option>
                 <option value="S.O" style="color:#94a3b8;font-style:italic">S.O</option>
               </select>
-              <div id="ve2_stepper" style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-                <div style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden">
-                  <button type="button" onclick="_veStep(2,-1)" style="border:none;background:#f8fafc;color:#475569;padding:5px 10px;font-size:16px;font-weight:700;cursor:pointer;line-height:1;transition:background .1s" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">−</button>
-                  <div id="ve2_step_val" style="border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:5px 14px;font-size:13px;font-weight:800;color:#1e293b;background:#fff;min-width:52px;text-align:center">–</div>
-                  <button type="button" onclick="_veStep(2,+1)" style="border:none;background:#f8fafc;color:#475569;padding:5px 10px;font-size:16px;font-weight:700;cursor:pointer;line-height:1;transition:background .1s" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">+</button>
-                </div>
-                <button type="button" id="ve2_b_plus" onclick="_toggleVECustom(2)" title="Saisir librement (heures ou jours)" style="border:1.5px solid #e2e8f0;border-radius:7px;padding:5px 9px;background:#f8fafc;cursor:pointer;font-size:12px;font-weight:800;color:#64748b;transition:all .15s">✏️</button>
-                <div id="ve2_custom_wrap" style="display:none;align-items:center;gap:3px">
-                  <input type="number" id="ve2_custom_val" min="0.5" max="30" step="0.5" placeholder="ex: 3"
-                    style="width:52px;border:1.5px solid #bfdbfe;border-radius:6px;padding:4px 5px;font-size:12px;font-weight:800;color:#1e40af;text-align:center"
-                    oninput="_onVECustomChange(2)">
-                  <select id="ve2_custom_unit" onchange="_onVECustomChange(2)" style="border:1.5px solid #bfdbfe;border-radius:6px;padding:4px 5px;font-size:11px;font-weight:700;color:#1e40af;background:#eff6ff">
-                    <option value="j">j</option>
-                    <option value="h">h</option>
-                  </select>
-                  <button type="button" onclick="_clearVEDuree(2)" style="border:none;background:transparent;color:#94a3b8;cursor:pointer;font-size:13px;padding:0 2px">✕</button>
+              <div id="ve2_stepper" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+                <div id="ve2_slots" style="display:flex;flex-direction:column;gap:3px"></div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <button type="button" onclick="_veAddSlot(2)" style="display:flex;align-items:center;gap:4px;border:1.5px dashed #93c5fd;background:#f0f9ff;color:#1d4ed8;border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer">＋ Créneau</button>
+                  <span id="ve2_total_lbl" style="font-size:10px;font-weight:700;color:#1e40af;background:#eff6ff;border-radius:5px;padding:2px 7px;display:none"></span>
+                  <button type="button" onclick="_clearVEDuree(2)" style="border:none;background:transparent;color:#cbd5e1;cursor:pointer;font-size:12px;padding:0 2px" title="Tout effacer">✕</button>
                 </div>
                 <input type="hidden" id="f_Duree_VE2">
                 <span id='dureeVE2auto' style='font-size:9px;color:#94a3b8;font-style:italic;margin-left:2px'></span>
+                <!-- compat legacy -->
+                <div id="ve2_b_plus_wrap" style="display:none"></div>
+                <div id="ve2_custom_wrap" style="display:none">
+                  <input type="number" id="ve2_custom_val"><select id="ve2_custom_unit"><option value="j">j</option><option value="h">h</option></select>
+                </div>
               </div>
             </div>
           </div>
@@ -2253,7 +2241,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/14-05-26-18:15';
+const APP_VERSION = 'V1/15-05-26-08:35';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5539,37 +5527,109 @@ const _VE_BTN_IDS = { '1h':'1h','2h':'2h','1dj':'dj','1j':'1j','2j':'2j' }; // l
 const _VE_STEPS = ['','1h','2h','4h','1j','2j','3j','4j','5j','6j','7j','8j','9j','10j']; // '' = vide
 const _VE_LABELS = {'':'–','1h':'1h','2h':'2h','4h':'4h','1dj':'4h','1j':'1j','2j':'2j','3j':'3j','4j':'4j','5j':'5j','6j':'6j','7j':'7j','8j':'8j','9j':'9j','10j':'10j'};
 
-function _setVEDuree(veNum, stored) {
-  // Mettre à jour l'affichage du stepper
-  const valEl = document.getElementById('ve'+veNum+'_step_val');
-  if (valEl) {
-    const lbl = _VE_LABELS[stored] || (stored || '–');
-    valEl.textContent = lbl;
-    valEl.style.color = stored ? '#1e40af' : '#1e293b';
-    valEl.style.background = stored ? '#eff6ff' : '#fff';
-  }
-  // Masquer champ custom si valeur dans la liste
-  const cw = document.getElementById('ve'+veNum+'_custom_wrap');
-  const pb = document.getElementById('ve'+veNum+'_b_plus');
-  if (_VE_STEPS.includes(stored) || !stored) {
-    if (cw) cw.style.display = 'none';
-    if (pb) { pb.style.borderColor='#e2e8f0'; pb.style.background='#f8fafc'; pb.style.color='#64748b'; }
-  } else {
-    // Valeur custom — afficher champ de saisie
-    if (pb) { pb.style.borderColor='#1e40af'; pb.style.background='#eff6ff'; pb.style.color='#1e40af'; }
-    if (cw) {
-      cw.style.display = 'flex';
-      const m = stored.match(/^([0-9.]+)(j|h)$/);
-      const cv = document.getElementById('ve'+veNum+'_custom_val');
-      const cu = document.getElementById('ve'+veNum+'_custom_unit');
-      if (cv && m) { cv.value = m[1]; }
-      if (cu && m) { cu.value = m[2]; }
+// ── Gestion multi-créneaux VE ────────────────────────────────────────────────
+
+// Crée le HTML d'une ligne créneau
+function _veSlotHTML(veNum, idx, val) {
+  const SLOT_BTN = 'border:none;background:#f8fafc;color:#475569;padding:4px 9px;font-size:14px;font-weight:700;cursor:pointer;line-height:1;';
+  const lbl = _VE_LABELS[val] || (val || '–');
+  const col  = val ? '#1e40af' : '#1e293b';
+  const bg   = val ? '#eff6ff' : '#fff';
+  return `<div id="ve${veNum}_slot_${idx}" style="display:flex;align-items:center;gap:5px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:3px 5px">
+    <div style="width:14px;height:14px;border-radius:50%;background:#1e40af;color:#fff;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${idx+1}</div>
+    <div style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:6px;overflow:hidden">
+      <button type="button" onclick="_veSlotStep(${veNum},${idx},-1)" style="${SLOT_BTN}border:none;background:#f8fafc;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">−</button>
+      <div id="ve${veNum}_slot_${idx}_val" style="border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:3px 10px;font-size:12px;font-weight:800;color:${col};background:${bg};min-width:40px;text-align:center">${lbl}</div>
+      <button type="button" onclick="_veSlotStep(${veNum},${idx},+1)" style="${SLOT_BTN}border:none;background:#f8fafc;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">+</button>
+    </div>
+    ${idx > 0 ? `<button type="button" onclick="_veRemoveSlot(${veNum},${idx})" style="border:none;background:transparent;color:#cbd5e1;cursor:pointer;font-size:13px;padding:0" title="Supprimer ce créneau">✕</button>` : ''}
+  </div>`;
+}
+
+// Récupère les créneaux depuis le hidden input (ex: "1j+4h" → ["1j","4h"])
+function _veGetSlots(veNum) {
+  var h = document.getElementById('f_Duree_VE'+veNum);
+  var raw = h ? h.value : '';
+  if (!raw) return [''];
+  return raw.split('+').map(function(s){ return s.trim(); });
+}
+
+// Sauvegarde les créneaux dans le hidden input
+function _veSetSlots(veNum, slots) {
+  var h = document.getElementById('f_Duree_VE'+veNum);
+  var val = slots.filter(function(s){ return s && s !== ''; }).join('+');
+  if (h) h.value = val;
+  _veRefreshUI(veNum, slots);
+  if (veNum === 1) _onDureeVE1Change(); else _onDureeVEChange();
+}
+
+// Rafraîchit tout l'affichage
+function _veRefreshUI(veNum, slots) {
+  var container = document.getElementById('ve'+veNum+'_slots');
+  if (!container) return;
+  if (!slots) slots = _veGetSlots(veNum);
+  if (slots.length === 0) slots = [''];
+  container.innerHTML = '';
+  slots.forEach(function(v, i) {
+    var tmp = document.createElement('div');
+    tmp.innerHTML = _veSlotHTML(veNum, i, v);
+    container.appendChild(tmp.firstElementChild);
+  });
+  // Total label (visible si plusieurs créneaux)
+  var totalEl = document.getElementById('ve'+veNum+'_total_lbl');
+  if (totalEl) {
+    if (slots.length > 1 && slots.some(function(s){ return s; })) {
+      var nonEmpty = slots.filter(function(s){ return s && s!==''; });
+      totalEl.textContent = nonEmpty.map(function(s){ return _VE_LABELS[s]||s; }).join(' + ');
+      totalEl.style.display = 'inline-block';
+    } else {
+      totalEl.style.display = 'none';
     }
   }
-  // Mettre à jour le champ hidden
-  const h = document.getElementById('f_Duree_VE'+veNum);
+}
+
+// Navigate dans la liste pour un créneau
+function _veSlotStep(veNum, idx, dir) {
+  var slots = _veGetSlots(veNum);
+  while (slots.length <= idx) slots.push('');
+  var cur = slots[idx] || '';
+  var norm = cur === '1dj' ? '4h' : cur;
+  var i = _VE_STEPS.indexOf(norm);
+  if (i < 0) i = 0;
+  i = Math.max(0, Math.min(_VE_STEPS.length-1, i+dir));
+  slots[idx] = _VE_STEPS[i];
+  _veSetSlots(veNum, slots);
+}
+
+// Ajouter un créneau
+function _veAddSlot(veNum) {
+  var slots = _veGetSlots(veNum);
+  if (slots[slots.length-1] === '') return; // pas ajouter si dernier vide
+  slots.push('');
+  _veSetSlots(veNum, slots);
+}
+
+// Supprimer un créneau
+function _veRemoveSlot(veNum, idx) {
+  var slots = _veGetSlots(veNum);
+  slots.splice(idx, 1);
+  if (slots.length === 0) slots = [''];
+  _veSetSlots(veNum, slots);
+}
+
+// Compat : ancienne fonction _veStep (1 seul slot)
+function _veStep(veNum, dir) {
+  _veSlotStep(veNum, 0, dir);
+}
+
+
+function _setVEDuree(veNum, stored) {
+  // Charger dans le système multi-créneaux
+  var slots = stored ? stored.split('+').map(function(s){ return s.trim(); }) : [''];
+  if (slots.length === 0) slots = [''];
+  var h = document.getElementById('f_Duree_VE'+veNum);
   if (h) h.value = stored || '';
-  // Déclencher recalcul
+  _veRefreshUI(veNum, slots);
   if (veNum === 1) _onDureeVE1Change();
   else _onDureeVEChange();
 }
@@ -5771,12 +5831,16 @@ function _clearDuree() {
 
 function _formatDureeLabel(val) {
   if (!val) return '';
+  // Multi-créneaux : "1j+4h"
+  if (val.includes('+')) {
+    return val.split('+').map(function(s){ return _formatDureeLabel(s.trim()); }).join(' + ');
+  }
   const m = val.match(/^([0-9.]+)(h|j|dj)$/);
   if (!m) return val;
   const n = parseFloat(m[1]);
   const u = m[2];
   const labels = { h: n <= 1 ? 'heure' : 'heures', j: n <= 1 ? 'journée' : 'journées', dj: n <= 1 ? '4 heures' : '4 heures' };
-  return `${n} ${labels[u]}`;
+  return n + ' ' + labels[u];
 }
 
 function _populateDureeFields(dureeStored) {
@@ -6649,7 +6713,7 @@ function typeBadge(t, duree1, duree2) {
     if (!m) return '';
     const n = parseFloat(m[1]);
     const u = m[2];
-    return u === 'dj' ? (n === 1 ? '4h' : n + '×4h') : n + u;
+    return u === 'dj' ? (n === 1 ? '4h' : n + '\u00d74h') : n + u;
   }
   const d1 = _sd(duree1);
   const d2 = _sd(duree2);
@@ -12568,7 +12632,7 @@ function veCell(val, statut, installation, field, duree) {
     if (!m) return '';
     const n = parseFloat(m[1]);
     const u = m[2];
-    if (u === 'dj') return n === 1 ? '(4h)' : '(' + n + '×4h)';
+    if (u === 'dj') return n === 1 ? '(4h)' : '(' + n + '\u00d74h)';
     return '(' + n + u + ')';
   }
   const dureeLabel = _shortDuree(duree);
