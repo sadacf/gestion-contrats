@@ -2258,7 +2258,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-11:18';
+const APP_VERSION = 'V1/15-05-26-11:46';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2532,7 +2532,8 @@ const SP = (() => {
         await initFirebase();
         window._fsLocalWrite = true;
         const id = contract._fsId || contract._id || ('c_' + Date.now() + '_' + Math.random().toString(36).slice(2));
-        const data = { ...contract, _fsId: id, updatedAt: Date.now() };
+        const myName2 = _currentUser ? (`${_currentUser.prenom||''} ${_currentUser.nom||''}`).trim() || _currentUser.login : '?';
+        const data = { ...contract, _fsId: id, updatedAt: Date.now(), lastEditedAt: new Date().toISOString(), lastEditedBy: myName2 };
         // Sans merge: true pour écraser complètement (sinon null/CLEARED ignorés)
         const { doc, setDoc } = window._fsLib;
         await setDoc(doc(_db, 'contrats', id), data);
@@ -6281,6 +6282,9 @@ function saveContract() {
   }
 
   const record = { _id: editingId || genId() };
+  // Horodatage de modification pour l'anti-race-condition
+  record.lastEditedAt = new Date().toISOString();
+  record.lastEditedBy = _currentUser ? (`${_currentUser.prenom||''} ${_currentUser.nom||''}`).trim() || _currentUser.login : '?';
   // Snapshot des valeurs originales pour détecter les pertes de données
   const _origRecord = editingId ? db.find(x => x._id === editingId) : null;
 
@@ -10854,9 +10858,18 @@ function closeLoginAndStart() {
       const idx = db.findIndex(x => x._id === nc._id || x._fsId === nc._fsId);
       if (idx >= 0) {
         if (JSON.stringify(db[idx]) !== JSON.stringify(nc)) {
-          // Ignorer nos propres modifications
           const by = nc.lastEditedBy || '';
           const myName = _currentUser ? (`${_currentUser.prenom||''} ${_currentUser.nom||''}`).trim() || _currentUser.login : '';
+
+          // ⚡ Anti-race-condition : si notre version locale est plus récente, ne pas écraser
+          const localAt = db[idx].lastEditedAt ? new Date(db[idx].lastEditedAt).getTime() : 0;
+          const fsAt    = nc.lastEditedAt      ? new Date(nc.lastEditedAt).getTime()      : 0;
+          if (localAt > fsAt) {
+            // Notre version est plus récente → ignorer la version Firebase (elle sera écrasée au prochain save)
+            console.log('[Sync] Version locale plus récente pour', nc.Installation, '— Firebase ignoré');
+            return;
+          }
+
           if (by && by !== myName) {
             changes.push({ type: 'modif', installation: nc.Installation || '?', by, at: nc.lastEditedAt || null });
           }
