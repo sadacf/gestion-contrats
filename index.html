@@ -2258,7 +2258,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-15:56';
+const APP_VERSION = 'V1/15-05-26-16:11';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -6664,20 +6664,27 @@ async function _doResilier(r) {
   closeModal('formModal');
   toast(`🚫 "${r.Installation}" résiliée et archivée`, 'warning');
 
-  // ── 2. Archiver et supprimer Firebase en arrière-plan ───────────────────
+  // ── 2. Supprimer Firebase EN PREMIER (priorité) puis archiver ──────────
+  try {
+    // Supprimer d'abord de Firebase → même si l'archivage échoue, le contrat est bien parti
+    await SP.deleteContract(r);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  } catch(e) {
+    console.warn('Erreur suppression Firebase (résiliation):', e);
+  } finally {
+    if (r._id)  window._pendingDeletes.delete(r._id);
+    if (r._fsId) window._pendingDeletes.delete(r._fsId);
+  }
+
+  // Archiver dans les résiliés (non-bloquant)
   try {
     const archive = { ...r, _resilieAt: new Date().toISOString(), _resilieBy: _currentUser?.login || 'inconnu' };
     const list = await getResilies();
     list.unshift(archive);
     await saveResilies(list);
-    await SP.deleteContract(r);
-    if (r._id)  window._pendingDeletes.delete(r._id);
-    if (r._fsId) window._pendingDeletes.delete(r._fsId);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   } catch(e) {
-    console.warn('Erreur résiliation Firebase:', e);
-    if (r._id)  window._pendingDeletes.delete(r._id);
-    if (r._fsId) window._pendingDeletes.delete(r._fsId);
+    console.warn('Erreur archivage résiliation:', e);
+    toast('⚠️ Archivage résiliation incomplet — Firebase peut être lent', 'warning');
   }
 }
 
@@ -12953,6 +12960,7 @@ function validateCtxMenu() {
   pushUndo(`Modif. ${ctxTarget.field} "${r.Installation||'?'}"`); // AVANT
   dbRecord[ctxTarget.field + '_statut'] = ctxSelectedColor;
   r[ctxTarget.field + '_statut'] = ctxSelectedColor;
+  dbRecord.lastEditedAt = new Date().toISOString(); // anti-race
   saveDB(dbRecord); renderTable(); closeCtxMenu();
 }
 
@@ -12970,6 +12978,7 @@ function clearVeCtx() {
   dbRecord[ctxTarget.field + '_statut'] = 'CLEARED'; r[ctxTarget.field + '_statut'] = 'CLEARED';
   const q7f = ctxTarget.field === 'VE1' ? 'Q7_VE1_tech' : 'Q7_VE2_tech';
   dbRecord[q7f] = ''; r[q7f] = '';
+  dbRecord.lastEditedAt = new Date().toISOString(); // anti-race
   saveDB(dbRecord); renderTable(); closeCtxMenu();
 }
 
