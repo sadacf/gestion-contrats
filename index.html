@@ -1384,13 +1384,13 @@ function loadSheetJS(callback) {
       <!-- Ligne boutons mails -->
       <div style="display:flex;gap:8px;padding:10px 12px;background:#fffbeb;border-top:1px solid #fde68a">
         <button id="btnMailGlobalWrap" onclick="envoyerMailsGlobaux()"
-          style="display:none;flex:1;align-items:center;justify-content:center;gap:6px;background:#2563eb;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:11px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.25)">
+          style="display:none;flex:1;align-items:center;justify-content:center;gap:6px;background:#1565c0;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:11px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(10,42,94,.3)">
           <span style="font-size:13px">📧</span>
           <span>Envoi mails des retards</span>
           <span id="btnMailGlobalPastille" style="display:none;width:7px;height:7px;border-radius:50%;background:#bfdbfe"></span>
         </button>
         <button id="btnMailMoisWrap" onclick="envoyerMailsMoisCourantEtSuivant()"
-          style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#2563eb;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:11px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.25)">
+          style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#1565c0;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:11px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(10,42,94,.3)">
           <span style="font-size:14px">📅</span>
           <span id="btnMailMoisLabel">Envoi mails mois en cours</span>
           <span id="btnMailMoisPastille" style="width:7px;height:7px;border-radius:50%;background:#bfdbfe;display:block;flex-shrink:0"></span>
@@ -2258,7 +2258,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-09:56';
+const APP_VERSION = 'V1/15-05-26-10:02';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -7916,8 +7916,8 @@ function updateBtnMailMois() {
   const dejaEnvoye = isMailMoisDejaEnvoye();
   if (dejaEnvoye) {
     // Bleu marine + indicateur vert
-    wrap.style.background    = '#2563eb';
-    wrap.style.borderColor   = '#1d4ed8';
+    wrap.style.background    = '#1565c0';
+    wrap.style.borderColor   = '#0a2a5e';
     wrap.style.boxShadow     = '0 3px 10px rgba(30,58,138,.3)';
     if (pastille) { pastille.style.background = '#86efac'; }
     const info = JSON.parse(localStorage.getItem(MAIL_MOIS_KEY + '_' + getMailMoisKey()) || '{}');
@@ -7925,8 +7925,8 @@ function updateBtnMailMois() {
     wrap.title = `✅ Envoyé le ${date} (${info.nb||0} technicien(s)) — cliquer pour renvoyer`;
   } else {
     // Bleu marine
-    wrap.style.background    = '#2563eb';
-    wrap.style.borderColor   = '#1d4ed8';
+    wrap.style.background    = '#1565c0';
+    wrap.style.borderColor   = '#0a2a5e';
     wrap.style.boxShadow     = '0 3px 10px rgba(30,58,138,.3)';
     if (pastille) { pastille.style.background = '#fca5a5'; }
     wrap.title = '⚠ Mails mois en cours + mois suivant non envoyés — cliquer pour envoyer';
