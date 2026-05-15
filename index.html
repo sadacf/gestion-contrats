@@ -2258,7 +2258,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-10:20';
+const APP_VERSION = 'V1/15-05-26-10:36';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4647,7 +4647,7 @@ function filterFromIndic(type) {
   } else if (type === 'q7_retard') {
     activeQuickFilter = 'q7_retard';
     activeRetardTech = null;
-  } else if (type === 'debit' || type === 'formation' || type === 'recond' || type === 'apsad' || type === 'sans_tech' || type === 'sans_mat' || type === 'validite_expire' || type === 'sans_ve_v1' || type === 'sans_ve_v2' || type === 'sans_type' || type === 'mat_incoherent' || type === 'impaye' || type === 'travaux_ferme') {
+  } else if (type === 'debit' || type === 'formation' || type === 'recond' || type === 'apsad' || type === 'sans_tech' || type === 'sans_mat' || type === 'validite_expire' || type === 'sans_ve_v1' || type === 'sans_ve_v2' || type === 'sans_type' || type === 'mat_incoherent' || type === 'impaye' || type === 'travaux_ferme' || type === 've_sans_duree' || type === 'v2_sans_ve2') {
     activeQuickFilter = type;
   } else if (type.startsWith('mat_')) {
     // Filtre par famille de matériel depuis le tableau de bord
