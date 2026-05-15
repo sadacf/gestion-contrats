@@ -2258,7 +2258,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-15:10';
+const APP_VERSION = 'V1/15-05-26-15:56';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4526,8 +4526,17 @@ function applyFilters() {
       }
       if (col) {
         // Cherche une VE qui correspond SIMULTANÉMENT au mois ET à la couleur
-        const ve1ok = mv.includes((r.VE1||'').trim().toLowerCase()) && getVeColorForRecord(r,'ve1') === col;
-        const ve2ok = mv.includes((r.VE2||'').trim().toLowerCase()) && getVeColorForRecord(r,'ve2') === col;
+        // Fonction helper : vérifie si une couleur correspond à la couleur cible
+        // Pour 'NONE' : accepte aussi CLEARED et toute valeur non reconnue (= non planifié)
+        function _colorMatch(recordColor, targetColor) {
+          if (targetColor === 'NONE') {
+            return !recordColor || recordColor === 'NONE' || recordColor === 'CLEARED'
+              || !['92D050','00B0F0','FFFF00','FFC000','FF00FF','SO'].includes(recordColor);
+          }
+          return recordColor === targetColor;
+        }
+        const ve1ok = mv.includes((r.VE1||'').trim().toLowerCase()) && _colorMatch(getVeColorForRecord(r,'ve1'), col);
+        const ve2ok = mv.includes((r.VE2||'').trim().toLowerCase()) && _colorMatch(getVeColorForRecord(r,'ve2'), col);
         if (!ve1ok && !ve2ok) return false;
       } else {
         // Filtre mois uniquement (barre de progression)
