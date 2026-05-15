@@ -2258,7 +2258,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-11:46';
+const APP_VERSION = 'V1/15-05-26-14:00';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -2821,6 +2821,7 @@ let editingId = null;   // id of contract being edited
 let activeQuickFilter = 'all';
 let activeVeColorFilter = null;
 let activePieFilter = null; // { monthVariants: [], color: 'XX', label: '' }
+window._pendingDeletes = new Set(); // _id des contrats en cours de suppression Firebase
 let activeRetardTech = null; // technicien ciblé pour le filtre retard par badge
 let saveTimeout = null;
 
@@ -6405,8 +6406,17 @@ function confirmDelete(idx) {
   if (_offlineMode) { toast('📵 Mode hors ligne — modifications impossibles', 'warning'); return; }
   const r = filtered[idx];
   _confirmAction(`🗑️ Supprimer "${r.Installation}" ?`, 'Cette action est irréversible.', 'Supprimer', 'danger', () => {
+    if (r._id)  window._pendingDeletes.add(r._id);
+    if (r._fsId) window._pendingDeletes.add(r._fsId);
     db = db.filter(x => x._id !== r._id);
-    SP.deleteContract(r).catch(e => toast('Erreur suppression SharePoint', 'error'));
+    SP.deleteContract(r).then(() => {
+      if (r._id)  window._pendingDeletes.delete(r._id);
+      if (r._fsId) window._pendingDeletes.delete(r._fsId);
+    }).catch(e => {
+      toast('Erreur suppression SharePoint', 'error');
+      if (r._id)  window._pendingDeletes.delete(r._id);
+      if (r._fsId) window._pendingDeletes.delete(r._fsId);
+    });
     if (!SP.isOnSharePoint) saveDB();
     buildFilters(); updateStats(); applyFilters();
     toast('🗑 Contrat supprimé', 'warning');
@@ -6636,11 +6646,20 @@ async function _doResilier(r) {
   list.unshift(archive);
   await saveResilies(list);
   pushUndo(`Résiliation "${r.Installation}"`);
+  // Marquer comme suppression en attente AVANT de retirer de db
+  if (r._id) window._pendingDeletes.add(r._id);
+  if (r._fsId) window._pendingDeletes.add(r._fsId);
   db = db.filter(x => x._id !== r._id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   SP.deleteContract(r).then(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-  }).catch(e => console.warn('Erreur suppression Firebase:', e));
+    if (r._id)  window._pendingDeletes.delete(r._id);
+    if (r._fsId) window._pendingDeletes.delete(r._fsId);
+  }).catch(e => {
+    console.warn('Erreur suppression Firebase:', e);
+    if (r._id)  window._pendingDeletes.delete(r._id);
+    if (r._fsId) window._pendingDeletes.delete(r._fsId);
+  });
   buildFilters(); updateStats(); applyFilters(); updateSynthese();
   closeModal('formModal');
   toast(`🚫 "${r.Installation}" résiliée et archivée`, 'warning');
@@ -10876,6 +10895,11 @@ function closeLoginAndStart() {
           db[idx] = nc;
         }
       } else {
+        // Ne pas réinjecter un contrat en cours de suppression
+        if (window._pendingDeletes && (window._pendingDeletes.has(nc._id) || window._pendingDeletes.has(nc._fsId))) {
+          console.log('[Sync] Contrat ignoré (suppression en attente):', nc.Installation);
+          return;
+        }
         const by = nc.lastEditedBy || '';
         changes.push({ type: 'ajout', installation: nc.Installation || '?', by, at: nc.lastEditedAt || null });
         db.push(nc);
