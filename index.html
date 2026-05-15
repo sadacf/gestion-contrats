@@ -2258,7 +2258,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-10:52';
+const APP_VERSION = 'V1/15-05-26-11:18';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -10839,6 +10839,15 @@ function closeLoginAndStart() {
   SP.startRealtimeSync((newContracts) => {
     if (_historyMode || _offlineMode) return;
 
+    // Dédupliquer les données reçues de Firebase (précaution)
+    const seenFsIds = new Set();
+    newContracts = newContracts.filter(nc => {
+      const key = nc._id || nc._fsId;
+      if (!key || seenFsIds.has(key)) return false;
+      seenFsIds.add(key);
+      return true;
+    });
+
     // Fusion intelligente — détecter précisément ce qui a changé
     const changes = []; // { type: 'modif'|'ajout'|'suppression', installation, by, at }
     newContracts.forEach(nc => {
@@ -10873,6 +10882,9 @@ function closeLoginAndStart() {
       if (!kept) changes.push({ type: 'suppression', installation: c.Installation || '?', by: '', at: null });
       return kept;
     });
+
+    // Dédupliquer db après fusion (sécurité finale)
+    db = db.filter((r, idx) => db.findIndex(x => x._id === r._id) === idx);
 
     const nbModifs = changes.length + (avant - db.length > 0 ? 0 : 0); // already counted in changes
     if (changes.length === 0) return;
