@@ -2258,7 +2258,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-10:36';
+const APP_VERSION = 'V1/15-05-26-10:52';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -5569,8 +5569,8 @@ function _halveDuree(stored) {
 
 /* ── Durée VE : grille de boutons rapides ───────────────────── */
 const _VE_BTN_IDS = { '1h':'1h','2h':'2h','1dj':'dj','1j':'1j','2j':'2j' }; // legacy compat
-const _VE_STEPS = ['','1h','2h','4h','1j','2j','3j','4j','5j','6j','7j','8j','9j','10j']; // '' = vide
-const _VE_LABELS = {'':'–','1h':'1h','2h':'2h','4h':'4h','1dj':'4h','1j':'1j','2j':'2j','3j':'3j','4j':'4j','5j':'5j','6j':'6j','7j':'7j','8j':'8j','9j':'9j','10j':'10j'};
+const _VE_STEPS = ['','1h','2h','3h','4h','1j','2j','3j','4j','5j','6j','7j','8j','9j','10j']; // '' = vide
+const _VE_LABELS = {'':'–','1h':'1h','2h':'2h','3h':'3h','4h':'4h','1dj':'4h','1j':'1j','2j':'2j','3j':'3j','4j':'4j','5j':'5j','6j':'6j','7j':'7j','8j':'8j','9j':'9j','10j':'10j'};
 
 // ── Gestion multi-créneaux VE ────────────────────────────────────────────────
 
@@ -5787,52 +5787,27 @@ function _onDureeVEChange() {
 }
 
 function _calcDureeVE() {
-  // Quand VE2 est renseigné et VE1 a une durée → proposer auto VE2 = ½ VE1
-  const ve2 = document.getElementById('f_VE2')?.value || '';
-  const hasVE2 = ve2 && ve2 !== 'S.O';
-  const ve1dur = document.getElementById('f_Duree_VE1')?.value || '';
-  const ve2dur = document.getElementById('f_Duree_VE2')?.value || '';
-  const autoLbl = document.getElementById('dureeVE2auto');
-
-  if (hasVE2 && ve1dur && !ve2dur) {
-    // VE2 présente, VE1 a une durée, VE2 sans durée → auto-calculer
-    const half = _halveDuree(ve1dur);
-    _setDureeVEFields(2, half);
-    _onDureeVEChange();
-    if (autoLbl) autoLbl.textContent = '(auto = ½ VE1)';
-  } else if (!hasVE2) {
-    _setDureeVEFields(2, '');
-    _onDureeVEChange();
-    if (autoLbl) autoLbl.textContent = '';
-  }
+  // Auto-calcul désactivé — VE1 et VE2 sont indépendantes
 }
 
 // Déclenché quand durée VE1 change → recalcule VE2 si auto
 function _onDureeVE1Change() {
   _onDureeVEChange();
-  const ve2dur = document.getElementById('f_Duree_VE2')?.value || '';
-  const autoLbl = document.getElementById('dureeVE2auto');
-  const isAuto = autoLbl && autoLbl.textContent.includes('auto');
-  if (isAuto || !ve2dur) _calcDureeVE();
+  // VE1 et VE2 indépendantes — pas de recalcul automatique
 }
 
 function _populateDureeVEFields(ve1stored, ve2stored) {
   _setDureeVEFields(1, ve1stored || '');
   _setDureeVEFields(2, ve2stored || '');
-  // Indiquer si VE2 = moitié de VE1
-  if (ve1stored && ve2stored) {
-    const expected = _halveDuree(ve1stored);
-    const autoLbl = document.getElementById('dureeVE2auto');
-    if (autoLbl) autoLbl.textContent = (ve2stored === expected) ? '(auto = ½ VE1)' : '';
-  }
+  const autoLbl = document.getElementById('dureeVE2auto');
+  if (autoLbl) autoLbl.textContent = '';
 }
 
 function _buildDuree() {
   const valEl  = document.getElementById('f_Duree_Valeur');
   const hidden = document.getElementById('f_Duree_Intervention');
   const preview= document.getElementById('f_Duree_Preview');
-  // Déclencher le recalcul VE1/VE2 après mise à jour de la durée globale
-  setTimeout(_calcDureeVE, 50);
+  // VE1/VE2 indépendantes — pas de recalcul
   // Lire le radio sélectionné
   const radioSel = document.querySelector('input[name="f_Duree_Unite_r"]:checked');
   const unit = radioSel ? radioSel.value : null;
