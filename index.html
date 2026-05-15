@@ -2258,7 +2258,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-14:00';
+const APP_VERSION = 'V1/15-05-26-14:11';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -6641,28 +6641,31 @@ async function resilierContrat() {
 }
 
 async function _doResilier(r) {
-  const archive = { ...r, _resilieAt: new Date().toISOString(), _resilieBy: _currentUser?.login || 'inconnu' };
-  const list = await getResilies();
-  list.unshift(archive);
-  await saveResilies(list);
-  pushUndo(`Résiliation "${r.Installation}"`);
-  // Marquer comme suppression en attente AVANT de retirer de db
-  if (r._id) window._pendingDeletes.add(r._id);
+  // ── 1. Retirer IMMÉDIATEMENT de db (local) ──────────────────────────────
+  if (r._id)  window._pendingDeletes.add(r._id);
   if (r._fsId) window._pendingDeletes.add(r._fsId);
+  pushUndo(`Résiliation "${r.Installation}"`);
   db = db.filter(x => x._id !== r._id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-  SP.deleteContract(r).then(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-    if (r._id)  window._pendingDeletes.delete(r._id);
-    if (r._fsId) window._pendingDeletes.delete(r._fsId);
-  }).catch(e => {
-    console.warn('Erreur suppression Firebase:', e);
-    if (r._id)  window._pendingDeletes.delete(r._id);
-    if (r._fsId) window._pendingDeletes.delete(r._fsId);
-  });
   buildFilters(); updateStats(); applyFilters(); updateSynthese();
   closeModal('formModal');
   toast(`🚫 "${r.Installation}" résiliée et archivée`, 'warning');
+
+  // ── 2. Archiver et supprimer Firebase en arrière-plan ───────────────────
+  try {
+    const archive = { ...r, _resilieAt: new Date().toISOString(), _resilieBy: _currentUser?.login || 'inconnu' };
+    const list = await getResilies();
+    list.unshift(archive);
+    await saveResilies(list);
+    await SP.deleteContract(r);
+    if (r._id)  window._pendingDeletes.delete(r._id);
+    if (r._fsId) window._pendingDeletes.delete(r._fsId);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  } catch(e) {
+    console.warn('Erreur résiliation Firebase:', e);
+    if (r._id)  window._pendingDeletes.delete(r._id);
+    if (r._fsId) window._pendingDeletes.delete(r._fsId);
+  }
 }
 
 async function openResiliesModal() {
