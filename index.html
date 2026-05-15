@@ -2241,7 +2241,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-08:58';
+const APP_VERSION = 'V1/15-05-26-09:35';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -4742,6 +4742,18 @@ function _clickStatBar(isNext, isProt) {
   }, 300);
 }
 
+// Ouvre le formulaire d'édition positionné sur la durée VE
+function editDureeVE(recordId, field) {
+  const r = db.find(x => x._id === recordId);
+  if (!r) return;
+  openEditById(recordId);
+  setTimeout(function() {
+    const veNum = field === 've1' ? 1 : 2;
+    const el = document.getElementById('ve'+veNum+'_stepper');
+    if (el) { el.scrollIntoView({ behavior:'smooth', block:'center' }); el.style.outline='2px solid #3b82f6'; setTimeout(function(){ el.style.outline=''; }, 1500); }
+  }, 350);
+}
+
 window.filterByVeColor = filterByVeColor; // alias global pour les donuts
 function filterNouveauxContrats() {
   _pushNow();
@@ -5010,11 +5022,11 @@ function renderTable() {
       </td>
       <td>${typeBadge(r.Type_Contrat, r.Duree_VE1, r.Duree_VE2)}</td>
       <td oncontextmenu="openCtxMenu(event, ${i}, 'VE1')" ondblclick="if(hasPerm('editVE'))editVeMois(event,${i},'VE1');else toast('🔒 Modification du mois VE non autorisée','warning')" style="cursor:context-menu;width:75px;min-width:75px;text-align:center" title="Clic droit : couleur | Double-clic : modifier le mois">
-        ${veCell(r.VE1, r.VE1_statut, r.Installation, 've1', r.Duree_VE1)}
+        ${veCell(r.VE1, r.VE1_statut, r.Installation, 've1', r.Duree_VE1, r._id)}
         ${r.Q7_VE1_tech ? `<div style="margin-top:3px"><span style="display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#dc2626;color:#fff;white-space:nowrap" title="Q7 VE1 : ${esc(r.Q7_VE1_tech)}">Q7 · ${esc(r.Q7_VE1_tech)}</span></div>` : ''}
       </td>
       <td oncontextmenu="openCtxMenu(event, ${i}, 'VE2')" ondblclick="if(hasPerm('editVE'))editVeMois(event,${i},'VE2');else toast('🔒 Modification du mois VE non autorisée','warning')" style="cursor:context-menu;width:75px;min-width:75px;text-align:center" title="Clic droit : couleur | Double-clic : modifier le mois">
-        ${veCell(r.VE2, r.VE2_statut, r.Installation, 've2', r.Duree_VE2)}
+        ${veCell(r.VE2, r.VE2_statut, r.Installation, 've2', r.Duree_VE2, r._id)}
         ${r.Q7_VE2_tech ? `<div style="margin-top:3px"><span style="display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#dc2626;color:#fff;white-space:nowrap" title="Q7 VE2 : ${esc(r.Q7_VE2_tech)}">Q7 · ${esc(r.Q7_VE2_tech)}</span></div>` : ''}
       </td>
       <td oncontextmenu="openTechMenu(event, ${i}, 'Technicien')" ondblclick="if(hasPerm('editTechInline')){event.stopPropagation();openTechMenu(event,${i},'Technicien')}else{toast('🔒 Modification du technicien non autorisée','warning')}" style="cursor:context-menu" title="Clic droit ou double-clic : modifier le technicien">${esc(r.Technicien)||'<span style="color:#ccc">–</span>'}</td>
@@ -6706,24 +6718,7 @@ function closeModal(id) {
 function typeBadge(t, duree1, duree2) {
   if (!t) return '<span class="badge b-def">–</span>';
   const cls = {V1:'v1',V2:'v2',M1:'m1',M2:'m2',PROT:'prot'}[t] || 'def';
-  // Format durée court
-  function _sd(d) {
-    if (!d) return '';
-    const m = d.match(/^([0-9.]+)(h|j|dj)$/);
-    if (!m) return '';
-    const n = parseFloat(m[1]);
-    const u = m[2];
-    return u === 'dj' ? (n === 1 ? '4h' : n + '\u00d74h') : n + u;
-  }
-  const d1 = _sd(duree1);
-  const d2 = _sd(duree2);
-  let dureeHtml = '';
-  if (d1 || d2) {
-    const parts = [d1, d2].filter(Boolean).map(p => '(' + p + ')');
-    dureeHtml = `<span style="display:block;width:100%;height:1px;background:currentColor;opacity:.25;margin:3px 0 2px"></span>`
-              + `<span style="display:block;font-size:11px;font-weight:800;line-height:1.2">${parts.join(' / ')}</span>`;
-  }
-  return `<span class="badge b-${cls}" style="display:inline-flex;flex-direction:column;align-items:center;padding:4px 10px;line-height:1.5;min-width:42px">${t}${dureeHtml}</span>`;
+  return `<span class="badge b-${cls}">${t}</span>`;
 }
 
 function validBadge(v) {
@@ -12622,7 +12617,7 @@ function deleteTechFiche(idx) {
 ═══════════════════════════════════════════════ */
 let ctxTarget = null; // { filteredIdx, field }
 
-function veCell(val, statut, installation, field, duree) {
+function veCell(val, statut, installation, field, duree, recordId) {
   const text = val && val.trim() ? val.trim() : null;
   if (!text) return '<span style="color:#ccc">–</span>';
   // Format durée court : "1j" → "(1j)", "1j+4h" → "(1j + 4h)"
@@ -12645,11 +12640,30 @@ function veCell(val, statut, installation, field, duree) {
     return '(' + n + u + ')';
   }
   const dureeLabel = _shortDuree(duree);
-  const dureeSuffix = dureeLabel ? `<br><span style="font-size:9px;color:#64748b;font-weight:600">${dureeLabel}</span>` : '';
+  // Format durée court
+  function _fmtDurShort(d) {
+    if (!d) return '';
+    if (d.includes('+')) {
+      return d.split('+').map(function(s){
+        var s2=s.trim(), mm=s2.match(/^([0-9.]+)(h|j|dj)$/);
+        if (!mm) return s2;
+        return mm[2]==='dj'?'4h':mm[1]+mm[2];
+      }).join('+');
+    }
+    var m2=d.match(/^([0-9.]+)(h|j|dj)$/);
+    if (!m2) return d;
+    return m2[2]==='dj'?'4h':m2[1]+m2[2];
+  }
+  const durShort = _fmtDurShort(duree);
+  // Pilule blanche à l'intérieur du badge, cliquable pour éditer
+  const onclk = recordId ? `onclick="event.stopPropagation();editDureeVE('${recordId}','${field}')" title="Modifier le temps"` : '';
+  const dureeSuffix = durShort
+    ? `<span ${onclk} style="display:block;width:100%;text-align:center;font-size:9px;font-weight:800;color:rgba(0,0,0,.75);background:rgba(255,255,255,.7);border-radius:4px;padding:2px 4px;margin-top:2px;line-height:1.4;${recordId?'cursor:pointer;':''}letter-spacing:.2px">${durShort}</span>`
+    : '';
 
   // Statut CLEARED = effacé volontairement → pas de couleur même si VE_COLORS a une valeur
   if (statut === 'CLEARED') {
-    return `<span class="ve-cell">${esc(text)}${dureeSuffix}</span>`;
+    return `<span class="ve-cell" style="display:inline-flex;flex-direction:column;align-items:center;padding:3px 4px;">${esc(text)}${dureeSuffix}</span>`;
   }
 
   // Statut = code hex (clic droit) prioritaire
@@ -12661,7 +12675,7 @@ function veCell(val, statut, installation, field, duree) {
     const r = parseInt(statut.slice(0,2),16), g = parseInt(statut.slice(2,4),16), b = parseInt(statut.slice(4,6),16);
     const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
     const fg = lum > 0.55 ? '#1a237e' : '#ffffff';
-    return `<span class="ve-cell" style="background:${bg};color:${fg};border:1px solid ${bg}">${esc(text)}${dureeSuffix}</span>`;
+    return `<span class="ve-cell" style="display:inline-flex;flex-direction:column;align-items:center;padding:3px 4px;background:${bg};color:${fg};border:1px solid ${bg}">${esc(text)}${dureeSuffix}</span>`;
   }
 
   // S.O
