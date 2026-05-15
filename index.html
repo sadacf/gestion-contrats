@@ -2241,7 +2241,7 @@ const VE_COLORS = {"300 PRADO": {"ve1": "00B0F0"}, "HOTEL LE CRISTOL": {"ve2": "
 /* ═══════════════════════════════════════════════
    VERSION & CHANGELOG
 ═══════════════════════════════════════════════ */
-const APP_VERSION = 'V1/15-05-26-08:35';
+const APP_VERSION = 'V1/15-05-26-08:58';
 const SEEN_VERSION_KEY = 'gestion_contrats_seen_version';
 
 const CHANGELOG = [
@@ -12625,9 +12625,18 @@ let ctxTarget = null; // { filteredIdx, field }
 function veCell(val, statut, installation, field, duree) {
   const text = val && val.trim() ? val.trim() : null;
   if (!text) return '<span style="color:#ccc">–</span>';
-  // Format durée court : "1j" → "(1j)", "2heures" → "(2h)" etc.
+  // Format durée court : "1j" → "(1j)", "1j+4h" → "(1j + 4h)"
   function _shortDuree(d) {
     if (!d) return '';
+    if (d.includes('+')) {
+      var parts = d.split('+').map(function(s){
+        var s2 = s.trim();
+        var mm = s2.match(/^([0-9.]+)(h|j|dj)$/);
+        if (!mm) return s2;
+        return mm[2] === 'dj' ? '4h' : mm[1]+mm[2];
+      });
+      return '(' + parts.join(' + ') + ')';
+    }
     const m = d.match(/^([0-9.]+)(h|j|dj)$/);
     if (!m) return '';
     const n = parseFloat(m[1]);
@@ -12636,22 +12645,23 @@ function veCell(val, statut, installation, field, duree) {
     return '(' + n + u + ')';
   }
   const dureeLabel = _shortDuree(duree);
+  const dureeSuffix = dureeLabel ? `<br><span style="font-size:9px;color:#64748b;font-weight:600">${dureeLabel}</span>` : '';
 
   // Statut CLEARED = effacé volontairement → pas de couleur même si VE_COLORS a une valeur
   if (statut === 'CLEARED') {
-    return `<span class="ve-cell">${esc(text)}</span>`;
+    return `<span class="ve-cell">${esc(text)}${dureeSuffix}</span>`;
   }
 
   // Statut = code hex (clic droit) prioritaire
   if (statut && /^[0-9A-Fa-f]{6}$/.test(statut)) {
     if (statut.toUpperCase() === 'FF00FF') {
-      return `<span class="ve-cell ve-n1" title="N+1">${esc(text)}</span>`;
+      return `<span class="ve-cell ve-n1" title="N+1">${esc(text)}${dureeSuffix}</span>`;
     }
     const bg = '#' + statut;
     const r = parseInt(statut.slice(0,2),16), g = parseInt(statut.slice(2,4),16), b = parseInt(statut.slice(4,6),16);
     const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
     const fg = lum > 0.55 ? '#1a237e' : '#ffffff';
-    return `<span class="ve-cell" style="background:${bg};color:${fg};border:1px solid ${bg}">${esc(text)}</span>`;
+    return `<span class="ve-cell" style="background:${bg};color:${fg};border:1px solid ${bg}">${esc(text)}${dureeSuffix}</span>`;
   }
 
   // S.O
@@ -12666,10 +12676,10 @@ function veCell(val, statut, installation, field, duree) {
     const r = parseInt(xlColor.slice(0,2),16), g = parseInt(xlColor.slice(2,4),16), b = parseInt(xlColor.slice(4,6),16);
     const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
     const fg = lum > 0.55 ? '#1a237e' : '#ffffff';
-    return `<span class="ve-cell" style="background:${bg};color:${fg};border:1px solid ${bg}">${esc(text)}</span>`;
+    return `<span class="ve-cell" style="background:${bg};color:${fg};border:1px solid ${bg}">${esc(text)}${dureeSuffix}</span>`;
   }
 
-  return `<span class="ve-cell">${esc(text)}</span>`;
+  return `<span class="ve-cell">${esc(text)}${dureeSuffix}</span>`;
 }
 
 let ctxSelectedColor = null;
