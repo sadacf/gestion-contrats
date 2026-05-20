@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Application déplacée — Gestion Contrats APSAD</title>
+  <!--
+    ============================================================
+    PAGE DE BLOCAGE V2 — ACF Incendie / Gestion Contrats APSAD
+    ============================================================
+    Cette page remplace l'ancienne V2 hébergée sur GitHub Pages.
+    Elle informe les utilisateurs et redirige vers la V3 sur Azure.
+
+    POUR DÉBLOQUER LA V2 (si besoin) :
+      → Restaurez le fichier "index.html" d'origine de la V2.
+        (Voir la procédure dans le mail/document de bascule.)
+
+    PARAMÈTRES :
+      • URL_V3                   : adresse de la nouvelle application V3
+      • REDIRECTION_AUTO_SECONDES : 0 = désactivée, >0 = secondes avant redirection auto
+    ============================================================
+  -->
+  <style>
+    *,*::before,*::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .card {
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 16px;
+      box-shadow: 0 25px 60px rgba(0,0,0,.35);
+      max-width: 560px;
+      width: 100%;
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      color: #fff;
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header .icon { font-size: 32px; line-height: 1; }
+    .header h1 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: .3px; }
+    .header .sub { margin-top: 2px; font-size: 12px; opacity: .9; font-weight: 500; }
+    .body { padding: 26px 28px 22px; }
+    .body p { line-height: 1.6; margin: 0 0 14px; font-size: 14px; color: #334155; }
+    .body strong { color: #0f172a; }
+    .info-box {
+      background: #f1f5f9;
+      border-left: 4px solid #2563eb;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 18px 0 20px;
+      font-size: 13px;
+      color: #334155;
+    }
+    .info-box .lbl { font-weight: 700; color: #1e40af; display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+    .btn-primary {
+      display: block;
+      width: 100%;
+      text-align: center;
+      text-decoration: none;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(37,99,235,.35);
+      transition: transform .1s, box-shadow .1s;
+      letter-spacing: .3px;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(37,99,235,.45); }
+    .countdown {
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 14px;
+      min-height: 18px;
+    }
+    .footer {
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      padding: 14px 28px;
+      font-size: 11px;
+      color: #94a3b8;
+      text-align: center;
+    }
+    .url-display {
+      font-family: ui-monospace, "SF Mono", Consolas, monospace;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: #1e40af;
+      word-break: break-all;
+      display: block;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <div class="header">
+      <div class="icon" aria-hidden="true">🚀</div>
+      <div>
+        <h1>L'application a été déplacée</h1>
+        <div class="sub">Gestion des Contrats APSAD — ACF Incendie</div>
+      </div>
+    </div>
+
+    <div class="body">
+      <p>Cette adresse n'est <strong>plus utilisée</strong>.<br>
+      L'application a été migrée vers une nouvelle plateforme, plus rapide, plus fiable, et hébergée sur SharePoint.</p>
+
+      <div class="info-box">
+        <span class="lbl">🔐 Connexion</span>
+        Avec votre <strong>compte Microsoft professionnel</strong><br>
+        (le même que pour Outlook / Teams / Office 365)
+      </div>
+
+      <div class="info-box">
+        <span class="lbl">🔗 Nouvelle adresse</span>
+        <span class="url-display" id="urlDisplay"></span>
+      </div>
+
+      <a id="goBtn" class="btn-primary" href="#">
+        ➜ Accéder à la nouvelle application
+      </a>
+      <div class="countdown" id="countdown" aria-live="polite"></div>
+    </div>
+
+    <div class="footer">
+      En cas de problème de connexion, contactez le service informatique.
+    </div>
+  </main>
+
+  <script>
+    // ===== PARAMÈTRES =====
+    // ⚠️ À adapter si l'URL de la V3 change
+    const URL_V3 = 'https://zealous-island-0929fe603-preview.westeurope.7.azurestaticapps.net/';
+    // Redirection automatique : 0 = désactivée ; sinon nombre de secondes
+    const REDIRECTION_AUTO_SECONDES = 10;
+    // ======================
+
+    document.getElementById('urlDisplay').textContent = URL_V3;
+    document.getElementById('goBtn').href = URL_V3;
+
+    if (REDIRECTION_AUTO_SECONDES > 0) {
+      let s = REDIRECTION_AUTO_SECONDES;
+      const cd = document.getElementById('countdown');
+      cd.textContent = `Redirection automatique dans ${s} s…`;
+      const timer = setInterval(() => {
+        s--;
+        if (s <= 0) {
+          clearInterval(timer);
+          window.location.replace(URL_V3);
+        } else {
+          cd.textContent = `Redirection automatique dans ${s} s…`;
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
